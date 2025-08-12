@@ -981,7 +981,7 @@
         let vaccines = [];
         let userLocation = { city: '', state: '', country: '', lat: null, lon: null };
         
-        // **SUBSTITUA PELA SUA CHAVE DE API DO OPENWEATHERMAP**
+        // **SUA CHAVE DE API DO OPENWEATHERMAP**
         const OPENWEATHER_API_KEY = '6b78a94becfdff74b732c9bd59a89b1f';
         
         // Variáveis para os gráficos
@@ -1120,7 +1120,7 @@
 
         // Nova função para buscar dados de clima reais
         async function getRealWeatherData(lat, lon) {
-            if (OPENWEATHER_API_KEY === '6b78a94becfdff74b732c9bd59a89b1f' || OPENWEATHER_API_KEY === '') {
+            if (OPENWEATHER_API_KEY === '' || OPENWEATHER_API_KEY === 'SUA_CHAVE_DE_API_AQUI') {
                 document.getElementById('tempValue').textContent = '--°C';
                 document.getElementById('weatherDesc').textContent = 'API Key necessária';
                 document.getElementById('humidityValue').textContent = '--%';
