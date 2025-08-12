@@ -955,7 +955,25 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <script>
+        // Configuração do Firebase (use a sua)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDyKezs7gqjE9HUw_HjUMqA7ofxc5Sp9Bc",
+            authDomain: "meu-gado-site.firebaseapp.com",
+            projectId: "meu-gado-site",
+            storageBucket: "meu-gado-site.firebasestorage.app",
+            messagingSenderId: "913921456792",
+            appId: "1:913921456792:web:5f1ccdbf20d423ee822eed",
+            measurementId: "G-MYK82JG8E2"
+        };
+        
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         // Dados globais para o usuário atual
         let currentUser = null;
         let cattle = [];
@@ -969,47 +987,60 @@
         // Variáveis para os gráficos
         let categoryChart = null;
         let vaccineChart = null;
-        
-        // Chave de armazenamento no localStorage
-        const STORAGE_KEY = 'cattle_management_app_data';
 
-        // Sistema de armazenamento usando localStorage
-        function saveData() {
-            // Salvar todos os dados do usuário atual no objeto principal
-            if (currentUser) {
-                const appData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                appData[currentUser.name] = {
-                    cattle: cattle,
-                    categories: categories,
-                    vaccines: vaccines,
-                    location: userLocation,
-                    loginDate: currentUser.loginDate,
-                    loginTime: currentUser.loginTime
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-                console.log('Dados do usuário salvos:', appData[currentUser.name]);
+        // Chave de armazenamento no localStorage para guardar o último usuário logado
+        const LAST_USER_KEY = 'lastLoggedInUser';
+
+        // Sistema de armazenamento usando Firebase Firestore
+        async function saveData() {
+            if (!currentUser) return;
+
+            const userRef = db.collection('users').doc(currentUser.id);
+
+            // Crie um objeto com todos os dados do usuário
+            const userData = {
+                cattle: cattle,
+                categories: categories,
+                vaccines: vaccines,
+                location: userLocation,
+                loginDate: currentUser.loginDate,
+                loginTime: currentUser.loginTime
+            };
+
+            try {
+                await userRef.set(userData, { merge: true });
+                console.log('Dados do usuário salvos no Firebase!');
+            } catch (error) {
+                console.error('Erro ao salvar dados:', error);
             }
         }
 
-        // Carregar dados do localStorage
-        function loadData(userName) {
-            const appData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-            const userData = appData[userName];
-            
-            if (userData) {
-                cattle = userData.cattle || [];
-                categories = userData.categories || [];
-                vaccines = userData.vaccines || [];
-                userLocation = userData.location || { city: '', state: '', country: '' };
-                console.log('Dados do usuário carregados:', userData);
-                return true;
-            } else {
-                // Se o usuário é novo, inicializar com dados padrão
-                cattle = [];
-                categories = ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'];
-                vaccines = ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
-                userLocation = { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
-                console.log('Novo usuário, dados inicializados.');
+        // Carregar dados do Firebase Firestore
+        async function loadData(userName) {
+            const userId = userName.trim().toLowerCase().replace(/ /g, '_');
+            const userRef = db.collection('users').doc(userId);
+
+            try {
+                const doc = await userRef.get();
+                if (doc.exists) {
+                    const userData = doc.data();
+                    cattle = userData.cattle || [];
+                    categories = userData.categories || ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'];
+                    vaccines = userData.vaccines || ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
+                    userLocation = userData.location || { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
+                    console.log('Dados do usuário carregados do Firebase!');
+                    return true;
+                } else {
+                    // Se o usuário é novo, inicializar com dados padrão
+                    cattle = [];
+                    categories = ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'];
+                    vaccines = ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
+                    userLocation = { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
+                    console.log('Novo usuário, dados inicializados.');
+                    return false;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar dados:', error);
                 return false;
             }
         }
@@ -1048,10 +1079,10 @@
             }
         }
 
-        // NOVO: Obter nome da localização a partir de coordenadas usando a API de Geocodificação do OpenWeatherMap
+        // Obter nome da localização a partir de coordenadas usando a API de Geocodificação do OpenWeatherMap
         async function getLocationFromCoords(lat, lon) {
             try {
-                const apiUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${OPENWEATHER_API_KEY}`;
+                const apiUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${OPENWEATHER_API_KEY}`;
                 
                 const response = await fetch(apiUrl);
                 const data = await response.json();
@@ -1089,7 +1120,7 @@
 
         // Nova função para buscar dados de clima reais
         async function getRealWeatherData(lat, lon) {
-            if (OPENWEATHER_API_KEY === 'YOUR_API_KEY' || OPENWEATHER_API_KEY === '') {
+            if (OPENWEATHER_API_KEY === '6b78a94becfdff74b732c9bd59a89b1f' || OPENWEATHER_API_KEY === '') {
                 document.getElementById('tempValue').textContent = '--°C';
                 document.getElementById('weatherDesc').textContent = 'API Key necessária';
                 document.getElementById('humidityValue').textContent = '--%';
@@ -1149,15 +1180,17 @@
         }
 
         // Inicialização
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             getUserLocation();
             
-            // Verificar se há um usuário logado na última sessão
-            const lastLoggedInUser = localStorage.getItem('lastLoggedInUser');
+            const lastLoggedInUser = localStorage.getItem(LAST_USER_KEY);
             if (lastLoggedInUser) {
-                loadData(lastLoggedInUser);
+                const userName = lastLoggedInUser;
+                const userId = userName.trim().toLowerCase().replace(/ /g, '_');
+                await loadData(userName);
                 currentUser = {
-                    name: lastLoggedInUser,
+                    name: userName,
+                    id: userId,
                     loginDate: new Date().toLocaleDateString('pt-BR'),
                     loginTime: new Date().toLocaleTimeString('pt-BR'),
                     location: userLocation
@@ -1169,7 +1202,7 @@
         });
 
         // Login
-        function login(event) {
+        async function login(event) {
             event.preventDefault();
             const userName = document.getElementById('userName').value.trim();
             const loginBtn = document.getElementById('loginBtn');
@@ -1182,33 +1215,33 @@
             loginBtn.disabled = true;
             loginBtn.textContent = 'Entrando...';
 
-            setTimeout(() => {
-                // Carregar ou inicializar dados para este usuário
-                loadData(userName);
+            const userId = userName.trim().toLowerCase().replace(/ /g, '_');
 
-                currentUser = {
-                    name: userName,
-                    loginDate: new Date().toLocaleDateString('pt-BR'),
-                    loginTime: new Date().toLocaleTimeString('pt-BR'),
-                    location: userLocation
-                };
+            // Tenta carregar os dados do usuário, se existirem
+            await loadData(userName);
 
-                // Salvar o nome do usuário logado para a próxima sessão
-                localStorage.setItem('lastLoggedInUser', userName);
+            currentUser = {
+                name: userName,
+                id: userId,
+                loginDate: new Date().toLocaleDateString('pt-BR'),
+                loginTime: new Date().toLocaleTimeString('pt-BR'),
+                location: userLocation
+            };
 
-                saveData();
-                showMainApp();
-                
-                loginBtn.disabled = false;
-                loginBtn.textContent = 'Entrar no Sistema';
-            }, 1000);
+            await saveData();
+            localStorage.setItem(LAST_USER_KEY, userName);
+            
+            showMainApp();
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Entrar no Sistema';
         }
 
         // Logout
         function logout() {
             if (confirm('Tem certeza que deseja sair do sistema?')) {
                 currentUser = null;
-                localStorage.removeItem('lastLoggedInUser');
+                localStorage.removeItem(LAST_USER_KEY);
                 document.getElementById('userName').value = '';
                 showLoginPage();
             }
@@ -1280,14 +1313,14 @@
         }
 
         // Adicionar categoria
-        function addCategory() {
+        async function addCategory() {
             const newCategory = document.getElementById('newCategory').value.trim();
             if (newCategory && !categories.includes(newCategory)) {
                 categories.push(newCategory);
                 document.getElementById('newCategory').value = '';
                 updateCategorySelect();
                 updateCategoryFilter();
-                saveData();
+                await saveData();
                 alert(`Categoria "${newCategory}" adicionada com sucesso!`);
             } else if (categories.includes(newCategory)) {
                 alert('Esta categoria já existe!');
@@ -1295,13 +1328,13 @@
         }
 
         // Adicionar vacina
-        function addVaccine() {
+        async function addVaccine() {
             const newVaccine = document.getElementById('newVaccine').value.trim();
             if (newVaccine && !vaccines.includes(newVaccine)) {
                 vaccines.push(newVaccine);
                 document.getElementById('newVaccine').value = '';
                 updateVaccinesContainer();
-                saveData();
+                await saveData();
                 alert(`Vacina "${newVaccine}" adicionada com sucesso!`);
             } else if (vaccines.includes(newVaccine)) {
                 alert('Esta vacina já existe!');
@@ -1309,7 +1342,7 @@
         }
 
         // Adicionar gado
-        function addCattle() {
+        async function addCattle() {
             const id = document.getElementById('cattleId').value.trim().toUpperCase();
             const birthDate = document.getElementById('cattleBirthDate').value;
             const weight = parseFloat(document.getElementById('cattleWeight').value);
@@ -1371,7 +1404,7 @@
                 checkbox.checked = false;
             });
 
-            saveData();
+            await saveData();
             updateDisplay();
             alert(`Gado ${id} cadastrado com sucesso!`);
             
@@ -1667,7 +1700,7 @@
                 updateCharts();
             }
         }
-
+        
         // Teclas de atalho
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
@@ -1687,60 +1720,6 @@
                 if (activeElement && activeElement.id === 'newVaccine') {
                     addVaccine();
                 }
-            }
-        });
-
-        // Adicionar dados de exemplo (opcional)
-        function addSampleData() {
-            if (cattle.length === 0) {
-                const sampleCattle = [
-                    {
-                        id: 'BOV001',
-                        birthDate: '2023-01-15',
-                        weight: 450,
-                        category: 'Vaca',
-                        vaccines: ['Febre Aftosa', 'Brucelose'],
-                        addedDate: new Date().toLocaleDateString('pt-BR'),
-                        addedTime: new Date().toLocaleTimeString('pt-BR'),
-                        addedBy: currentUser?.name || 'Sistema'
-                    },
-                    {
-                        id: 'BOV002',
-                        birthDate: '2024-03-22',
-                        weight: 380,
-                        category: 'Novilho',
-                        vaccines: ['Febre Aftosa', 'Raiva'],
-                        addedDate: new Date().toLocaleDateString('pt-BR'),
-                        addedTime: new Date().toLocaleTimeString('pt-BR'),
-                        addedBy: currentUser?.name || 'Sistema'
-                    },
-                    {
-                        id: 'BOV003',
-                        birthDate: '2022-08-10',
-                        weight: 520,
-                        category: 'Touro',
-                        vaccines: ['Febre Aftosa', 'Brucelose', 'IBR'],
-                        addedDate: new Date().toLocaleDateString('pt-BR'),
-                        addedTime: new Date().toLocaleTimeString('pt-BR'),
-                        addedBy: currentUser?.name || 'Sistema'
-                    }
-                ];
-                
-                cattle.push(...sampleCattle);
-                saveData();
-                updateDisplay();
-                console.log('Dados de exemplo adicionados');
-            }
-        }
-        
-        // Adicionar dados de exemplo se o usuário for novo e não tiver dados
-        document.addEventListener('DOMContentLoaded', () => {
-            const lastLoggedInUser = localStorage.getItem('lastLoggedInUser');
-            if (lastLoggedInUser) {
-                loadData(lastLoggedInUser);
-            }
-            if (cattle.length === 0) {
-                addSampleData();
             }
         });
     </script>
