@@ -25,7 +25,7 @@
             padding: 20px;
         }
 
-        /* Estilos da página de login */
+        /* Estilos das páginas de autenticação */
         .login-page {
             display: flex;
             align-items: center;
@@ -151,6 +151,70 @@
         .login-btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            margin-top: 10px;
+        }
+
+        .btn-register:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1d4ed8, #1e40af);
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .auth-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auth-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            color: #3b82f6;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .link-btn:hover {
+            color: #1d4ed8;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #16a34a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-align: center;
         }
 
         .login-features {
@@ -672,11 +736,17 @@
                 flex-direction: column;
                 text-align: center;
             }
+
+            .auth-footer {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loginPage" class="login-page">
+    <!-- Tela inicial com opções -->
+    <div id="initialPage" class="login-page">
         <div class="login-container">
             <div class="login-logo">🐄</div>
             <h1 class="login-title">Bem-vindo!</h1>
@@ -686,20 +756,14 @@
                 <div id="locationText">📍 Detectando localização...</div>
             </div>
             
-            <form class="login-form" onsubmit="login(event)">
-                <input 
-                    type="text" 
-                    id="userName" 
-                    class="login-input" 
-                    placeholder="Digite seu nome..." 
-                    required 
-                    maxlength="50"
-                    autocomplete="name"
-                >
-                <button type="submit" class="login-btn" id="loginBtn">
-                    Entrar no Sistema
+            <div class="auth-buttons">
+                <button class="login-btn" onclick="showLoginForm()">
+                    🔑 Fazer Login
                 </button>
-            </form>
+                <button class="login-btn btn-register" onclick="showRegisterForm()">
+                    📝 Registrar-se
+                </button>
+            </div>
 
             <div class="login-features">
                 <div class="login-feature">
@@ -718,6 +782,107 @@
                     <span class="login-feature-icon">📈</span>
                     <div class="login-feature-text">Análises</div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Login -->
+    <div id="loginPage" class="login-page" style="display: none;">
+        <div class="login-container">
+            <div class="login-logo">🔑</div>
+            <h1 class="login-title">Login</h1>
+            <p class="login-subtitle">Entre em sua conta</p>
+            
+            <form class="login-form" onsubmit="login(event)">
+                <input 
+                    type="text" 
+                    id="loginUserName" 
+                    class="login-input" 
+                    placeholder="Digite seu nome de usuário..." 
+                    required 
+                    maxlength="50"
+                    autocomplete="username"
+                >
+                <input 
+                    type="password" 
+                    id="loginPassword" 
+                    class="login-input" 
+                    placeholder="Digite sua senha..." 
+                    required 
+                    autocomplete="current-password"
+                >
+                <button type="submit" class="login-btn" id="loginBtn">
+                    Entrar
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <button class="link-btn" onclick="showInitialPage()">
+                    ← Voltar
+                </button>
+                <button class="link-btn" onclick="showRegisterForm()">
+                    Não tem conta? Registre-se
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tela de Registro -->
+    <div id="registerPage" class="login-page" style="display: none;">
+        <div class="login-container">
+            <div class="login-logo">📝</div>
+            <h1 class="login-title">Registrar</h1>
+            <p class="login-subtitle">Crie sua nova conta</p>
+            
+            <form class="login-form" onsubmit="register(event)">
+                <input 
+                    type="text" 
+                    id="registerUserName" 
+                    class="login-input" 
+                    placeholder="Digite seu nome de usuário..." 
+                    required 
+                    maxlength="50"
+                    autocomplete="username"
+                >
+                <input 
+                    type="text" 
+                    id="registerFullName" 
+                    class="login-input" 
+                    placeholder="Digite seu nome completo..." 
+                    required 
+                    maxlength="100"
+                    autocomplete="name"
+                >
+                <input 
+                    type="password" 
+                    id="registerPassword" 
+                    class="login-input" 
+                    placeholder="Crie uma senha..." 
+                    required 
+                    minlength="6"
+                    autocomplete="new-password"
+                >
+                <input 
+                    type="password" 
+                    id="confirmPassword" 
+                    class="login-input" 
+                    placeholder="Confirme sua senha..." 
+                    required 
+                    minlength="6"
+                    autocomplete="new-password"
+                >
+                <button type="submit" class="login-btn" id="registerBtn">
+                    Criar Conta
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <button class="link-btn" onclick="showInitialPage()">
+                    ← Voltar
+                </button>
+                <button class="link-btn" onclick="showLoginForm()">
+                    Já tem conta? Faça login
+                </button>
             </div>
         </div>
     </div>
@@ -824,11 +989,6 @@
                         <div>
                             <div class="form-group">
                                 <label>🏷️ Identificação do Gado</label>
-                                <input type="text" id="cattleId" placeholder="Ex: BOV001, A123, etc.">
-                            </div>
-
-                            <div class="form-group">
-                                <label>📅 Data de Nascimento</label>
                                 <input type="date" id="cattleBirthDate">
                             </div>
 
@@ -878,7 +1038,7 @@
                             <span class="search-icon">🔍</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
-                            <span>🔍 Filtro:</span>
+                            <span>🔽 Filtro:</span>
                             <select id="categoryFilter" onchange="filterCattle()">
                                 <option value="all">Todas as categorias</option>
                             </select>
@@ -988,8 +1148,9 @@
         let categoryChart = null;
         let vaccineChart = null;
 
-        // Chave de armazenamento no localStorage para guardar o último usuário logado
+        // Chaves de armazenamento no localStorage
         const LAST_USER_KEY = 'lastLoggedInUser';
+        const AUTO_LOGIN_KEY = 'autoLoginToken';
 
         // Sistema de armazenamento usando Firebase Firestore
         async function saveData() {
@@ -1004,7 +1165,9 @@
                 vaccines: vaccines,
                 location: userLocation,
                 loginDate: currentUser.loginDate,
-                loginTime: currentUser.loginTime
+                loginTime: currentUser.loginTime,
+                fullName: currentUser.fullName,
+                lastLogin: new Date().toISOString()
             };
 
             try {
@@ -1016,8 +1179,7 @@
         }
 
         // Carregar dados do Firebase Firestore
-        async function loadData(userName) {
-            const userId = userName.trim().toLowerCase().replace(/ /g, '_');
+        async function loadData(userId) {
             const userRef = db.collection('users').doc(userId);
 
             try {
@@ -1029,7 +1191,7 @@
                     vaccines = userData.vaccines || ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
                     userLocation = userData.location || { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
                     console.log('Dados do usuário carregados do Firebase!');
-                    return true;
+                    return userData;
                 } else {
                     // Se o usuário é novo, inicializar com dados padrão
                     cattle = [];
@@ -1037,11 +1199,88 @@
                     vaccines = ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
                     userLocation = { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
                     console.log('Novo usuário, dados inicializados.');
-                    return false;
+                    return null;
                 }
             } catch (error) {
                 console.error('Erro ao carregar dados:', error);
-                return false;
+                return null;
+            }
+        }
+
+        // Registrar novo usuário
+        async function registerUser(userName, fullName, password) {
+            const userId = userName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+            const authRef = db.collection('auth').doc(userId);
+            const userRef = db.collection('users').doc(userId);
+
+            try {
+                // Verificar se o usuário já existe
+                const authDoc = await authRef.get();
+                if (authDoc.exists) {
+                    throw new Error('Nome de usuário já existe!');
+                }
+
+                // Criar hash simples da senha (em produção, use bcrypt ou similar)
+                const passwordHash = btoa(password + userId);
+
+                // Salvar dados de autenticação
+                await authRef.set({
+                    userName: userName.trim(),
+                    fullName: fullName.trim(),
+                    passwordHash: passwordHash,
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString()
+                });
+
+                // Inicializar dados do usuário
+                await userRef.set({
+                    cattle: [],
+                    categories: ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'],
+                    vaccines: ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'],
+                    location: userLocation,
+                    fullName: fullName.trim(),
+                    createdAt: new Date().toISOString()
+                });
+
+                return { success: true, userId: userId };
+            } catch (error) {
+                console.error('Erro ao registrar usuário:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Verificar credenciais do usuário
+        async function verifyUser(userName, password) {
+            const userId = userName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+            const authRef = db.collection('auth').doc(userId);
+
+            try {
+                const authDoc = await authRef.get();
+                if (!authDoc.exists) {
+                    throw new Error('Usuário não encontrado!');
+                }
+
+                const authData = authDoc.data();
+                const passwordHash = btoa(password + userId);
+
+                if (authData.passwordHash !== passwordHash) {
+                    throw new Error('Senha incorreta!');
+                }
+
+                // Atualizar último login
+                await authRef.update({
+                    lastLogin: new Date().toISOString()
+                });
+
+                return { 
+                    success: true, 
+                    userId: userId,
+                    fullName: authData.fullName,
+                    userName: authData.userName
+                };
+            } catch (error) {
+                console.error('Erro na verificação:', error);
+                return { success: false, error: error.message };
             }
         }
 
@@ -1156,7 +1395,6 @@
             }
         }
 
-
         // Atualizar display da localização
         function updateLocationDisplay() {
             const locationText = `${userLocation.city}, ${userLocation.state}`;
@@ -1183,90 +1421,239 @@
         document.addEventListener('DOMContentLoaded', async function() {
             getUserLocation();
             
-            const lastLoggedInUser = localStorage.getItem(LAST_USER_KEY);
-            if (lastLoggedInUser) {
-                const userName = lastLoggedInUser;
-                const userId = userName.trim().toLowerCase().replace(/ /g, '_');
-                await loadData(userName);
-                currentUser = {
-                    name: userName,
-                    id: userId,
-                    loginDate: new Date().toLocaleDateString('pt-BR'),
-                    loginTime: new Date().toLocaleTimeString('pt-BR'),
-                    location: userLocation
-                };
-                showMainApp();
-            } else {
-                showLoginPage();
+            // Verificar se há login automático salvo
+            const autoLoginToken = localStorage.getItem(AUTO_LOGIN_KEY);
+            if (autoLoginToken) {
+                try {
+                    const tokenData = JSON.parse(autoLoginToken);
+                    const result = await verifyUser(tokenData.userName, tokenData.password);
+                    
+                    if (result.success) {
+                        await loginUser(result);
+                        return;
+                    } else {
+                        localStorage.removeItem(AUTO_LOGIN_KEY);
+                    }
+                } catch (error) {
+                    console.error('Erro no login automático:', error);
+                    localStorage.removeItem(AUTO_LOGIN_KEY);
+                }
             }
+            
+            showInitialPage();
         });
+
+        // Mostrar tela inicial
+        function showInitialPage() {
+            hideAllPages();
+            document.getElementById('initialPage').style.display = 'flex';
+        }
+
+        // Mostrar formulário de login
+        function showLoginForm() {
+            hideAllPages();
+            document.getElementById('loginPage').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('loginUserName').focus();
+            }, 100);
+        }
+
+        // Mostrar formulário de registro
+        function showRegisterForm() {
+            hideAllPages();
+            document.getElementById('registerPage').style.display = 'flex';
+            setTimeout(() => {
+                document.getElementById('registerUserName').focus();
+            }, 100);
+        }
+
+        // Esconder todas as páginas de autenticação
+        function hideAllPages() {
+            document.getElementById('initialPage').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'none';
+            document.getElementById('registerPage').style.display = 'none';
+        }
+
+        // Mostrar mensagem de erro
+        function showMessage(containerId, message, isError = true) {
+            const container = document.querySelector(`#${containerId} .login-form`);
+            
+            // Remover mensagens anteriores
+            const existingMessage = container.querySelector('.error-message, .success-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            // Criar nova mensagem
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isError ? 'error-message' : 'success-message';
+            messageDiv.textContent = message;
+            
+            container.insertBefore(messageDiv, container.firstChild);
+            
+            // Remover mensagem após 5 segundos
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Registrar usuário
+        async function register(event) {
+            event.preventDefault();
+            
+            const userName = document.getElementById('registerUserName').value.trim();
+            const fullName = document.getElementById('registerFullName').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const registerBtn = document.getElementById('registerBtn');
+            
+            // Validações
+            if (userName.length < 3) {
+                showMessage('registerPage', 'Nome de usuário deve ter pelo menos 3 caracteres.');
+                return;
+            }
+            
+            if (!/^[a-zA-Z0-9_]+$/.test(userName)) {
+                showMessage('registerPage', 'Nome de usuário deve conter apenas letras, números e underscore.');
+                return;
+            }
+            
+            if (fullName.length < 2) {
+                showMessage('registerPage', 'Nome completo deve ter pelo menos 2 caracteres.');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('registerPage', 'Senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('registerPage', 'As senhas não coincidem.');
+                return;
+            }
+            
+            registerBtn.disabled = true;
+            registerBtn.textContent = 'Criando conta...';
+            
+            try {
+                const result = await registerUser(userName, fullName, password);
+                
+                if (result.success) {
+                    showMessage('registerPage', 'Conta criada com sucesso! Redirecionando...', false);
+                    
+                    setTimeout(() => {
+                        // Auto-login após registro
+                        const userData = {
+                            success: true,
+                            userId: result.userId,
+                            fullName: fullName,
+                            userName: userName
+                        };
+                        loginUser(userData, userName, password);
+                    }, 1500);
+                } else {
+                    showMessage('registerPage', result.error);
+                }
+            } catch (error) {
+                showMessage('registerPage', 'Erro interno. Tente novamente.');
+                console.error('Erro no registro:', error);
+            }
+            
+            registerBtn.disabled = false;
+            registerBtn.textContent = 'Criar Conta';
+        }
 
         // Login
         async function login(event) {
             event.preventDefault();
-            const userName = document.getElementById('userName').value.trim();
+            
+            const userName = document.getElementById('loginUserName').value.trim();
+            const password = document.getElementById('loginPassword').value;
             const loginBtn = document.getElementById('loginBtn');
             
-            if (userName.length < 2) {
-                alert('Por favor, digite um nome com pelo menos 2 caracteres.');
+            if (userName.length < 3) {
+                showMessage('loginPage', 'Nome de usuário deve ter pelo menos 3 caracteres.');
                 return;
             }
-
+            
+            if (password.length < 6) {
+                showMessage('loginPage', 'Senha deve ter pelo menos 6 caracteres.');
+                return;
+            }
+            
             loginBtn.disabled = true;
             loginBtn.textContent = 'Entrando...';
+            
+            try {
+                const result = await verifyUser(userName, password);
+                
+                if (result.success) {
+                    await loginUser(result, userName, password);
+                } else {
+                    showMessage('loginPage', result.error);
+                }
+            } catch (error) {
+                showMessage('loginPage', 'Erro interno. Tente novamente.');
+                console.error('Erro no login:', error);
+            }
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = 'Entrar';
+        }
 
-            const userId = userName.trim().toLowerCase().replace(/ /g, '_');
-
-            // Tenta carregar os dados do usuário, se existirem
-            await loadData(userName);
+        // Efetuar login do usuário
+        async function loginUser(userData, userName = null, password = null) {
+            await loadData(userData.userId);
 
             currentUser = {
-                name: userName,
-                id: userId,
+                name: userData.userName || userData.fullName,
+                fullName: userData.fullName,
+                id: userData.userId,
                 loginDate: new Date().toLocaleDateString('pt-BR'),
                 loginTime: new Date().toLocaleTimeString('pt-BR'),
                 location: userLocation
             };
 
             await saveData();
-            localStorage.setItem(LAST_USER_KEY, userName);
+            
+            // Salvar dados para login automático (apenas se fornecidos)
+            if (userName && password) {
+                const autoLoginData = {
+                    userName: userName,
+                    password: password
+                };
+                localStorage.setItem(AUTO_LOGIN_KEY, JSON.stringify(autoLoginData));
+            }
             
             showMainApp();
-            
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Entrar no Sistema';
         }
 
         // Logout
         function logout() {
             if (confirm('Tem certeza que deseja sair do sistema?')) {
                 currentUser = null;
-                localStorage.removeItem(LAST_USER_KEY);
-                document.getElementById('userName').value = '';
-                showLoginPage();
+                localStorage.removeItem(AUTO_LOGIN_KEY);
+                
+                // Limpar formulários
+                document.getElementById('loginUserName').value = '';
+                document.getElementById('loginPassword').value = '';
+                document.getElementById('registerUserName').value = '';
+                document.getElementById('registerFullName').value = '';
+                document.getElementById('registerPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
+                showInitialPage();
             }
-        }
-
-        // Mostrar página de login
-        function showLoginPage() {
-            const loginPage = document.getElementById('loginPage');
-            const mainApp = document.getElementById('mainApp');
-            
-            loginPage.style.display = 'flex';
-            mainApp.classList.remove('active');
-            mainApp.style.display = 'none';
-            
-            setTimeout(() => {
-                document.getElementById('userName').focus();
-            }, 100);
         }
 
         // Mostrar aplicação principal
         function showMainApp() {
-            const loginPage = document.getElementById('loginPage');
+            hideAllPages();
             const mainApp = document.getElementById('mainApp');
             
-            loginPage.style.display = 'none';
             mainApp.style.display = 'block';
             mainApp.classList.add('active');
             
@@ -1280,11 +1667,12 @@
         // Atualizar interface do usuário
         function updateUserInterface() {
             if (currentUser) {
-                const firstName = currentUser.name.split(' ')[0];
-                const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                const firstName = currentUser.fullName ? currentUser.fullName.split(' ')[0] : currentUser.name.split(' ')[0];
+                const displayName = currentUser.fullName || currentUser.name;
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
                 
                 document.getElementById('userDisplayName').textContent = firstName;
-                document.getElementById('dashboardUserName').textContent = currentUser.name;
+                document.getElementById('dashboardUserName').textContent = displayName;
                 document.getElementById('userAvatar').textContent = initials.substring(0, 2);
             }
         }
@@ -1391,7 +1779,7 @@
                 vaccines: selectedVaccines,
                 addedDate: new Date().toLocaleDateString('pt-BR'),
                 addedTime: new Date().toLocaleTimeString('pt-BR'),
-                addedBy: currentUser.name
+                addedBy: currentUser.fullName || currentUser.name
             };
 
             cattle.push(newAnimal);
@@ -1706,13 +2094,23 @@
             if (event.key === 'Enter') {
                 const activeElement = document.activeElement;
                 
-                if (activeElement && activeElement.id === 'userName') {
+                // Login e registro
+                if (activeElement && (activeElement.id === 'loginUserName' || activeElement.id === 'loginPassword')) {
                     const form = activeElement.closest('form');
                     if (form) {
                         form.dispatchEvent(new Event('submit'));
                     }
                 }
                 
+                if (activeElement && (activeElement.id === 'registerUserName' || activeElement.id === 'registerFullName' || 
+                    activeElement.id === 'registerPassword' || activeElement.id === 'confirmPassword')) {
+                    const form = activeElement.closest('form');
+                    if (form) {
+                        form.dispatchEvent(new Event('submit'));
+                    }
+                }
+                
+                // Funcionalidades do sistema
                 if (activeElement && activeElement.id === 'newCategory') {
                     addCategory();
                 }
@@ -1721,7 +2119,35 @@
                     addVaccine();
                 }
             }
+            
+            // Atalhos de teclado para navegação
+            if (event.ctrlKey) {
+                switch(event.key) {
+                    case '1':
+                        event.preventDefault();
+                        if (currentUser) showTab('dashboard');
+                        break;
+                    case '2':
+                        event.preventDefault();
+                        if (currentUser) showTab('add');
+                        break;
+                    case '3':
+                        event.preventDefault();
+                        if (currentUser) showTab('list');
+                        break;
+                    case '4':
+                        event.preventDefault();
+                        if (currentUser) showTab('charts');
+                        break;
+                }
+            }
         });
     </script>
 </body>
 </html>
+             type="text" id="cattleId" placeholder="Ex: BOV001, A123, etc.">
+                            </div>
+
+                            <div class="form-group">
+                                <label>📅 Data de Nascimento</label>
+                                <input
