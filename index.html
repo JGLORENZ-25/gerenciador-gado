@@ -745,7 +745,6 @@
     </style>
 </head>
 <body>
-    <!-- Tela inicial com opções -->
     <div id="initialPage" class="login-page">
         <div class="login-container">
             <div class="login-logo">🐄</div>
@@ -786,7 +785,6 @@
         </div>
     </div>
 
-    <!-- Tela de Login -->
     <div id="loginPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">🔑</div>
@@ -827,7 +825,6 @@
         </div>
     </div>
 
-    <!-- Tela de Registro -->
     <div id="registerPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">📝</div>
@@ -989,6 +986,17 @@
                         <div>
                             <div class="form-group">
                                 <label>🏷️ Identificação do Gado</label>
+                                <input 
+                                    type="text" 
+                                    id="cattleId" 
+                                    placeholder="Ex: BOV001, A123, etc." 
+                                    maxlength="20"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label>📅 Data de Nascimento</label>
                                 <input type="date" id="cattleBirthDate">
                             </div>
 
@@ -1013,7 +1021,7 @@
                             <div class="form-group">
                                 <label>💉 Vacinas Aplicadas</label>
                                 <div id="vaccinesContainer" class="vaccines-grid">
-                                    </div>
+                                </div>
                                 <div class="add-new-container">
                                     <input type="text" id="newVaccine" placeholder="Nova vacina">
                                     <button class="btn btn-purple" type="button" onclick="addVaccine()">Adicionar</button>
@@ -2145,9 +2153,3 @@
     </script>
 </body>
 </html>
-             type="text" id="cattleId" placeholder="Ex: BOV001, A123, etc.">
-                            </div>
-
-                            <div class="form-group">
-                                <label>📅 Data de Nascimento</label>
-                                <input
