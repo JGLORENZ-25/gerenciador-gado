@@ -1,10 +1,9 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Gerenciamento de Gado</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -316,65 +315,12 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .nav-tabs {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 2rem;
-            background: white;
-            border-radius: 12px;
-            padding: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            flex-wrap: wrap;
-            gap: 4px;
-        }
-
-        .nav-tab {
-            padding: 12px 20px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-            color: #2d5a3d;
-        }
-
-        .nav-tab.active {
-            background: #2d5a3d;
-            color: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .nav-tab:hover:not(.active) {
-            background: #f0f9f0;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
         .card {
             background: white;
             border-radius: 12px;
             padding: 24px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
-
-        .card h2 {
-            color: #2d5a3d;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
         }
 
         .dashboard-grid {
@@ -420,6 +366,154 @@
             opacity: 0.8;
         }
 
+        /* Pinboard Layout */
+        .pinboard-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .pinboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            min-height: 300px;
+        }
+
+        .pinboard-card.large {
+            grid-column: span 2;
+        }
+
+        .pinboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f9f0;
+        }
+
+        .pinboard-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #2d5a3d;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pinboard-body {
+            flex: 1;
+            overflow-y: auto;
+            max-height: 500px;
+        }
+
+        /* Grupos */
+        .group-item {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #10b981;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .group-item:hover {
+            background: #f0f9f0;
+            transform: translateX(5px);
+        }
+
+        .group-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .group-name {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2d5a3d;
+        }
+
+        .group-count {
+            background: #10b981;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+
+        .group-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .group-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .group-info-label {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .group-info-value {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .profit-positive {
+            color: #10b981;
+        }
+
+        .profit-negative {
+            color: #ef4444;
+        }
+
+        /* Financeiro */
+        .financial-summary {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .financial-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .financial-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .financial-label {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        .financial-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        /* Formulários */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -453,11 +547,31 @@
             border-color: #10b981;
             box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
         }
-        
-        .form-group input[type="date"] {
-            font-family: inherit;
+
+        .form-row {
+            display: flex;
+            gap: 15px;
         }
 
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .input-group input,
+        .input-group select {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+        }
+
+        /* Botões */
         .btn {
             background: #10b981;
             color: white;
@@ -486,14 +600,6 @@
             background: #4f46e5;
         }
 
-        .btn-purple {
-            background: #8b5cf6;
-        }
-
-        .btn-purple:hover {
-            background: #7c3aed;
-        }
-        
         .btn-delete {
             background: #ef4444;
         }
@@ -502,68 +608,18 @@
             background: #dc2626;
         }
 
-        .vaccines-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 10px;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 10px;
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.9rem;
         }
 
-        .vaccine-checkbox {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .vaccine-checkbox:hover {
-            background-color: #f3f4f6;
-        }
-
-        .add-new-container {
+        .btn-group {
             display: flex;
             gap: 10px;
-            margin-top: 10px;
-        }
-
-        .add-new-container input {
-            flex: 1;
-        }
-
-        .filters {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
             flex-wrap: wrap;
-            align-items: center;
         }
 
-        .search-container {
-            position: relative;
-            flex: 1;
-            min-width: 250px;
-        }
-
-        .search-container input {
-            padding-left: 40px;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #9ca3af;
-        }
-
+        /* Tabelas */
         .table-container {
             overflow-x: auto;
         }
@@ -571,18 +627,34 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+        }
+
+        .compact-table {
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .compact-table th {
+            background-color: #f0f9f0;
+            font-weight: 600;
+            color: #2d5a3d;
+        }
+
+        .compact-table tr:hover {
+            background-color: #f9fafb;
         }
 
         th, td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
-        }
-        
-        td:last-child {
-            width: 1%;
-            white-space: nowrap;
         }
 
         th {
@@ -595,6 +667,7 @@
             background-color: #f9fafb;
         }
 
+        /* Badges */
         .badge {
             display: inline-block;
             padding: 4px 8px;
@@ -609,109 +682,19 @@
             color: #1e40af;
         }
 
-        .badge-vaccine {
-            background-color: #e9d5ff;
-            color: #7c2d12;
-        }
-        
         .badge-number {
             background-color: #d1fae5;
             color: #065f46;
         }
 
-        .badge-percentage {
-            background-color: #fce7f3;
-            color: #9d174d;
-        }
-
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .chart-container h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #374151;
-        }
-
-        .stats-summary {
-            background: #f9fafb;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 20px;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .stat-label {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
+        /* Estados vazios */
         .empty-state {
             text-align: center;
             padding: 40px;
             color: #6b7280;
         }
 
-        .quick-summary {
-            margin-top: 30px;
-        }
-
-        .summary-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .summary-card {
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
-        }
-
-        .summary-label {
-            color: #6b7280;
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-
-        .summary-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #374151;
-        }
-
-        .loading {
-            color: #6b7280;
-            font-style: italic;
-        }
-        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -723,8 +706,9 @@
             background-color: rgba(0,0,0,0.5);
             justify-content: center;
             align-items: center;
+            overflow-y: auto;
         }
-        
+
         .modal-content {
             background: white;
             padding: 30px;
@@ -733,8 +717,9 @@
             max-width: 600px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
+            margin: 20px auto;
         }
-        
+
         .modal-close {
             position: absolute;
             top: 15px;
@@ -744,40 +729,16 @@
             cursor: pointer;
             color: #aaa;
         }
-        
+
         .modal-close:hover {
             color: #555;
         }
-        
-        .expenses-summary {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: #ecfdf5;
-            border: 1px solid #d1fae5;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        
-        .expenses-summary strong {
-            font-size: 1.2rem;
-            color: #065f46;
-        }
-        
-        .expenses-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-        
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .form-row .form-group {
-            flex: 1;
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .pinboard-card.large {
+                grid-column: span 1;
+            }
         }
 
         @media (max-width: 768px) {
@@ -797,11 +758,6 @@
                 font-size: 2rem;
             }
 
-            .nav-tabs {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
             .form-grid {
                 grid-template-columns: 1fr;
             }
@@ -810,17 +766,8 @@
                 grid-template-columns: 1fr;
             }
 
-            .charts-grid {
+            .pinboard-container {
                 grid-template-columns: 1fr;
-            }
-
-            .filters {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-container {
-                min-width: auto;
             }
 
             .header {
@@ -832,14 +779,23 @@
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .form-row {
+                flex-direction: column;
+            }
+
+            .financial-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .input-group {
                 flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Página Inicial -->
     <div id="initialPage" class="login-page">
         <div class="login-container">
             <div class="login-logo">🐄</div>
@@ -869,8 +825,8 @@
                     <div class="login-feature-text">Gestão</div>
                 </div>
                 <div class="login-feature">
-                    <span class="login-feature-icon">💉</span>
-                    <div class="login-feature-text">Vacinas</div>
+                    <span class="login-feature-icon">💰</span>
+                    <div class="login-feature-text">Financeiro</div>
                 </div>
                 <div class="login-feature">
                     <span class="login-feature-icon">📈</span>
@@ -880,6 +836,7 @@
         </div>
     </div>
 
+    <!-- Página de Login -->
     <div id="loginPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">🔑</div>
@@ -920,6 +877,7 @@
         </div>
     </div>
 
+    <!-- Página de Registro -->
     <div id="registerPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">📝</div>
@@ -979,6 +937,7 @@
         </div>
     </div>
 
+    <!-- Aplicação Principal -->
     <div id="mainApp" class="main-app">
         <div class="container">
             <div class="header">
@@ -998,323 +957,133 @@
 
             <h1>Sistema de Gerenciamento de Gado</h1>
 
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="showTab('dashboard')">
-                    👤 Dashboard
-                </button>
-                <button class="nav-tab" onclick="showTab('add')">
-                    ➕ Adicionar Gado
-                </button>
-                <button class="nav-tab" onclick="showTab('list')">
-                    📋 Lista de Gado
-                </button>
-                <button class="nav-tab" onclick="showTab('stock')">
-                    📦 Estoque
-                </button>
-                 <button class="nav-tab" onclick="showTab('expenses')">
-                    💸 Gastos
-                </button>
-                <button class="nav-tab" onclick="showTab('charts')">
-                    📊 Estatísticas
-                </button>
-            </div>
-
-            <div id="dashboard" class="tab-content active">
-                <div class="card">
-                    <h2>👤 Dashboard do Usuário</h2>
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card user">
-                            <div>
-                                <h3>Usuário</h3>
-                                <div class="value" id="dashboardUserName">Usuário</div>
-                                <div class="subtitle" id="dashboardLocation">Carregando...</div>
-                            </div>
-                            <div class="icon">👤</div>
-                        </div>
-                        
-                        <div class="dashboard-card temp">
-                            <div>
-                                <h3>Temperatura</h3>
-                                <div class="value" id="tempValue">--°C</div>
-                                <div class="subtitle" id="weatherDesc">Carregando...</div>
-                            </div>
-                            <div class="icon">🌡️</div>
-                        </div>
-                        
-                        <div class="dashboard-card humidity">
-                            <div>
-                                <h3>Umidade</h3>
-                                <div class="value" id="humidityValue">--%</div>
-                                <div class="subtitle">Condição atual</div>
-                            </div>
-                            <div class="icon">💧</div>
-                        </div>
-                        
-                        <div class="dashboard-card cattle">
-                            <div>
-                                <h3>Total de Gado</h3>
-                                <div class="value" id="totalCattle">0</div>
-                                <div class="subtitle">Animais cadastrados</div>
-                            </div>
-                            <div class="icon">🐄</div>
-                        </div>
-                    </div>
-
-                    <div id="quickSummary" class="quick-summary" style="display: none;">
-                        <h3>Resumo Rápido</h3>
-                        <div class="summary-grid">
-                            <div class="summary-card">
-                                <div class="summary-label">Peso Médio</div>
-                                <div class="summary-value" id="avgWeight">0 kg</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-label">Categoria Mais Comum</div>
-                                <div class="summary-value" id="commonCategory">-</div>
-                            </div>
-                            <div class="summary-card">
-                                <div class="summary-label">Último Cadastro</div>
-                                <div class="summary-value" id="lastAdded">-</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="add" class="tab-content">
-                <div class="card">
-                    <h2>➕ Adicionar Novo Gado</h2>
-                    <div class="form-grid">
+            <!-- Dashboard do Usuário -->
+            <div class="card">
+                <div class="dashboard-grid">
+                    <div class="dashboard-card user">
                         <div>
-                            <div class="form-group">
-                                <label>🏷️ Identificação do Gado</label>
-                                <input 
-                                    type="text" 
-                                    id="cattleId" 
-                                    placeholder="Ex: BOV001, A123, etc." 
-                                    maxlength="20"
-                                    required
-                                >
-                            </div>
-
-                            <div class="form-group">
-                                <label>📅 Data de Nascimento</label>
-                                <input type="date" id="cattleBirthDate">
-                            </div>
-
-                            <div class="form-group">
-                                <label>⚖️ Peso Atual (kg)</label>
-                                <input type="number" id="cattleWeight" placeholder="Ex: 450">
-                            </div>
-
-                            <div class="form-group">
-                                <label>📂 Categoria</label>
-                                <select id="cattleCategory">
-                                    <option value="">Selecione uma categoria</option>
-                                </select>
-                                <div class="add-new-container">
-                                    <input type="text" id="newCategory" placeholder="Nova categoria">
-                                    <button class="btn btn-secondary" type="button" onclick="addCategory()">Adicionar</button>
-                                </div>
-                            </div>
+                            <h3>Usuário</h3>
+                            <div class="value" id="dashboardUserName">Usuário</div>
+                            <div class="subtitle" id="dashboardLocation">Carregando...</div>
                         </div>
-
+                        <div class="icon">👤</div>
+                    </div>
+                    
+                    <div class="dashboard-card temp">
                         <div>
-                            <div class="form-group">
-                                <label>💉 Vacinas Aplicadas</label>
-                                <div id="vaccinesContainer" class="vaccines-grid">
-                                </div>
-                                <div class="add-new-container">
-                                    <input type="text" id="newVaccine" placeholder="Nova vacina">
-                                    <button class="btn btn-purple" type="button" onclick="addVaccine()">Adicionar</button>
-                                </div>
-                            </div>
-
-                            <button class="btn" onclick="addCattle()" style="width: 100%; padding: 16px; font-size: 1.1rem;">
-                                Cadastrar Gado
-                            </button>
+                            <h3>Temperatura</h3>
+                            <div class="value" id="tempValue">--°C</div>
+                            <div class="subtitle" id="weatherDesc">Carregando...</div>
                         </div>
+                        <div class="icon">🌡️</div>
+                    </div>
+                    
+                    <div class="dashboard-card humidity">
+                        <div>
+                            <h3>Umidade</h3>
+                            <div class="value" id="humidityValue">--%</div>
+                            <div class="subtitle">Condição atual</div>
+                        </div>
+                        <div class="icon">💧</div>
+                    </div>
+                    
+                    <div class="dashboard-card cattle">
+                        <div>
+                            <h3>Total de Grupos</h3>
+                            <div class="value" id="totalGroups">0</div>
+                            <div class="subtitle">Grupos cadastrados</div>
+                        </div>
+                        <div class="icon">🐄</div>
                     </div>
                 </div>
             </div>
 
-            <div id="list" class="tab-content">
-                <div class="card">
-                    <h2>📋 Lista de Gado (<span id="cattleCount">0</span> animais)</h2>
-                    
-                    <div class="filters">
-                        <div class="search-container">
-                            <input type="text" id="searchTerm" placeholder="Buscar por identificação..." onkeyup="filterCattle()">
-                            <span class="search-icon">🔍</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span>🔽 Filtro:</span>
-                            <select id="categoryFilter" onchange="filterCattle()">
-                                <option value="all">Todas as categorias</option>
-                            </select>
-                        </div>
+            <!-- Pinboard Layout -->
+            <div class="pinboard-container">
+                <!-- Grupos de Gado -->
+                <div class="pinboard-card">
+                    <div class="pinboard-header">
+                        <div class="pinboard-title">🐄 Grupos de Gado</div>
+                        <button class="btn btn-small" onclick="openModal('addGroupModal')">➕ Novo Grupo</button>
                     </div>
+                    <div class="pinboard-body" id="groupsList">
+                        <div class="empty-state">Nenhum grupo cadastrado.</div>
+                    </div>
+                </div>
 
-                    <div class="table-container">
-                        <table id="cattleTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Data Nascimento</th>
-                                    <th>Peso (kg)</th>
-                                    <th>Categoria</th>
-                                    <th>Vacinas</th>
-                                    <th>Data Cadastro</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="cattleTableBody">
-                            </tbody>
-                        </table>
-                        <div id="emptyState" class="empty-state">
-                            Nenhum gado cadastrado ainda.
+                <!-- Estoque -->
+                <div class="pinboard-card">
+                    <div class="pinboard-header">
+                        <div class="pinboard-title">📦 Estoque</div>
+                        <button class="btn btn-small" onclick="openModal('addProductModal')">➕ Adicionar</button>
+                    </div>
+                    <div class="pinboard-body">
+                        <div class="table-container">
+                            <table class="compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Qtd</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stockTableBody">
+                                </tbody>
+                            </table>
+                            <div id="emptyStockState" class="empty-state">
+                                Nenhum produto em estoque.
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-             <div id="stock" class="tab-content">
-                <div class="card">
-                    <h2>📦 Gerenciamento de Estoque</h2>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Nome do Produto</label>
-                            <input type="text" id="productName" placeholder="Ex: Ração, Sal Mineral, etc.">
-                        </div>
-                        <div class="form-group">
-                            <label>Descrição</label>
-                            <input type="text" id="productDescription" placeholder="Detalhes do produto">
-                        </div>
-                         <div class="form-row">
-                            <div class="form-group">
-                                <label>Quantidade</label>
-                                <input type="number" id="productQuantity" placeholder="0">
-                            </div>
-                            <div class="form-group">
-                                <label>Unidade</label>
-                                <select id="productUnit">
-                                    <option value="number">Número</option>
-                                    <option value="percentage">Porcentagem</option>
-                                </select>
-                            </div>
-                        </div>
+
+                <!-- Resumo Financeiro -->
+                <div class="pinboard-card large">
+                    <div class="pinboard-header">
+                        <div class="pinboard-title">💰 Resumo Financeiro</div>
                     </div>
-                    <button class="btn" onclick="addProduct()" style="width: 100%; margin-top: 10px;">
-                        Adicionar Produto ao Estoque
-                    </button>
-                    
-                    <div class="table-container" style="margin-top: 30px;">
-                        <table id="stockTable">
-                            <thead>
-                                <tr>
-                                    <th>Produto</th>
-                                    <th>Descrição</th>
-                                    <th>Quantidade</th>
-                                </tr>
-                            </thead>
-                            <tbody id="stockTableBody">
-                            </tbody>
-                        </table>
-                        <div id="emptyStockState" class="empty-state">
-                            Nenhum produto em estoque.
+                    <div class="pinboard-body">
+                        <div class="financial-grid">
+                            <div class="financial-item">
+                                <span class="financial-label">Investimento Total</span>
+                                <span class="financial-value" style="color: #ef4444;" id="totalInvestment">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span class="financial-label">Gastos com Insumos</span>
+                                <span class="financial-value" style="color: #f59e0b;" id="totalSupplies">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span class="financial-label">Receita Estimada</span>
+                                <span class="financial-value" style="color: #10b981;" id="totalRevenue">R$ 0,00</span>
+                            </div>
+                            <div class="financial-item">
+                                <span class="financial-label">Lucro/Prejuízo</span>
+                                <span class="financial-value profit-positive" id="totalProfit">R$ 0,00</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div id="expenses" class="tab-content">
-                 <div class="card">
-                    <h2>💸 Gerenciamento de Gastos</h2>
-                    <div class="form-grid">
-                         <div class="form-group">
-                            <label>📅 Data do Gasto</label>
-                            <input type="date" id="expenseDate">
-                        </div>
-                         <div class="form-group">
-                            <label>Descrição do Gasto</label>
-                            <input type="text" id="expenseDescription" placeholder="Ex: Compra de ração, Veterinário">
-                        </div>
-                         <div class="form-group">
-                            <label>Valor (R$)</label>
-                            <input type="number" id="expenseAmount" placeholder="0.00">
-                        </div>
-                         <div class="form-group">
-                            <label>Categoria</label>
-                            <input type="text" id="expenseCategory" placeholder="Ex: Alimentação, Saúde, etc.">
-                        </div>
+                <!-- Gastos Recentes -->
+                <div class="pinboard-card">
+                    <div class="pinboard-header">
+                        <div class="pinboard-title">💸 Gastos Recentes</div>
+                        <button class="btn btn-small" onclick="openModal('addExpenseModal')">➕ Registrar</button>
                     </div>
-                     <button class="btn" onclick="addExpense()" style="width: 100%; margin-top: 10px;">
-                        Registrar Gasto
-                    </button>
-                     
-                    <div class="table-container" style="margin-top: 30px;">
-                        <table id="expensesTable">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Descrição</th>
-                                    <th>Categoria</th>
-                                    <th>Valor (R$)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="expensesTableBody">
-                            </tbody>
-                        </table>
-                        <div id="emptyExpensesState" class="empty-state">
-                            Nenhum gasto registrado.
-                        </div>
-                    </div>
-                    
-                    <div id="expensesSummary" class="expenses-summary" style="display: none;">
-                        <strong>Total de Gastos: <span id="totalExpenses">R$ 0,00</span></strong>
-                    </div>
-                </div>
-            </div>
-
-            <div id="charts" class="tab-content">
-                <div class="card">
-                    <h2>📊 Estatísticas do Rebanho</h2>
-                    
-                    <div class="charts-grid">
-                        <div class="chart-container">
-                            <h3>Distribuição por Categoria</h3>
-                            <canvas id="categoryChart" width="400" height="300"></canvas>
-                            <div id="categoryEmpty" class="empty-state" style="display: none;">
-                                Sem dados para exibir
-                            </div>
-                        </div>
-
-                        <div class="chart-container">
-                            <h3>Cobertura Vacinal</h3>
-                            <canvas id="vaccineChart" width="400" height="300"></canvas>
-                            <div id="vaccineEmpty" class="empty-state" style="display: none;">
-                                Sem dados para exibir
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="statsSection" class="stats-summary" style="display: none;">
-                        <h3>Resumo Estatístico</h3>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <div class="stat-value" id="statTotal" style="color: #10b981;">0</div>
-                                <div class="stat-label">Total de Animais</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statCategories" style="color: #3b82f6;">0</div>
-                                <div class="stat-label">Categorias</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statVaccines" style="color: #8b5cf6;">0</div>
-                                <div class="stat-label">Tipos de Vacina</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-value" id="statAvgWeight" style="color: #f59e0b;">0</div>
-                                <div class="stat-label">Peso Médio (kg)</div>
+                    <div class="pinboard-body">
+                        <div class="table-container">
+                            <table class="compact-table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Descrição</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expensesTableBody">
+                                </tbody>
+                            </table>
+                            <div id="emptyExpensesState" class="empty-state">
+                                Nenhum gasto registrado.
                             </div>
                         </div>
                     </div>
@@ -1322,48 +1091,163 @@
             </div>
         </div>
     </div>
-    
-    <div id="editCattleModal" class="modal">
+
+    <!-- Modal Adicionar Grupo -->
+    <div id="addGroupModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('editCattleModal')">&times;</span>
-            <h2>✏️ Editar Gado</h2>
-            <div class="form-grid">
-                <div>
-                    <div class="form-group">
-                        <label>🏷️ Identificação do Gado</label>
-                        <input type="text" id="editCattleId" disabled>
-                    </div>
-                    <div class="form-group">
-                        <label>📅 Data de Nascimento</label>
-                        <input type="date" id="editCattleBirthDate">
-                    </div>
-                    <div class="form-group">
-                        <label>⚖️ Peso Atual (kg)</label>
-                        <input type="number" id="editCattleWeight">
-                    </div>
-                    <div class="form-group">
-                        <label>📂 Categoria</label>
-                        <select id="editCattleCategory"></select>
-                    </div>
-                </div>
-                <div>
-                    <div class="form-group">
-                        <label>💉 Vacinas Aplicadas</label>
-                        <div id="editVaccinesContainer" class="vaccines-grid"></div>
-                    </div>
-                </div>
+            <span class="modal-close" onclick="closeModal('addGroupModal')">&times;</span>
+            <h2>➕ Novo Grupo de Gado</h2>
+            <div class="form-group">
+                <label>Nome do Grupo</label>
+                <input type="text" id="groupName" placeholder="Ex: Lote Janeiro 2025">
             </div>
-            <button class="btn" onclick="updateCattle()" style="width: 100%; margin-top: 20px;">
-                Salvar Alterações
+            <div class="form-group">
+                <label>Quantidade de Animais</label>
+                <input type="number" id="groupQuantity" placeholder="0" min="1">
+            </div>
+            <div class="form-group">
+                <label>Peso Médio por Animal (kg)</label>
+                <input type="number" id="groupAvgWeight" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="groupCategory">
+                    <option value="Bezerro">Bezerro</option>
+                    <option value="Novilho">Novilho</option>
+                    <option value="Vaca">Vaca</option>
+                    <option value="Touro">Touro</option>
+                    <option value="Garrote">Garrote</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Custo por Animal (R$)</label>
+                <input type="number" id="groupCostPerAnimal" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>ou Custo Total do Grupo (R$)</label>
+                <input type="number" id="groupTotalCost" placeholder="0.00" step="0.01">
+            </div>
+            <button class="btn" onclick="addGroup()" style="width: 100%; margin-top: 20px;">
+                Criar Grupo
             </button>
         </div>
     </div>
-    
+
+    <!-- Modal Detalhes do Grupo -->
+    <div id="groupDetailsModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="modal-close" onclick="closeModal('groupDetailsModal')">&times;</span>
+            <h2 id="groupDetailsTitle">📊 Detalhes do Grupo</h2>
+            
+            <div id="groupDetailsContent"></div>
+            
+            <div style="margin-top: 20px;">
+                <h3>🌾 Aplicar Produto do Estoque</h3>
+                <div class="input-group">
+                    <select id="supplyProductSelect" style="flex: 1; padding: 12px; border: 2px solid #d1d5db; border-radius: 8px;">
+                        <option value="">Selecione um produto...</option>
+                    </select>
+                    <input type="number" id="supplyQuantityUsed" placeholder="Quantidade" step="0.01" style="width: 150px;">
+                    <input type="date" id="supplyDate" style="width: 150px;">
+                    <button class="btn btn-small" onclick="addSupplyExpense()">Aplicar</button>
+                </div>
+                <div id="stockWarning" style="display: none; color: #ef4444; font-size: 0.9rem; margin-top: 5px;">
+                    ⚠️ Produto não disponível em estoque suficiente
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h3>💵 Definir Receita (Venda)</h3>
+                <div class="input-group">
+                    <input type="number" id="revenueAmount" placeholder="Valor Total da Venda (R$)" step="0.01">
+                    <button class="btn btn-secondary btn-small" onclick="setRevenue()">Salvar Receita</button>
+                </div>
+            </div>
+
+            <div class="btn-group" style="margin-top: 20px;">
+                <button class="btn btn-delete" onclick="deleteGroup()">🗑️ Excluir Grupo</button>
+                <button class="btn btn-secondary" onclick="closeModal('groupDetailsModal')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Produto -->
+    <div id="addProductModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('addProductModal')">&times;</span>
+            <h2>📦 Adicionar Produto ao Estoque</h2>
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input type="text" id="productName" placeholder="Ex: Ração, Sal Mineral">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" id="productDescription" placeholder="Detalhes do produto">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Quantidade</label>
+                    <input type="number" id="productQuantity" placeholder="0" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Unidade</label>
+                    <select id="productUnit">
+                        <option value="kg">kg</option>
+                        <option value="litros">Litros</option>
+                        <option value="unidades">Unidades</option>
+                        <option value="sacas">Sacas</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Valor Total (R$)</label>
+                <input type="number" id="productValue" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Tipo de Transação</label>
+                <select id="productTransactionType">
+                    <option value="compra">Compra (Adicionar ao Estoque)</option>
+                    <option value="venda">Venda (Remover do Estoque)</option>
+                </select>
+            </div>
+            <button class="btn" onclick="addProduct()" style="width: 100%; margin-top: 20px;">
+                Processar Transação
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Gasto -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('addExpenseModal')">&times;</span>
+            <h2>💸 Registrar Gasto</h2>
+            <div class="form-group">
+                <label>Data do Gasto</label>
+                <input type="date" id="expenseDate">
+            </div>
+            <div class="form-group">
+                <label>Descrição</label>
+                <input type="text" id="expenseDescription" placeholder="Ex: Veterinário, Manutenção">
+            </div>
+            <div class="form-group">
+                <label>Valor (R$)</label>
+                <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <input type="text" id="expenseCategory" placeholder="Ex: Saúde, Manutenção">
+            </div>
+            <button class="btn" onclick="addExpense()" style="width: 100%; margin-top: 20px;">
+                Registrar Gasto
+            </button>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <script>
-        // Configuração do Firebase (use a sua)
+        // Configuração do Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyDyKezs7gqjE9HUw_HjUMqA7ofxc5Sp9Bc",
             authDomain: "meu-gado-site.firebaseapp.com",
@@ -1378,25 +1262,17 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Dados globais para o usuário atual
+        // Dados globais
         let currentUser = null;
-        let cattle = [];
-        let categories = [];
-        let vaccines = [];
+        let cattleGroups = [];
         let stock = [];
         let expenses = [];
         let userLocation = { city: '', state: '', country: '', lat: null, lon: null };
+        let currentGroupId = null;
         
-        // **SUA CHAVE DE API DO OPENWEATHERMAP**
+        // Chave API OpenWeatherMap
         const OPENWEATHER_API_KEY = '6b78a94becfdff74b732c9bd59a89b1f';
         
-        // Variáveis para os gráficos
-        let categoryChart = null;
-        let vaccineChart = null;
-        
-        let editingCattleId = null;
-
-        // Chaves de armazenamento no localStorage
         const LAST_USER_KEY = 'lastLoggedInUser';
         const AUTO_LOGIN_KEY = 'autoLoginToken';
 
@@ -1406,11 +1282,8 @@
 
             const userRef = db.collection('users').doc(currentUser.id);
 
-            // Crie um objeto com todos os dados do usuário
             const userData = {
-                cattle: cattle,
-                categories: categories,
-                vaccines: vaccines,
+                cattleGroups: cattleGroups,
                 stock: stock,
                 expenses: expenses,
                 location: userLocation,
@@ -1436,19 +1309,14 @@
                 const doc = await userRef.get();
                 if (doc.exists) {
                     const userData = doc.data();
-                    cattle = userData.cattle || [];
-                    categories = userData.categories || ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'];
-                    vaccines = userData.vaccines || ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
+                    cattleGroups = userData.cattleGroups || [];
                     stock = userData.stock || [];
                     expenses = userData.expenses || [];
                     userLocation = userData.location || { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
                     console.log('Dados do usuário carregados do Firebase!');
                     return userData;
                 } else {
-                    // Se o usuário é novo, inicializar com dados padrão
-                    cattle = [];
-                    categories = ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'];
-                    vaccines = ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'];
+                    cattleGroups = [];
                     stock = [];
                     expenses = [];
                     userLocation = { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
@@ -1468,16 +1336,13 @@
             const userRef = db.collection('users').doc(userId);
 
             try {
-                // Verificar se o usuário já existe
                 const authDoc = await authRef.get();
                 if (authDoc.exists) {
                     throw new Error('Nome de usuário já existe!');
                 }
 
-                // Criar hash simples da senha (em produção, use bcrypt ou similar)
                 const passwordHash = btoa(password + userId);
 
-                // Salvar dados de autenticação
                 await authRef.set({
                     userName: userName.trim(),
                     fullName: fullName.trim(),
@@ -1486,11 +1351,8 @@
                     lastLogin: new Date().toISOString()
                 });
 
-                // Inicializar dados do usuário
                 await userRef.set({
-                    cattle: [],
-                    categories: ['Bezerro', 'Novilho', 'Vaca', 'Touro', 'Garrote'],
-                    vaccines: ['Febre Aftosa', 'Brucelose', 'Raiva', 'IBR', 'BVD'],
+                    cattleGroups: [],
                     stock: [],
                     expenses: [],
                     location: userLocation,
@@ -1523,7 +1385,6 @@
                     throw new Error('Senha incorreta!');
                 }
 
-                // Atualizar último login
                 await authRef.update({
                     lastLogin: new Date().toISOString()
                 });
@@ -1562,7 +1423,7 @@
                         },
                         {
                             timeout: 10000,
-                            maximumAge: 300000 // 5 minutos
+                            maximumAge: 300000
                         }
                     );
                 } else {
@@ -1574,7 +1435,6 @@
             }
         }
 
-        // Obter nome da localização a partir de coordenadas usando a API de Geocodificação do OpenWeatherMap
         async function getLocationFromCoords(lat, lon) {
             try {
                 const apiUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${OPENWEATHER_API_KEY}`;
@@ -1600,7 +1460,6 @@
             }
         }
 
-        // Localização e clima padrão (fallback)
         async function setDefaultLocation() {
             userLocation = {
                 city: 'Candelária',
@@ -1613,13 +1472,12 @@
             await getRealWeatherData(userLocation.lat, userLocation.lon);
         }
 
-        // Nova função para buscar dados de clima reais
         async function getRealWeatherData(lat, lon) {
             if (OPENWEATHER_API_KEY === '' || OPENWEATHER_API_KEY === 'SUA_CHAVE_DE_API_AQUI') {
                 document.getElementById('tempValue').textContent = '--°C';
                 document.getElementById('weatherDesc').textContent = 'API Key necessária';
                 document.getElementById('humidityValue').textContent = '--%';
-                console.warn('Por favor, insira sua chave de API do OpenWeatherMap para obter dados de clima reais.');
+                console.warn('Por favor, insira sua chave de API do OpenWeatherMap.');
                 return;
             }
 
@@ -1651,7 +1509,6 @@
             }
         }
 
-        // Atualizar display da localização
         function updateLocationDisplay() {
             const locationText = `${userLocation.city}, ${userLocation.state}`;
             
@@ -1677,7 +1534,6 @@
         document.addEventListener('DOMContentLoaded', async function() {
             getUserLocation();
             
-            // Verificar se há login automático salvo
             const autoLoginToken = localStorage.getItem(AUTO_LOGIN_KEY);
             if (autoLoginToken) {
                 try {
@@ -1699,13 +1555,11 @@
             showInitialPage();
         });
 
-        // Mostrar tela inicial
         function showInitialPage() {
             hideAllPages();
             document.getElementById('initialPage').style.display = 'flex';
         }
 
-        // Mostrar formulário de login
         function showLoginForm() {
             hideAllPages();
             document.getElementById('loginPage').style.display = 'flex';
@@ -1714,7 +1568,6 @@
             }, 100);
         }
 
-        // Mostrar formulário de registro
         function showRegisterForm() {
             hideAllPages();
             document.getElementById('registerPage').style.display = 'flex';
@@ -1723,31 +1576,26 @@
             }, 100);
         }
 
-        // Esconder todas as páginas de autenticação
         function hideAllPages() {
             document.getElementById('initialPage').style.display = 'none';
             document.getElementById('loginPage').style.display = 'none';
             document.getElementById('registerPage').style.display = 'none';
         }
 
-        // Mostrar mensagem de erro
         function showMessage(containerId, message, isError = true) {
             const container = document.querySelector(`#${containerId} .login-form`);
             
-            // Remover mensagens anteriores
             const existingMessage = container.querySelector('.error-message, .success-message');
             if (existingMessage) {
                 existingMessage.remove();
             }
             
-            // Criar nova mensagem
             const messageDiv = document.createElement('div');
             messageDiv.className = isError ? 'error-message' : 'success-message';
             messageDiv.textContent = message;
             
             container.insertBefore(messageDiv, container.firstChild);
             
-            // Remover mensagem após 5 segundos
             setTimeout(() => {
                 if (messageDiv.parentNode) {
                     messageDiv.remove();
@@ -1755,7 +1603,6 @@
             }, 5000);
         }
 
-        // Registrar usuário
         async function register(event) {
             event.preventDefault();
             
@@ -1765,7 +1612,6 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             const registerBtn = document.getElementById('registerBtn');
             
-            // Validações
             if (userName.length < 3) {
                 showMessage('registerPage', 'Nome de usuário deve ter pelo menos 3 caracteres.');
                 return;
@@ -1801,7 +1647,6 @@
                     showMessage('registerPage', 'Conta criada com sucesso! Redirecionando...', false);
                     
                     setTimeout(() => {
-                        // Auto-login após registro
                         const userData = {
                             success: true,
                             userId: result.userId,
@@ -1822,7 +1667,6 @@
             registerBtn.textContent = 'Criar Conta';
         }
 
-        // Login
         async function login(event) {
             event.preventDefault();
             
@@ -1860,7 +1704,6 @@
             loginBtn.textContent = 'Entrar';
         }
 
-        // Efetuar login do usuário
         async function loginUser(userData, userName = null, password = null) {
             await loadData(userData.userId);
 
@@ -1875,7 +1718,6 @@
 
             await saveData();
             
-            // Salvar dados para login automático (apenas se fornecidos)
             if (userName && password) {
                 const autoLoginData = {
                     userName: userName,
@@ -1887,13 +1729,11 @@
             showMainApp();
         }
 
-        // Logout
         function logout() {
             if (confirm('Tem certeza que deseja sair do sistema?')) {
                 currentUser = null;
                 localStorage.removeItem(AUTO_LOGIN_KEY);
                 
-                // Limpar formulários
                 document.getElementById('loginUserName').value = '';
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('registerUserName').value = '';
@@ -1905,7 +1745,6 @@
             }
         }
 
-        // Mostrar aplicação principal
         function showMainApp() {
             hideAllPages();
             const mainApp = document.getElementById('mainApp');
@@ -1914,15 +1753,9 @@
             mainApp.classList.add('active');
             
             updateUserInterface();
-            updateCategorySelect();
-            updateVaccinesContainer();
-            updateCategoryFilter();
             updateDisplay();
-            updateStockTable();
-            updateExpensesTable();
         }
 
-        // Atualizar interface do usuário
         function updateUserInterface() {
             if (currentUser) {
                 const firstName = currentUser.fullName ? currentUser.fullName.split(' ')[0] : currentUser.name.split(' ')[0];
@@ -1935,244 +1768,396 @@
             }
         }
 
-        // Navegação entre abas
-        function showTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            document.getElementById(tabId).classList.add('active');
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
             
-            const navTabs = document.querySelectorAll('.nav-tab');
-            navTabs.forEach((tab) => {
-                if (tab.onclick.toString().includes(tabId)) {
-                    tab.classList.add('active');
-                }
-            });
-
-            if (tabId === 'charts') {
-                setTimeout(updateCharts, 100);
-            }
-            
-            if (tabId === 'list') {
-                updateCattleTable();
+            if (id === 'addGroupModal') {
+                document.getElementById('groupName').value = '';
+                document.getElementById('groupQuantity').value = '';
+                document.getElementById('groupAvgWeight').value = '';
+                document.getElementById('groupCostPerAnimal').value = '';
+                document.getElementById('groupTotalCost').value = '';
             }
         }
 
-        // Adicionar categoria
-        async function addCategory() {
-            const newCategory = document.getElementById('newCategory').value.trim();
-            if (newCategory && !categories.includes(newCategory)) {
-                categories.push(newCategory);
-                document.getElementById('newCategory').value = '';
-                updateCategorySelect();
-                updateCategoryFilter();
-                await saveData();
-                alert(`Categoria "${newCategory}" adicionada com sucesso!`);
-            } else if (categories.includes(newCategory)) {
-                alert('Esta categoria já existe!');
-            }
-        }
-
-        // Adicionar vacina
-        async function addVaccine() {
-            const newVaccine = document.getElementById('newVaccine').value.trim();
-            if (newVaccine && !vaccines.includes(newVaccine)) {
-                vaccines.push(newVaccine);
-                document.getElementById('newVaccine').value = '';
-                updateVaccinesContainer();
-                await saveData();
-                alert(`Vacina "${newVaccine}" adicionada com sucesso!`);
-            } else if (vaccines.includes(newVaccine)) {
-                alert('Esta vacina já existe!');
-            }
-        }
-
-        // Adicionar gado
-        async function addCattle() {
-            const id = document.getElementById('cattleId').value.trim().toUpperCase();
-            const birthDate = document.getElementById('cattleBirthDate').value;
-            const weight = parseFloat(document.getElementById('cattleWeight').value);
-            const category = document.getElementById('cattleCategory').value;
+        async function addGroup() {
+            const name = document.getElementById('groupName').value.trim();
+            const quantity = parseInt(document.getElementById('groupQuantity').value);
+            const avgWeight = parseFloat(document.getElementById('groupAvgWeight').value);
+            const category = document.getElementById('groupCategory').value;
+            const costPerAnimal = parseFloat(document.getElementById('groupCostPerAnimal').value) || 0;
+            const totalCost = parseFloat(document.getElementById('groupTotalCost').value) || 0;
             
-            if (!id) {
-                alert('Por favor, digite uma identificação para o gado.');
-                document.getElementById('cattleId').focus();
+            if (!name || !quantity || quantity <= 0 || !avgWeight || avgWeight <= 0) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
 
-            if (!birthDate) {
-                alert('Por favor, selecione a data de nascimento.');
-                document.getElementById('cattleBirthDate').focus();
+            let finalTotalCost = totalCost;
+            if (costPerAnimal > 0 && totalCost === 0) {
+                finalTotalCost = costPerAnimal * quantity;
+            } else if (costPerAnimal === 0 && totalCost === 0) {
+                alert('Por favor, informe o custo por animal ou o custo total do grupo.');
                 return;
             }
 
-            if (!weight || weight <= 0) {
-                alert('Por favor, digite um peso válido.');
-                document.getElementById('cattleWeight').focus();
-                return;
-            }
-
-            if (!category) {
-                alert('Por favor, selecione uma categoria.');
-                document.getElementById('cattleCategory').focus();
-                return;
-            }
-            
-            if (cattle.some(animal => animal.id === id)) {
-                alert('Já existe um animal com esta identificação!');
-                document.getElementById('cattleId').focus();
-                return;
-            }
-            
-            const selectedVaccines = [];
-            document.querySelectorAll('input[name="vaccine"]:checked').forEach(checkbox => {
-                selectedVaccines.push(checkbox.value);
-            });
-
-            const newAnimal = {
-                id: id,
-                birthDate: birthDate,
-                weight: weight,
+            const newGroup = {
+                id: Date.now().toString(),
+                name: name,
+                quantity: quantity,
+                avgWeight: avgWeight,
                 category: category,
-                vaccines: selectedVaccines,
-                addedDate: new Date().toLocaleDateString('pt-BR'),
-                addedTime: new Date().toLocaleTimeString('pt-BR'),
-                addedBy: currentUser.fullName || currentUser.name
+                initialCost: finalTotalCost,
+                supplyExpenses: [],
+                revenue: 0,
+                createdDate: new Date().toLocaleDateString('pt-BR'),
+                createdBy: currentUser.fullName || currentUser.name
             };
 
-            cattle.push(newAnimal);
-            
-            document.getElementById('cattleId').value = '';
-            document.getElementById('cattleBirthDate').value = '';
-            document.getElementById('cattleWeight').value = '';
-            document.getElementById('cattleCategory').value = '';
-            document.querySelectorAll('input[name="vaccine"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-
+            cattleGroups.push(newGroup);
             await saveData();
+            closeModal('addGroupModal');
             updateDisplay();
-            alert(`Gado ${id} cadastrado com sucesso!`);
-            
-            document.getElementById('cattleId').focus();
+            alert(`Grupo "${name}" cadastrado com sucesso!`);
         }
 
-        // Abrir modal de edição
-        function openEditModal(id) {
-            const animal = cattle.find(a => a.id === id);
-            if (!animal) return;
+        function showGroupDetails(groupId) {
+            currentGroupId = groupId;
+            const group = cattleGroups.find(g => g.id === groupId);
+            if (!group) return;
+
+            updateStockProductSelect();
+
+            document.getElementById('groupDetailsTitle').textContent = `📊 ${group.name}`;
             
-            editingCattleId = id;
-            document.getElementById('editCattleId').value = animal.id;
-            document.getElementById('editCattleBirthDate').value = animal.birthDate;
-            document.getElementById('editCattleWeight').value = animal.weight;
+            const totalSupplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+            const totalCost = group.initialCost + totalSupplies;
+            const profit = group.revenue - totalCost;
+            const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
 
-            const editCategorySelect = document.getElementById('editCattleCategory');
-            editCategorySelect.innerHTML = '';
-            categories.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat;
-                option.textContent = cat;
-                editCategorySelect.appendChild(option);
-            });
-            editCategorySelect.value = animal.category;
-
-            const editVaccinesContainer = document.getElementById('editVaccinesContainer');
-            editVaccinesContainer.innerHTML = '';
-            vaccines.forEach(vac => {
-                const isChecked = animal.vaccines.includes(vac);
-                const label = document.createElement('label');
-                label.className = 'vaccine-checkbox';
-                label.innerHTML = `
-                    <input type="checkbox" name="editVaccine" value="${vac}" ${isChecked ? 'checked' : ''}>
-                    <span>${vac}</span>
+            let suppliesTable = '';
+            if (group.supplyExpenses.length > 0) {
+                suppliesTable = `
+                    <h4 style="margin-top: 20px;">Gastos com Insumos</h4>
+                    <table class="compact-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Produto</th>
+                                <th>Quantidade</th>
+                                <th>Valor Unit.</th>
+                                <th>Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${group.supplyExpenses.map(exp => `
+                                <tr>
+                                    <td>${exp.date}</td>
+                                    <td>${exp.productName || exp.description}</td>
+                                    <td>${exp.quantity ? exp.quantity.toFixed(2) + ' ' + exp.unit : '-'}</td>
+                                    <td>${exp.unitValue ? 'R$ ' + exp.unitValue.toFixed(2).replace('.', ',') : '-'}</td>
+                                    <td>R$ ${exp.amount.toFixed(2).replace('.', ',')}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 `;
-                editVaccinesContainer.appendChild(label);
-            });
-            
-            document.getElementById('editCattleModal').style.display = 'flex';
+            }
+
+            document.getElementById('groupDetailsContent').innerHTML = `
+                <div class="group-info" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div class="group-info-item">
+                        <div class="group-info-label">Quantidade</div>
+                        <div class="group-info-value">${group.quantity} animais</div>
+                    </div>
+                    <div class="group-info-item">
+                        <div class="group-info-label">Peso Médio</div>
+                        <div class="group-info-value">${group.avgWeight} kg</div>
+                    </div>
+                    <div class="group-info-item">
+                        <div class="group-info-label">Categoria</div>
+                        <div class="group-info-value">${group.category}</div>
+                    </div>
+                    <div class="group-info-item">
+                        <div class="group-info-label">Data de Cadastro</div>
+                        <div class="group-info-value">${group.createdDate}</div>
+                    </div>
+                </div>
+
+                <div class="financial-summary">
+                    <div class="financial-grid">
+                        <div class="financial-item">
+                            <span class="financial-label">Investimento Inicial</span>
+                            <span class="financial-value" style="color: #ef4444;">R$ ${group.initialCost.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="financial-item">
+                            <span class="financial-label">Gastos com Insumos</span>
+                            <span class="financial-value" style="color: #f59e0b;">R$ ${totalSupplies.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="financial-item">
+                            <span class="financial-label">Custo Total</span>
+                            <span class="financial-value" style="color: #6b7280;">R$ ${totalCost.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="financial-item">
+                            <span class="financial-label">Receita</span>
+                            <span class="financial-value" style="color: #10b981;">R$ ${group.revenue.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                        <div class="financial-item" style="grid-column: span 2; background: ${profit >= 0 ? '#ecfdf5' : '#fef2f2'};">
+                            <span class="financial-label" style="font-size: 1.1rem;"><strong>Lucro/Prejuízo</strong></span>
+                            <span class="financial-value ${profitClass}" style="font-size: 1.5rem;">R$ ${profit.toFixed(2).replace('.', ',')}</span>
+                        </div>
+                    </div>
+                </div>
+
+                ${suppliesTable}
+            `;
+
+            openModal('groupDetailsModal');
         }
-        
-        // Fechar modal
-        function closeModal(id) {
-             document.getElementById(id).style.display = 'none';
+
+        function updateStockProductSelect() {
+            const select = document.getElementById('supplyProductSelect');
+            if (!select) return;
+
+            select.innerHTML = '<option value="">Selecione um produto...</option>';
+            
+            stock.forEach(product => {
+                const option = document.createElement('option');
+                option.value = product.id;
+                option.textContent = `${product.name} (${product.quantity.toFixed(2)} ${product.unit} disponível)`;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', function() {
+                const stockWarning = document.getElementById('stockWarning');
+                if (this.value) {
+                    const product = stock.find(p => p.id === this.value);
+                    if (product && product.quantity <= 0) {
+                        stockWarning.style.display = 'block';
+                    } else {
+                        stockWarning.style.display = 'none';
+                    }
+                } else {
+                    stockWarning.style.display = 'none';
+                }
+            });
         }
 
-        // Atualizar gado
-        async function updateCattle() {
-            if (!editingCattleId) return;
+        async function addSupplyExpense() {
+            if (!currentGroupId) return;
 
-            const animalIndex = cattle.findIndex(a => a.id === editingCattleId);
-            if (animalIndex === -1) return;
+            const productSelect = document.getElementById('supplyProductSelect');
+            const productId = productSelect.value;
+            const quantityUsed = parseFloat(document.getElementById('supplyQuantityUsed').value);
+            const date = document.getElementById('supplyDate').value;
 
-            const newBirthDate = document.getElementById('editCattleBirthDate').value;
-            const newWeight = parseFloat(document.getElementById('editCattleWeight').value);
-            const newCategory = document.getElementById('editCattleCategory').value;
-            
-            if (!newBirthDate) {
-                alert('Por favor, selecione a data de nascimento.');
-                return;
-            }
-            if (!newWeight || newWeight <= 0) {
-                alert('Por favor, digite um peso válido.');
-                return;
-            }
-            if (!newCategory) {
-                alert('Por favor, selecione uma categoria.');
+            if (!productId || !quantityUsed || quantityUsed <= 0 || !date) {
+                alert('Por favor, preencha todos os campos corretamente.');
                 return;
             }
 
-            const newVaccines = [];
-            document.querySelectorAll('input[name="editVaccine"]:checked').forEach(checkbox => {
-                newVaccines.push(checkbox.value);
+            const product = stock.find(p => p.id === productId);
+            if (!product) {
+                alert('Produto não encontrado!');
+                return;
+            }
+
+            if (product.quantity < quantityUsed) {
+                alert(`Quantidade insuficiente em estoque! Disponível: ${product.quantity} ${product.unit}`);
+                return;
+            }
+
+            const group = cattleGroups.find(g => g.id === currentGroupId);
+            if (!group) return;
+
+            const avgUnitValue = product.totalValue / product.quantity;
+            const totalCost = avgUnitValue * quantityUsed;
+
+            product.quantity -= quantityUsed;
+            product.totalValue -= totalCost;
+
+            if (product.quantity <= 0) {
+                stock = stock.filter(p => p.id !== productId);
+            }
+
+            group.supplyExpenses.push({
+                date: date,
+                productName: product.name,
+                description: `${quantityUsed.toFixed(2)} ${product.unit} de ${product.name}`,
+                quantity: quantityUsed,
+                unit: product.unit,
+                amount: totalCost,
+                unitValue: avgUnitValue
             });
-            
-            cattle[animalIndex].birthDate = newBirthDate;
-            cattle[animalIndex].weight = newWeight;
-            cattle[animalIndex].category = newCategory;
-            cattle[animalIndex].vaccines = newVaccines;
-            
+
+            document.getElementById('supplyProductSelect').value = '';
+            document.getElementById('supplyQuantityUsed').value = '';
+            document.getElementById('supplyDate').value = '';
+
             await saveData();
-            closeModal('editCattleModal');
+            updateStockProductSelect();
+            showGroupDetails(currentGroupId);
             updateDisplay();
-            alert('Dados do gado atualizados com sucesso!');
+            alert(`${quantityUsed.toFixed(2)} ${product.unit} de ${product.name} aplicado ao grupo com sucesso!`);
         }
-        
-        // Adicionar produto ao estoque
+
+        async function setRevenue() {
+            if (!currentGroupId) return;
+
+            const amount = parseFloat(document.getElementById('revenueAmount').value);
+
+            if (!amount || amount <= 0) {
+                alert('Por favor, informe um valor válido.');
+                return;
+            }
+
+            const group = cattleGroups.find(g => g.id === currentGroupId);
+            if (!group) return;
+
+            group.revenue = amount;
+            document.getElementById('revenueAmount').value = '';
+
+            await saveData();
+            showGroupDetails(currentGroupId);
+            updateDisplay();
+            alert('Receita atualizada com sucesso!');
+        }
+
+        async function deleteGroup() {
+            if (!currentGroupId) return;
+
+            if (confirm('Tem certeza que deseja excluir este grupo? Esta ação não pode ser desfeita.')) {
+                cattleGroups = cattleGroups.filter(g => g.id !== currentGroupId);
+                await saveData();
+                closeModal('groupDetailsModal');
+                updateDisplay();
+                alert('Grupo excluído com sucesso!');
+            }
+        }
+
+        function updateGroupsList() {
+            const groupsList = document.getElementById('groupsList');
+            
+            if (cattleGroups.length === 0) {
+                groupsList.innerHTML = '<div class="empty-state">Nenhum grupo cadastrado.</div>';
+                return;
+            }
+
+            groupsList.innerHTML = cattleGroups.map(group => {
+                const totalSupplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                const totalCost = group.initialCost + totalSupplies;
+                const profit = group.revenue - totalCost;
+                const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
+
+                return `
+                    <div class="group-item" onclick="showGroupDetails('${group.id}')">
+                        <div class="group-header">
+                            <div class="group-name">${group.name}</div>
+                            <div class="group-count">${group.quantity} 🐄</div>
+                        </div>
+                        <div class="group-info">
+                            <div class="group-info-item">
+                                <span class="group-info-label">Custo Total</span>
+                                <span class="group-info-value">R$ ${totalCost.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <div class="group-info-item">
+                                <span class="group-info-label">Receita</span>
+                                <span class="group-info-value">R$ ${group.revenue.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <div class="group-info-item">
+                                <span class="group-info-label">Lucro</span>
+                                <span class="group-info-value ${profitClass}">R$ ${profit.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
         async function addProduct() {
             const name = document.getElementById('productName').value.trim();
             const description = document.getElementById('productDescription').value.trim();
             const quantity = parseFloat(document.getElementById('productQuantity').value);
             const unit = document.getElementById('productUnit').value;
+            const value = parseFloat(document.getElementById('productValue').value);
+            const transactionType = document.getElementById('productTransactionType').value;
             
-            if (!name || !description || isNaN(quantity) || quantity < 0) {
+            if (!name || !description || isNaN(quantity) || quantity <= 0 || isNaN(value) || value < 0) {
                 alert('Por favor, preencha todos os campos do produto corretamente.');
                 return;
             }
 
-            const newProduct = {
-                name: name,
-                description: description,
-                quantity: quantity,
-                unit: unit
-            };
+            const existingProduct = stock.find(p => p.name.toLowerCase() === name.toLowerCase());
             
-            stock.push(newProduct);
+            if (transactionType === 'venda') {
+                if (!existingProduct || existingProduct.quantity < quantity) {
+                    alert('Quantidade insuficiente em estoque para venda!');
+                    return;
+                }
+                
+                existingProduct.quantity -= quantity;
+                existingProduct.totalValue = Math.max(0, existingProduct.totalValue - value);
+                
+                existingProduct.transactions = existingProduct.transactions || [];
+                existingProduct.transactions.push({
+                    type: 'venda',
+                    date: new Date().toLocaleDateString('pt-BR'),
+                    quantity: quantity,
+                    value: value
+                });
+                
+                if (existingProduct.quantity === 0) {
+                    stock = stock.filter(p => p.id !== existingProduct.id);
+                }
+                
+                alert(`Venda de ${quantity} ${unit} de ${name} registrada com sucesso!`);
+            } else {
+                if (existingProduct) {
+                    existingProduct.quantity += quantity;
+                    existingProduct.totalValue += value;
+                    
+                    existingProduct.transactions = existingProduct.transactions || [];
+                    existingProduct.transactions.push({
+                        type: 'compra',
+                        date: new Date().toLocaleDateString('pt-BR'),
+                        quantity: quantity,
+                        value: value
+                    });
+                } else {
+                    const newProduct = {
+                        id: Date.now().toString(),
+                        name: name,
+                        description: description,
+                        quantity: quantity,
+                        unit: unit,
+                        totalValue: value,
+                        transactions: [{
+                            type: 'compra',
+                            date: new Date().toLocaleDateString('pt-BR'),
+                            quantity: quantity,
+                            value: value
+                        }]
+                    };
+                    stock.push(newProduct);
+                }
+                
+                alert(`${quantity} ${unit} de ${name} adicionado ao estoque!`);
+            }
             
             document.getElementById('productName').value = '';
             document.getElementById('productDescription').value = '';
             document.getElementById('productQuantity').value = '';
+            document.getElementById('productValue').value = '';
             
             await saveData();
+            closeModal('addProductModal');
             updateStockTable();
-            alert('Produto adicionado ao estoque!');
         }
 
-        // Atualizar tabela de estoque
         function updateStockTable() {
             const tbody = document.getElementById('stockTableBody');
             const emptyState = document.getElementById('emptyStockState');
@@ -2182,21 +2167,25 @@
                 emptyState.style.display = 'block';
             } else {
                 emptyState.style.display = 'none';
-                tbody.innerHTML = stock.map(product => `
-                    <tr>
-                        <td><strong>${product.name}</strong></td>
-                        <td>${product.description}</td>
-                        <td>
-                            <span class="badge ${product.unit === 'number' ? 'badge-number' : 'badge-percentage'}">
-                                ${product.unit === 'percentage' ? `${product.quantity}%` : `${product.quantity}`}
-                            </span>
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = stock.map(product => {
+                    const avgValue = product.quantity > 0 ? product.totalValue / product.quantity : 0;
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${product.name}</strong><br>
+                                <small style="color: #6b7280;">${product.description}</small><br>
+                                <small style="color: #059669;">Valor médio: R$ ${avgValue.toFixed(2).replace('.', ',')}/${product.unit}</small>
+                            </td>
+                            <td>
+                                <span class="badge badge-number">${product.quantity.toFixed(2)} ${product.unit}</span><br>
+                                <small style="color: #6b7280;">Total: R$ ${product.totalValue.toFixed(2).replace('.', ',')}</small>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
         }
         
-        // Adicionar gasto
         async function addExpense() {
             const date = document.getElementById('expenseDate').value;
             const description = document.getElementById('expenseDescription').value.trim();
@@ -2223,340 +2212,70 @@
             document.getElementById('expenseCategory').value = '';
             
             await saveData();
+            closeModal('addExpenseModal');
             updateExpensesTable();
             alert('Gasto registrado com sucesso!');
         }
 
-        // Atualizar tabela de gastos
         function updateExpensesTable() {
             const tbody = document.getElementById('expensesTableBody');
             const emptyState = document.getElementById('emptyExpensesState');
-            const summary = document.getElementById('expensesSummary');
             
             if (expenses.length === 0) {
                 tbody.innerHTML = '';
                 emptyState.style.display = 'block';
-                summary.style.display = 'none';
             } else {
                 emptyState.style.display = 'none';
-                summary.style.display = 'flex';
                 
-                let totalAmount = 0;
-                tbody.innerHTML = expenses.map(expense => {
-                    totalAmount += expense.amount;
-                    return `
-                        <tr>
-                            <td>${expense.date}</td>
-                            <td>${expense.description}</td>
-                            <td><span class="badge badge-category">${expense.category}</span></td>
-                            <td>R$ ${expense.amount.toFixed(2).replace('.', ',')}</td>
-                        </tr>
-                    `;
-                }).join('');
+                const recentExpenses = expenses.slice(-5).reverse();
                 
-                document.getElementById('totalExpenses').textContent = `R$ ${totalAmount.toFixed(2).replace('.', ',')}`;
-            }
-        }
-
-        // Atualizar select de categorias
-        function updateCategorySelect() {
-            const select = document.getElementById('cattleCategory');
-            const currentValue = select.value;
-            select.innerHTML = '<option value="">Selecione uma categoria</option>';
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                select.appendChild(option);
-            });
-            select.value = currentValue;
-        }
-
-        // Atualizar container de vacinas
-        function updateVaccinesContainer() {
-            const container = document.getElementById('vaccinesContainer');
-            container.innerHTML = '';
-            vaccines.forEach(vaccine => {
-                const label = document.createElement('label');
-                label.className = 'vaccine-checkbox';
-                label.innerHTML = `
-                    <input type="checkbox" name="vaccine" value="${vaccine}">
-                    <span>${vaccine}</span>
-                `;
-                container.appendChild(label);
-            });
-        }
-
-        // Atualizar filtro de categorias
-        function updateCategoryFilter() {
-            const filter = document.getElementById('categoryFilter');
-            const currentValue = filter.value;
-            filter.innerHTML = '<option value="all">Todas as categorias</option>';
-            categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category;
-                option.textContent = category;
-                filter.appendChild(option);
-            });
-            filter.value = currentValue;
-        }
-
-        // Filtrar gado
-        function filterCattle() {
-            const searchTerm = document.getElementById('searchTerm').value.toLowerCase();
-            const categoryFilter = document.getElementById('categoryFilter').value;
-            
-            const filteredCattle = cattle.filter(animal => {
-                const matchesSearch = animal.id.toLowerCase().includes(searchTerm);
-                const matchesCategory = categoryFilter === 'all' || animal.category === categoryFilter;
-                return matchesSearch && matchesCategory;
-            });
-
-            updateCattleTable(filteredCattle);
-        }
-
-        // Atualizar tabela de gado
-        function updateCattleTable(cattleList = cattle) {
-            const tbody = document.getElementById('cattleTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            if (cattleList.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-                emptyState.textContent = cattle.length === 0 ? 'Nenhum gado cadastrado ainda.' : 'Nenhum resultado encontrado.';
-            } else {
-                emptyState.style.display = 'none';
-                tbody.innerHTML = cattleList.map(animal => `
+                tbody.innerHTML = recentExpenses.map(expense => `
                     <tr>
-                        <td><strong>${animal.id}</strong></td>
-                        <td>${animal.birthDate}</td>
-                        <td>${animal.weight} kg</td>
-                        <td><span class="badge badge-category">${animal.category}</span></td>
-                        <td>
-                            ${animal.vaccines.length > 0 ? 
-                                animal.vaccines.map(vaccine => 
-                                    `<span class="badge badge-vaccine">${vaccine}</span>`
-                                ).join('') 
-                                : '<span style="color: #6b7280;">Nenhuma</span>'
-                            }
-                        </td>
-                        <td>${animal.addedDate}</td>
-                        <td><button class="btn btn-secondary" onclick="openEditModal('${animal.id}')">Editar</button></td>
+                        <td>${expense.date}</td>
+                        <td>${expense.description}</td>
+                        <td>R$ ${expense.amount.toFixed(2).replace('.', ',')}</td>
                     </tr>
                 `).join('');
             }
         }
 
-        // Atualizar gráficos
-        function updateCharts() {
-            updateCategoryChart();
-            updateVaccineChart();
-            updateStats();
-        }
+        function updateFinancialSummary() {
+            let totalInvestment = 0;
+            let totalSupplies = 0;
+            let totalRevenue = 0;
 
-        // Gráfico de categorias
-        function updateCategoryChart() {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            const categoryData = categories.map(category => ({
-                name: category,
-                count: cattle.filter(animal => animal.category === category).length
-            })).filter(item => item.count > 0);
-
-            const emptyState = document.getElementById('categoryEmpty');
-            const canvas = document.getElementById('categoryChart');
-
-            if (categoryData.length === 0) {
-                emptyState.style.display = 'block';
-                canvas.style.display = 'none';
-                if (categoryChart) {
-                    categoryChart.destroy();
-                    categoryChart = null;
-                }
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            canvas.style.display = 'block';
-
-            if (categoryChart) {
-                categoryChart.destroy();
-            }
-
-            const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF6384'];
-
-            categoryChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: categoryData.map(item => item.name),
-                    datasets: [{
-                        data: categoryData.map(item => item.count),
-                        backgroundColor: colors.slice(0, categoryData.length)
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = ((context.raw / total) * 100).toFixed(1);
-                                    return `${context.label}: ${context.raw} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
+            cattleGroups.forEach(group => {
+                totalInvestment += group.initialCost;
+                const supplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
+                totalSupplies += supplies;
+                totalRevenue += group.revenue;
             });
-        }
 
-        // Gráfico de vacinas
-        function updateVaccineChart() {
-            const ctx = document.getElementById('vaccineChart').getContext('2d');
-            const vaccineData = vaccines.map(vaccine => ({
-                name: vaccine,
-                count: cattle.filter(animal => animal.vaccines.includes(vaccine)).length
-            })).filter(item => item.count > 0);
+            const totalProfit = totalRevenue - (totalInvestment + totalSupplies);
+            const profitClass = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
 
-            const emptyState = document.getElementById('vaccineEmpty');
-            const canvas = document.getElementById('vaccineChart');
-
-            if (vaccineData.length === 0) {
-                emptyState.style.display = 'block';
-                canvas.style.display = 'none';
-                if (vaccineChart) {
-                    vaccineChart.destroy();
-                    vaccineChart = null;
-                }
-                return;
-            }
-
-            emptyState.style.display = 'none';
-            canvas.style.display = 'block';
-
-            if (vaccineChart) {
-                vaccineChart.destroy();
-            }
-
-            vaccineChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: vaccineData.map(item => item.name),
-                    datasets: [{
-                        label: 'Animais Vacinados',
-                        data: vaccineData.map(item => item.count),
-                        backgroundColor: '#36A2EB',
-                        borderColor: '#1E88E5',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                stepSize: 1
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 0
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = cattle.length;
-                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : 0;
-                                    return `${context.raw} animais (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Atualizar estatísticas
-        function updateStats() {
-            const statsSection = document.getElementById('statsSection');
+            document.getElementById('totalInvestment').textContent = `R$ ${totalInvestment.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalSupplies').textContent = `R$ ${totalSupplies.toFixed(2).replace('.', ',')}`;
+            document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
             
-            if (cattle.length > 0) {
-                statsSection.style.display = 'block';
-                
-                const avgWeight = cattle.reduce((sum, animal) => sum + animal.weight, 0) / cattle.length;
-                const usedCategories = [...new Set(cattle.map(animal => animal.category))].length;
-                const usedVaccines = [...new Set(cattle.flatMap(animal => animal.vaccines))].length;
-                
-                document.getElementById('statTotal').textContent = cattle.length;
-                document.getElementById('statCategories').textContent = usedCategories;
-                document.getElementById('statVaccines').textContent = usedVaccines;
-                document.getElementById('statAvgWeight').textContent = Math.round(avgWeight);
-            } else {
-                statsSection.style.display = 'none';
-            }
+            const profitElement = document.getElementById('totalProfit');
+            profitElement.textContent = `R$ ${totalProfit.toFixed(2).replace('.', ',')}`;
+            profitElement.className = `financial-value ${profitClass}`;
         }
 
-        // Atualizar resumo rápido do dashboard
-        function updateQuickSummary() {
-            const quickSummary = document.getElementById('quickSummary');
-            
-            if (cattle.length > 0) {
-                quickSummary.style.display = 'block';
-                
-                const avgWeight = cattle.reduce((sum, animal) => sum + animal.weight, 0) / cattle.length;
-                const categoryCount = {};
-                cattle.forEach(animal => {
-                    categoryCount[animal.category] = (categoryCount[animal.category] || 0) + 1;
-                });
-                
-                const commonCategory = Object.keys(categoryCount).reduce((a, b) => 
-                    categoryCount[a] > categoryCount[b] ? a : b, '');
-                
-                const lastAnimal = cattle[cattle.length - 1];
-                
-                document.getElementById('avgWeight').textContent = avgWeight.toFixed(1) + ' kg';
-                document.getElementById('commonCategory').textContent = commonCategory || '-';
-                document.getElementById('lastAdded').textContent = lastAnimal ? lastAnimal.addedDate : '-';
-            } else {
-                quickSummary.style.display = 'none';
-            }
-        }
-
-        // Atualizar toda a interface
         function updateDisplay() {
-            document.getElementById('totalCattle').textContent = cattle.length;
-            document.getElementById('cattleCount').textContent = cattle.length;
+            document.getElementById('totalGroups').textContent = cattleGroups.length;
             
-            updateCattleTable();
-            updateCategoryFilter();
-            updateQuickSummary();
+            updateGroupsList();
             updateStockTable();
             updateExpensesTable();
-            
-            if (document.getElementById('charts').classList.contains('active')) {
-                updateCharts();
-            }
+            updateFinancialSummary();
         }
-        
-        // Teclas de atalho
+
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Enter') {
                 const activeElement = document.activeElement;
                 
-                // Login e registro
                 if (activeElement && (activeElement.id === 'loginUserName' || activeElement.id === 'loginPassword')) {
                     const form = activeElement.closest('form');
                     if (form) {
@@ -2571,47 +2290,8 @@
                         form.dispatchEvent(new Event('submit'));
                     }
                 }
-                
-                // Funcionalidades do sistema
-                if (activeElement && activeElement.id === 'newCategory') {
-                    addCategory();
-                }
-                
-                if (activeElement && activeElement.id === 'newVaccine') {
-                    addVaccine();
-                }
-            }
-            
-            // Atalhos de teclado para navegação
-            if (event.ctrlKey) {
-                switch(event.key) {
-                    case '1':
-                        event.preventDefault();
-                        if (currentUser) showTab('dashboard');
-                        break;
-                    case '2':
-                        event.preventDefault();
-                        if (currentUser) showTab('add');
-                        break;
-                    case '3':
-                        event.preventDefault();
-                        if (currentUser) showTab('list');
-                        break;
-                    case '4':
-                        event.preventDefault();
-                        if (currentUser) showTab('stock');
-                        break;
-                    case '5':
-                        event.preventDefault();
-                        if (currentUser) showTab('expenses');
-                        break;
-                    case '6':
-                        event.preventDefault();
-                        if (currentUser) showTab('charts');
-                        break;
-                }
             }
         });
     </script>
 </body>
-    </html>
+</html>
