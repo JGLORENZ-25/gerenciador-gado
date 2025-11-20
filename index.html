@@ -599,6 +599,14 @@
         .btn-secondary:hover {
             background: #4f46e5;
         }
+        
+        .btn-warning {
+            background: #f59e0b;
+        }
+        
+        .btn-warning:hover {
+            background: #d97706;
+        }
 
         .btn-delete {
             background: #ef4444;
@@ -795,7 +803,6 @@
     </style>
 </head>
 <body>
-    <!-- Página Inicial -->
     <div id="initialPage" class="login-page">
         <div class="login-container">
             <div class="login-logo">🐄</div>
@@ -836,7 +843,6 @@
         </div>
     </div>
 
-    <!-- Página de Login -->
     <div id="loginPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">🔑</div>
@@ -877,7 +883,6 @@
         </div>
     </div>
 
-    <!-- Página de Registro -->
     <div id="registerPage" class="login-page" style="display: none;">
         <div class="login-container">
             <div class="login-logo">📝</div>
@@ -937,7 +942,6 @@
         </div>
     </div>
 
-    <!-- Aplicação Principal -->
     <div id="mainApp" class="main-app">
         <div class="container">
             <div class="header">
@@ -957,7 +961,6 @@
 
             <h1>Sistema de Gerenciamento de Gado</h1>
 
-            <!-- Dashboard do Usuário -->
             <div class="card">
                 <div class="dashboard-grid">
                     <div class="dashboard-card user">
@@ -998,9 +1001,7 @@
                 </div>
             </div>
 
-            <!-- Pinboard Layout -->
             <div class="pinboard-container">
-                <!-- Grupos de Gado -->
                 <div class="pinboard-card">
                     <div class="pinboard-header">
                         <div class="pinboard-title">🐄 Grupos de Gado</div>
@@ -1011,7 +1012,6 @@
                     </div>
                 </div>
 
-                <!-- Estoque -->
                 <div class="pinboard-card">
                     <div class="pinboard-header">
                         <div class="pinboard-title">📦 Estoque</div>
@@ -1036,7 +1036,6 @@
                     </div>
                 </div>
 
-                <!-- Resumo Financeiro -->
                 <div class="pinboard-card large">
                     <div class="pinboard-header">
                         <div class="pinboard-title">💰 Resumo Financeiro</div>
@@ -1044,11 +1043,11 @@
                     <div class="pinboard-body">
                         <div class="financial-grid">
                             <div class="financial-item">
-                                <span class="financial-label">Investimento Total</span>
+                                <span class="financial-label">Investimento em Gado</span>
                                 <span class="financial-value" style="color: #ef4444;" id="totalInvestment">R$ 0,00</span>
                             </div>
                             <div class="financial-item">
-                                <span class="financial-label">Gastos com Insumos</span>
+                                <span class="financial-label">Despesas Totais</span>
                                 <span class="financial-value" style="color: #f59e0b;" id="totalSupplies">R$ 0,00</span>
                             </div>
                             <div class="financial-item">
@@ -1063,7 +1062,6 @@
                     </div>
                 </div>
 
-                <!-- Gastos Recentes -->
                 <div class="pinboard-card">
                     <div class="pinboard-header">
                         <div class="pinboard-title">💸 Gastos Recentes</div>
@@ -1092,7 +1090,6 @@
         </div>
     </div>
 
-    <!-- Modal Adicionar Grupo -->
     <div id="addGroupModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addGroupModal')">&times;</span>
@@ -1133,11 +1130,49 @@
         </div>
     </div>
 
-    <!-- Modal Detalhes do Grupo -->
+    <div id="editGroupModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('editGroupModal')">&times;</span>
+            <h2>✏️ Editar Dados do Grupo</h2>
+            <div class="form-group">
+                <label>Nome do Grupo</label>
+                <input type="text" id="editGroupName">
+            </div>
+            <div class="form-group">
+                <label>Quantidade de Animais</label>
+                <input type="number" id="editGroupQuantity" min="1">
+            </div>
+            <div class="form-group">
+                <label>Peso Médio por Animal (kg)</label>
+                <input type="number" id="editGroupAvgWeight">
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="editGroupCategory">
+                    <option value="Bezerro">Bezerro</option>
+                    <option value="Novilho">Novilho</option>
+                    <option value="Vaca">Vaca</option>
+                    <option value="Touro">Touro</option>
+                    <option value="Garrote">Garrote</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Custo Inicial Total (R$)</label>
+                <input type="number" id="editGroupTotalCost" step="0.01">
+            </div>
+            <button class="btn btn-warning" onclick="saveGroupEdit()" style="width: 100%; margin-top: 20px;">
+                Salvar Alterações
+            </button>
+        </div>
+    </div>
+
     <div id="groupDetailsModal" class="modal">
         <div class="modal-content" style="max-width: 800px;">
             <span class="modal-close" onclick="closeModal('groupDetailsModal')">&times;</span>
-            <h2 id="groupDetailsTitle">📊 Detalhes do Grupo</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h2 id="groupDetailsTitle" style="margin:0;">📊 Detalhes do Grupo</h2>
+                <button class="btn btn-warning btn-small" onclick="openEditGroupModal()">✏️ Editar Grupo</button>
+            </div>
             
             <div id="groupDetailsContent"></div>
             
@@ -1171,7 +1206,6 @@
         </div>
     </div>
 
-    <!-- Modal Adicionar Produto -->
     <div id="addProductModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addProductModal')">&times;</span>
@@ -1216,7 +1250,6 @@
         </div>
     </div>
 
-    <!-- Modal Adicionar Gasto -->
     <div id="addExpenseModal" class="modal">
         <div class="modal-content">
             <span class="modal-close" onclick="closeModal('addExpenseModal')">&times;</span>
@@ -1842,7 +1875,7 @@
             let suppliesTable = '';
             if (group.supplyExpenses.length > 0) {
                 suppliesTable = `
-                    <h4 style="margin-top: 20px;">Gastos com Insumos</h4>
+                    <h4 style="margin-top: 20px;">Gastos com Insumos (Alimentação/Manejo)</h4>
                     <table class="compact-table">
                         <thead>
                             <tr>
@@ -1917,6 +1950,57 @@
             `;
 
             openModal('groupDetailsModal');
+        }
+
+        // NOVA FUNÇÃO: Abrir modal de edição com dados preenchidos
+        function openEditGroupModal() {
+            if (!currentGroupId) return;
+            const group = cattleGroups.find(g => g.id === currentGroupId);
+            if (!group) return;
+
+            document.getElementById('editGroupName').value = group.name;
+            document.getElementById('editGroupQuantity').value = group.quantity;
+            document.getElementById('editGroupAvgWeight').value = group.avgWeight;
+            document.getElementById('editGroupCategory').value = group.category;
+            document.getElementById('editGroupTotalCost').value = group.initialCost;
+
+            // Fechar o modal de detalhes e abrir o de edição
+            closeModal('groupDetailsModal');
+            openModal('editGroupModal');
+        }
+
+        // NOVA FUNÇÃO: Salvar edição do grupo
+        async function saveGroupEdit() {
+            if (!currentGroupId) return;
+            
+            const name = document.getElementById('editGroupName').value.trim();
+            const quantity = parseInt(document.getElementById('editGroupQuantity').value);
+            const avgWeight = parseFloat(document.getElementById('editGroupAvgWeight').value);
+            const category = document.getElementById('editGroupCategory').value;
+            const initialCost = parseFloat(document.getElementById('editGroupTotalCost').value);
+
+            if (!name || !quantity || quantity <= 0 || !avgWeight || avgWeight <= 0) {
+                alert('Por favor, preencha os campos obrigatórios corretamente.');
+                return;
+            }
+
+            const groupIndex = cattleGroups.findIndex(g => g.id === currentGroupId);
+            if (groupIndex !== -1) {
+                // Atualizar propriedades
+                cattleGroups[groupIndex].name = name;
+                cattleGroups[groupIndex].quantity = quantity;
+                cattleGroups[groupIndex].avgWeight = avgWeight;
+                cattleGroups[groupIndex].category = category;
+                cattleGroups[groupIndex].initialCost = initialCost || 0;
+
+                await saveData();
+                closeModal('editGroupModal');
+                
+                // Reabrir detalhes atualizados
+                showGroupDetails(currentGroupId);
+                updateDisplay();
+                alert('Grupo atualizado com sucesso!');
+            }
         }
 
         function updateStockProductSelect() {
@@ -2214,6 +2298,7 @@
             await saveData();
             closeModal('addExpenseModal');
             updateExpensesTable();
+            updateFinancialSummary(); // Atualiza o financeiro ao adicionar gasto
             alert('Gasto registrado com sucesso!');
         }
 
@@ -2239,16 +2324,26 @@
             }
         }
 
+        // FUNÇÃO FINANCEIRA CORRIGIDA
         function updateFinancialSummary() {
             let totalInvestment = 0;
             let totalSupplies = 0;
             let totalRevenue = 0;
 
+            // 1. Somar dados dos grupos
             cattleGroups.forEach(group => {
-                totalInvestment += group.initialCost;
-                const supplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                totalSupplies += supplies;
-                totalRevenue += group.revenue;
+                totalInvestment += group.initialCost || 0;
+                
+                // Somar insumos deste grupo
+                const groupSupplies = group.supplyExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
+                totalSupplies += groupSupplies;
+                
+                totalRevenue += group.revenue || 0;
+            });
+
+            // 2. Somar gastos gerais (Veterinário, Manutenção, etc.)
+            expenses.forEach(expense => {
+                totalSupplies += expense.amount || 0;
             });
 
             const totalProfit = totalRevenue - (totalInvestment + totalSupplies);
