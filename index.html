@@ -3,1284 +3,686 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gerenciamento de Gado</title>
+    <title>SmartGado 3.0 - Cloud Edition</title>
+    
+    <!-- PWA Manifest & Icons -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#059669">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2395/2395796.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2395/2395796.png">
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase SDKs (Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --primary: #059669;       /* Emerald 600 */
+            --primary-dark: #047857;  /* Emerald 700 */
+            --primary-light: #d1fae5; /* Emerald 100 */
+            --secondary: #2563eb;     /* Blue 600 */
+            --accent: #d97706;        /* Amber 600 */
+            --danger: #dc2626;        /* Red 600 */
+            --dark: #1f2937;          /* Gray 800 */
+            --gray: #6b7280;          /* Gray 500 */
+            --light: #f3f4f6;         /* Gray 100 */
+            --white: #ffffff;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f0f9f0 0%, #e6f3ff 100%);
-            min-height: 100vh;
-            color: #333;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark);
+            padding-bottom: 80px; /* Space for mobile nav */
         }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Estilos das páginas de autenticação */
-        .login-page {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .login-container {
-            background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 500px;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
+        /* --- Layout --- */
+        .app-container { max-width: 1280px; margin: 0 auto; padding: 16px; }
+        
+        /* --- Navigation --- */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
             left: 0;
-            right: 0;
-            height: 5px;
-            background: linear-gradient(90deg, #10b981, #3b82f6, #8b5cf6);
-        }
-
-        .login-logo {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-            40% { transform: translateY(-10px); }
-            60% { transform: translateY(-5px); }
-        }
-
-        .login-title {
-            font-size: 2.5rem;
-            color: #2d5a3d;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .login-subtitle {
-            color: #6b7280;
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
-        .location-info {
-            background: #f0f9ff;
-            border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: #1e40af;
-        }
-
-        .login-form {
-            margin-bottom: 20px;
-        }
-
-        .login-input {
             width: 100%;
-            padding: 16px 20px;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            z-index: 1000;
+            border-top: 1px solid #e5e7eb;
         }
 
-        .login-input:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .login-btn {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 12px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .login-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .login-btn:hover:not(:disabled)::before {
-            left: 100%;
-        }
-
-        .login-btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-register {
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-            margin-top: 10px;
-        }
-
-        .btn-register:hover:not(:disabled) {
-            background: linear-gradient(135deg, #1d4ed8, #1e40af);
-            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-        }
-
-        .auth-buttons {
+        .nav-item {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .auth-footer {
-            display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e5e7eb;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .link-btn {
-            background: none;
-            border: none;
-            color: #3b82f6;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.75rem;
             cursor: pointer;
-            font-size: 0.9rem;
-            text-decoration: underline;
-            transition: color 0.3s ease;
+            transition: 0.3s;
+            flex: 1;
         }
 
-        .link-btn:hover {
-            color: #1d4ed8;
-        }
+        .nav-item i { font-size: 1.25rem; margin-bottom: 4px; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); font-weight: 600; }
+        .nav-item.active i { transform: translateY(-2px); }
 
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .success-message {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #16a34a;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            text-align: center;
-        }
-
-        .login-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .login-feature {
-            text-align: center;
-            padding: 15px;
-            background: #f8fafc;
-            border-radius: 10px;
-            transition: transform 0.3s ease;
-        }
-
-        .login-feature:hover {
-            transform: translateY(-3px);
-        }
-
-        .login-feature-icon {
-            font-size: 2rem;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .login-feature-text {
-            font-size: 0.9rem;
-            color: #6b7280;
-            font-weight: 500;
-        }
-
-        /* Estilos da aplicação principal */
-        .main-app {
-            display: none;
-        }
-
-        .main-app.active {
-            display: block;
-        }
-
-        .header {
-            background: white;
-            border-radius: 12px;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #2d5a3d;
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #10b981, #059669);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .logout-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .logout-btn:hover {
-            background: #dc2626;
-            transform: translateY(-1px);
-        }
-
-        h1 {
-            text-align: center;
-            color: #2d5a3d;
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
+        /* --- Cards --- */
         .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-card {
+            background: var(--white);
+            border-radius: 16px;
             padding: 20px;
-            border-radius: 12px;
-            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f5f9;
+        }
+
+        .card h3 { 
+            font-size: 1.1rem; 
+            margin-bottom: 15px; 
+            color: var(--dark); 
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .dashboard-card.user { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-        .dashboard-card.temp { background: linear-gradient(135deg, #f97316, #ea580c); }
-        .dashboard-card.humidity { background: linear-gradient(135deg, #06b6d4, #0891b2); }
-        .dashboard-card.cattle { background: linear-gradient(135deg, #10b981, #059669); }
-
-        .dashboard-card .icon {
-            font-size: 2rem;
-            opacity: 0.8;
-        }
-
-        .dashboard-card h3 {
-            margin: 0;
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .dashboard-card .value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 4px 0;
-        }
-
-        .dashboard-card .subtitle {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-
-        /* Pinboard Layout */
-        .pinboard-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .pinboard-card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            flex-direction: column;
-            min-height: 300px;
-        }
-
-        .pinboard-card.large {
-            grid-column: span 2;
-        }
-
-        .pinboard-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f0f9f0;
-        }
-
-        .pinboard-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #2d5a3d;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .pinboard-body {
-            flex: 1;
-            overflow-y: auto;
-            max-height: 500px;
-        }
-
-        /* Grupos */
-        .group-item {
-            background: #f9fafb;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid #10b981;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .group-item:hover {
-            background: #f0f9f0;
-            transform: translateX(5px);
-        }
-
-        .group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .group-name {
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: #2d5a3d;
-        }
-
-        .group-count {
-            background: #10b981;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-        }
-
-        .group-info {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .group-info-item {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .group-info-label {
-            font-size: 0.8rem;
-            color: #9ca3af;
-        }
-
-        .group-info-value {
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .profit-positive {
-            color: #10b981;
-        }
-
-        .profit-negative {
-            color: #ef4444;
-        }
-
-        /* Financeiro */
-        .financial-summary {
-            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-            border-radius: 12px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .financial-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-
-        .financial-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            background: white;
-            border-radius: 8px;
-        }
-
-        .financial-label {
-            font-weight: 500;
-            color: #6b7280;
-        }
-
-        .financial-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        /* Formulários */
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: #10b981;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .input-group input,
-        .input-group select {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #d1d5db;
-            border-radius: 8px;
-        }
-
-        /* Botões */
-        .btn {
-            background: #10b981;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            display: inline-flex;
             align-items: center;
             gap: 8px;
         }
 
-        .btn:hover {
-            background: #059669;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        /* --- Dashboard Grid --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
-        .btn-secondary {
-            background: #6366f1;
-        }
-
-        .btn-secondary:hover {
-            background: #4f46e5;
-        }
-        
-        .btn-warning {
-            background: #f59e0b;
-        }
-        
-        .btn-warning:hover {
-            background: #d97706;
-        }
-
-        .btn-delete {
-            background: #ef4444;
-        }
-
-        .btn-delete:hover {
-            background: #dc2626;
-        }
-
-        .btn-small {
-            padding: 6px 12px;
-            font-size: 0.9rem;
-        }
-
-        .btn-group {
+        .stat-card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 16px;
             display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+            flex-direction: column;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card i {
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 4rem;
+            opacity: 0.05;
+            color: var(--dark);
         }
 
-        /* Tabelas */
-        .table-container {
-            overflow-x: auto;
-        }
+        .stat-value { font-size: 1.75rem; font-weight: 800; color: var(--dark); margin: 5px 0; }
+        .stat-label { color: var(--gray); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* --- Lists --- */
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: background 0.2s;
         }
+        .list-item:hover { background-color: #f8fafc; }
+        .list-item:last-child { border-bottom: none; }
 
-        .compact-table {
-            width: 100%;
-            font-size: 0.9rem;
-        }
-
-        .compact-table th,
-        .compact-table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .compact-table th {
-            background-color: #f0f9f0;
-            font-weight: 600;
-            color: #2d5a3d;
-        }
-
-        .compact-table tr:hover {
-            background-color: #f9fafb;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        th {
-            background-color: #f0f9f0;
-            font-weight: 600;
-            color: #2d5a3d;
-        }
-
-        tr:hover {
-            background-color: #f9fafb;
-        }
-
-        /* Badges */
+        /* --- Badges --- */
         .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            margin: 2px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+        .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
+        .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+
+        /* --- Forms & Buttons --- */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+        
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #b91c1c; }
+        
+        .btn-success { background: #16a34a; }
+        .btn-success:hover { background: #15803d; }
+
+        .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
+        
+        .btn-group-row { display: flex; gap: 8px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dark); font-size: 0.9rem; }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: #f8fafc;
+        }
+        .form-input:focus { border-color: var(--primary); background: white; }
+
+        /* --- Tabs --- */
+        .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; gap: 20px; overflow-x: auto; }
+        .tab {
+            padding: 10px 5px;
+            cursor: pointer;
+            color: var(--gray);
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
+        }
+        .tab.active { color: var(--primary); }
+        .tab.active::after {
+            content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--primary);
         }
 
-        .badge-category {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .badge-number {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        /* Estados vazios */
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #6b7280;
-        }
-
-        /* Modal */
+        /* --- Modal --- */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
             justify-content: center;
-            align-items: center;
-            overflow-y: auto;
+            align-items: flex-end; /* Mobile friendly */
         }
-
+        @media(min-width: 768px) { .modal { align-items: center; } }
+        
+        .modal.active { display: flex; }
+        
         .modal-content {
             background: white;
-            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+        @media(min-width: 768px) { .modal-content { border-radius: 24px; } }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        /* --- Utilities --- */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .gap-2 { gap: 8px; }
+        .text-sm { font-size: 0.85rem; }
+        .text-gray { color: var(--gray); }
+        .text-danger { color: var(--danger); }
+        .text-success { color: #16a34a; }
+
+        /* --- Specific Components --- */
+        .header-user {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
+        }
+        .header-title h2 { font-size: 1.5rem; color: var(--dark); }
+        .header-title p { color: var(--gray); font-size: 0.9rem; }
+
+        .paddock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+        .paddock-cell {
+            background: white;
+            border: 2px solid #e2e8f0;
             border-radius: 12px;
-            width: 90%;
-            max-width: 600px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            position: relative;
-            margin: 20px auto;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 2rem;
-            font-weight: bold;
+            padding: 12px;
+            text-align: center;
             cursor: pointer;
-            color: #aaa;
+            transition: 0.2s;
+        }
+        .paddock-cell:hover { border-color: var(--primary); }
+        .paddock-cell.occupied { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+        
+        .auth-toggle {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
         }
 
-        .modal-close:hover {
-            color: #555;
+        .financial-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
         }
-
-        /* Responsive */
-        @media (max-width: 1200px) {
-            .pinboard-card.large {
-                grid-column: span 1;
-            }
+        .fin-box {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e5e7eb;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .login-container {
-                padding: 30px 20px;
-            }
-
-            .login-title {
-                font-size: 2rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .dashboard-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .pinboard-container {
-                grid-template-columns: 1fr;
-            }
-
-            .header {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .auth-footer {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .form-row {
-                flex-direction: column;
-            }
-
-            .financial-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .input-group {
-                flex-direction: column;
-            }
-        }
+        .fin-box h4 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; margin-bottom: 5px; }
+        .fin-box div { font-size: 1.1rem; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div id="initialPage" class="login-page">
-        <div class="login-container">
-            <div class="login-logo">🐄</div>
-            <h1 class="login-title">Bem-vindo!</h1>
-            <p class="login-subtitle">Sistema de Gerenciamento de Gado</p>
+
+    <!-- === AUTH SCREEN === -->
+    <div id="authScreen" class="app-container" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
+        <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
+            <div style="font-size: 4rem; margin-bottom: 20px; color: var(--primary);">☁️</div>
+            <h1 style="color: var(--dark); margin-bottom: 5px;">SmartGado 3.0</h1>
+            <p style="color: var(--gray); margin-bottom: 30px;">Cloud Edition • Dados na Nuvem</p>
             
-            <div id="locationInfo" class="location-info" style="display: none;">
-                <div id="locationText">📍 Detectando localização...</div>
-            </div>
-            
-            <div class="auth-buttons">
-                <button class="login-btn" onclick="showLoginForm()">
-                    🔑 Fazer Login
-                </button>
-                <button class="login-btn btn-register" onclick="showRegisterForm()">
-                    📝 Registrar-se
-                </button>
-            </div>
-
-            <div class="login-features">
-                <div class="login-feature">
-                    <span class="login-feature-icon">📊</span>
-                    <div class="login-feature-text">Relatórios</div>
-                </div>
-                <div class="login-feature">
-                    <span class="login-feature-icon">🐄</span>
-                    <div class="login-feature-text">Gestão</div>
-                </div>
-                <div class="login-feature">
-                    <span class="login-feature-icon">💰</span>
-                    <div class="login-feature-text">Financeiro</div>
-                </div>
-                <div class="login-feature">
-                    <span class="login-feature-icon">📈</span>
-                    <div class="login-feature-text">Análises</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="loginPage" class="login-page" style="display: none;">
-        <div class="login-container">
-            <div class="login-logo">🔑</div>
-            <h1 class="login-title">Login</h1>
-            <p class="login-subtitle">Entre em sua conta</p>
-            
-            <form class="login-form" onsubmit="login(event)">
-                <input 
-                    type="text" 
-                    id="loginUserName" 
-                    class="login-input" 
-                    placeholder="Digite seu nome de usuário..." 
-                    required 
-                    maxlength="50"
-                    autocomplete="username"
-                >
-                <input 
-                    type="password" 
-                    id="loginPassword" 
-                    class="login-input" 
-                    placeholder="Digite sua senha..." 
-                    required 
-                    autocomplete="current-password"
-                >
-                <button type="submit" class="login-btn" id="loginBtn">
-                    Entrar
-                </button>
-            </form>
-
-            <div class="auth-footer">
-                <button class="link-btn" onclick="showInitialPage()">
-                    ← Voltar
-                </button>
-                <button class="link-btn" onclick="showRegisterForm()">
-                    Não tem conta? Registre-se
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="registerPage" class="login-page" style="display: none;">
-        <div class="login-container">
-            <div class="login-logo">📝</div>
-            <h1 class="login-title">Registrar</h1>
-            <p class="login-subtitle">Crie sua nova conta</p>
-            
-            <form class="login-form" onsubmit="register(event)">
-                <input 
-                    type="text" 
-                    id="registerUserName" 
-                    class="login-input" 
-                    placeholder="Digite seu nome de usuário..." 
-                    required 
-                    maxlength="50"
-                    autocomplete="username"
-                >
-                <input 
-                    type="text" 
-                    id="registerFullName" 
-                    class="login-input" 
-                    placeholder="Digite seu nome completo..." 
-                    required 
-                    maxlength="100"
-                    autocomplete="name"
-                >
-                <input 
-                    type="password" 
-                    id="registerPassword" 
-                    class="login-input" 
-                    placeholder="Crie uma senha..." 
-                    required 
-                    minlength="6"
-                    autocomplete="new-password"
-                >
-                <input 
-                    type="password" 
-                    id="confirmPassword" 
-                    class="login-input" 
-                    placeholder="Confirme sua senha..." 
-                    required 
-                    minlength="6"
-                    autocomplete="new-password"
-                >
-                <button type="submit" class="login-btn" id="registerBtn">
-                    Criar Conta
-                </button>
-            </form>
-
-            <div class="auth-footer">
-                <button class="link-btn" onclick="showInitialPage()">
-                    ← Voltar
-                </button>
-                <button class="link-btn" onclick="showLoginForm()">
-                    Já tem conta? Faça login
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <div id="mainApp" class="main-app">
-        <div class="container">
-            <div class="header">
-                <div class="user-info">
-                    <div class="user-avatar" id="userAvatar">J</div>
-                    <div>
-                        <div><strong>Olá, <span id="userDisplayName">Usuário</span>!</strong></div>
-                        <div style="color: #6b7280; font-size: 0.9rem;" id="userLocation">
-                            📍 <span id="locationDisplay">Carregando localização...</span>
-                        </div>
+            <div id="loginFormBlock">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <input type="text" id="loginUser" class="form-input" placeholder="Usuário (Login)" required autocomplete="username">
                     </div>
-                </div>
-                <button class="logout-btn" onclick="logout()">
-                    🚪 Sair
-                </button>
+                    <div class="form-group">
+                        <input type="password" id="loginPass" class="form-input" placeholder="Senha" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn" id="btnLogin">
+                        <span>Entrar</span> <i class="fas fa-sign-in-alt"></i>
+                    </button>
+                </form>
+                <div class="auth-toggle" onclick="toggleAuthMode('register')">Não tem conta? Registrar-se</div>
             </div>
 
-            <h1>Sistema de Gerenciamento de Gado</h1>
+            <div id="registerFormBlock" class="hidden">
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <input type="text" id="regUser" class="form-input" placeholder="Novo Usuário (Login)" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="regName" class="form-input" placeholder="Nome Completo" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="regPass" class="form-input" placeholder="Criar Senha" required>
+                    </div>
+                    <button type="submit" class="btn" id="btnRegister">
+                        <span>Criar Conta</span> <i class="fas fa-user-plus"></i>
+                    </button>
+                </form>
+                <div class="auth-toggle" onclick="toggleAuthMode('login')">Já tem conta? Fazer Login</div>
+            </div>
+            
+            <p id="authMessage" style="margin-top:20px; color: var(--danger); font-size: 0.9rem;"></p>
+        </div>
+    </div>
 
-            <div class="card">
+    <!-- === MAIN APP === -->
+    <div id="appScreen" class="hidden">
+        
+        <div class="app-container" style="padding-bottom: 0;">
+            <div class="header-user">
+                <div class="header-title">
+                    <h2 id="welcomeMsg">Olá, Produtor</h2>
+                    <p id="dateDisplay"></p>
+                </div>
+                <button onclick="logout()" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+            
+            <!-- Notification Area -->
+            <div id="alertArea"></div>
+        </div>
+
+        <div class="app-container" id="mainContent">
+            
+            <!-- VIEW: DASHBOARD -->
+            <div id="viewDashboard" class="view-section">
                 <div class="dashboard-grid">
-                    <div class="dashboard-card user">
-                        <div>
-                            <h3>Usuário</h3>
-                            <div class="value" id="dashboardUserName">Usuário</div>
-                            <div class="subtitle" id="dashboardLocation">Carregando...</div>
-                        </div>
-                        <div class="icon">👤</div>
+                    <div class="stat-card" style="border-color: var(--primary);">
+                        <i class="fas fa-cow"></i>
+                        <div class="stat-value" id="dashTotalAnimals">0</div>
+                        <div class="stat-label">Total Cabeças</div>
                     </div>
-                    
-                    <div class="dashboard-card temp">
-                        <div>
-                            <h3>Temperatura</h3>
-                            <div class="value" id="tempValue">--°C</div>
-                            <div class="subtitle" id="weatherDesc">Carregando...</div>
-                        </div>
-                        <div class="icon">🌡️</div>
+                    <div class="stat-card" style="border-color: var(--secondary);">
+                        <i class="fas fa-weight-hanging"></i>
+                        <div class="stat-value" id="dashAvgGMD">0.00</div>
+                        <div class="stat-label">GMD Médio (kg/dia)</div>
                     </div>
-                    
-                    <div class="dashboard-card humidity">
-                        <div>
-                            <h3>Umidade</h3>
-                            <div class="value" id="humidityValue">--%</div>
-                            <div class="subtitle">Condição atual</div>
-                        </div>
-                        <div class="icon">💧</div>
+                    <div class="stat-card" style="border-color: var(--accent);">
+                        <i class="fas fa-coins"></i>
+                        <div class="stat-value" id="dashTotalValue">R$ 0</div>
+                        <div class="stat-label">Estoque Estimado (@)</div>
                     </div>
-                    
-                    <div class="dashboard-card cattle">
-                        <div>
-                            <h3>Total de Grupos</h3>
-                            <div class="value" id="totalGroups">0</div>
-                            <div class="subtitle">Grupos cadastrados</div>
-                        </div>
-                        <div class="icon">🐄</div>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Desempenho: Chuva x Peso</h3>
+                    <p class="text-sm text-gray" style="margin-bottom:10px;">Relação entre precipitação e ganho de peso.</p>
+                    <canvas id="rainWeightChart" height="200"></canvas>
+                </div>
+
+                <div class="card">
+                    <h3><i class="fas fa-chart-pie"></i> Distribuição do Rebanho</h3>
+                    <div style="height: 250px; display: flex; justify-content: center;">
+                        <canvas id="herdPieChart"></canvas>
                     </div>
                 </div>
             </div>
 
-            <div class="pinboard-container">
-                <div class="pinboard-card">
-                    <div class="pinboard-header">
-                        <div class="pinboard-title">🐄 Grupos de Gado</div>
-                        <button class="btn btn-small" onclick="openModal('addGroupModal')">➕ Novo Grupo</button>
+            <!-- VIEW: LOTES (GRUPOS) -->
+            <div id="viewGroups" class="view-section hidden">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h2>Meus Lotes</h2>
+                    <button class="btn btn-sm" onclick="openModal('modalNewGroup')"><i class="fas fa-plus"></i> Novo Lote</button>
+                </div>
+                <div id="groupsList"></div>
+            </div>
+
+            <!-- VIEW: PASTAGENS -->
+            <div id="viewPastures" class="view-section hidden">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h2>Gestão de Pastos</h2>
+                    <button class="btn btn-sm" onclick="openModal('modalNewPasture')"><i class="fas fa-plus"></i> Piquete</button>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-map-marked-alt"></i> Mapa de Lotação</h3>
+                    <p class="text-sm text-gray" style="margin-bottom: 15px;">Clique no pasto para ver detalhes.</p>
+                    <div class="paddock-grid" id="pasturesGrid"></div>
+                </div>
+
+                <div class="card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe;">
+                    <h3><i class="fas fa-cloud-rain"></i> Pluviômetro Digital</h3>
+                    <div class="flex-between gap-2">
+                        <input type="date" id="rainDate" class="form-input" style="flex:1;">
+                        <input type="number" id="rainMm" class="form-input" placeholder="mm" style="flex:1;">
+                        <button class="btn btn-secondary" style="width: auto;" onclick="addRainfall()">Lançar</button>
                     </div>
-                    <div class="pinboard-body" id="groupsList">
-                        <div class="empty-state">Nenhum grupo cadastrado.</div>
+                </div>
+            </div>
+
+            <!-- VIEW: SANITÁRIO -->
+            <div id="viewHealth" class="view-section hidden">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h2>Controle Sanitário</h2>
+                    <button class="btn btn-outline btn-sm" onclick="printHealthReport()"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+                </div>
+                
+                <div class="card" style="border-left: 5px solid var(--danger);">
+                    <h3><i class="fas fa-ban"></i> Períodos de Carência Ativos</h3>
+                    <div id="withdrawalList"></div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-syringe"></i> Próximas Vacinas</h3>
+                    <div id="vaccineList"></div>
+                </div>
+            </div>
+
+            <!-- VIEW: FINANCEIRO -->
+            <div id="viewFinancial" class="view-section hidden">
+                <div class="flex-between" style="margin-bottom: 16px;">
+                    <h2>Financeiro & Lucros</h2>
+                    <div class="btn-group-row">
+                        <button class="btn btn-sm btn-success" onclick="openTransactionModal('income')"><i class="fas fa-plus"></i> Receita</button>
+                        <button class="btn btn-sm btn-danger" onclick="openTransactionModal('expense')"><i class="fas fa-minus"></i> Despesa</button>
                     </div>
                 </div>
 
-                <div class="pinboard-card">
-                    <div class="pinboard-header">
-                        <div class="pinboard-title">📦 Estoque</div>
-                        <button class="btn btn-small" onclick="openModal('addProductModal')">➕ Adicionar</button>
-                    </div>
-                    <div class="pinboard-body">
-                        <div class="table-container">
-                            <table class="compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Produto</th>
-                                        <th>Qtd</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="stockTableBody">
-                                </tbody>
-                            </table>
-                            <div id="emptyStockState" class="empty-state">
-                                Nenhum produto em estoque.
-                            </div>
+                <div class="card">
+                    <div class="financial-summary">
+                        <div class="fin-box">
+                            <h4>Receitas</h4>
+                            <div class="text-success" id="finTotalRevenue">R$ 0,00</div>
+                        </div>
+                        <div class="fin-box">
+                            <h4>Despesas</h4>
+                            <div class="text-danger" id="finTotalExpense">R$ 0,00</div>
+                        </div>
+                        <div class="fin-box" style="background-color: #f8fafc;">
+                            <h4>Saldo Líquido</h4>
+                            <div id="finNetProfit">R$ 0,00</div>
                         </div>
                     </div>
+                    <p class="text-sm text-center text-gray">* Inclui gastos de ração lançados nos lotes.</p>
                 </div>
 
-                <div class="pinboard-card large">
-                    <div class="pinboard-header">
-                        <div class="pinboard-title">💰 Resumo Financeiro</div>
-                    </div>
-                    <div class="pinboard-body">
-                        <div class="financial-grid">
-                            <div class="financial-item">
-                                <span class="financial-label">Investimento em Gado</span>
-                                <span class="financial-value" style="color: #ef4444;" id="totalInvestment">R$ 0,00</span>
-                            </div>
-                            <div class="financial-item">
-                                <span class="financial-label">Despesas Totais</span>
-                                <span class="financial-value" style="color: #f59e0b;" id="totalSupplies">R$ 0,00</span>
-                            </div>
-                            <div class="financial-item">
-                                <span class="financial-label">Receita Estimada</span>
-                                <span class="financial-value" style="color: #10b981;" id="totalRevenue">R$ 0,00</span>
-                            </div>
-                            <div class="financial-item">
-                                <span class="financial-label">Lucro/Prejuízo</span>
-                                <span class="financial-value profit-positive" id="totalProfit">R$ 0,00</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="card">
+                    <h3><i class="fas fa-list"></i> Últimos Lançamentos</h3>
+                    <div id="financialList"></div>
                 </div>
+            </div>
 
-                <div class="pinboard-card">
-                    <div class="pinboard-header">
-                        <div class="pinboard-title">💸 Gastos Recentes</div>
-                        <button class="btn btn-small" onclick="openModal('addExpenseModal')">➕ Registrar</button>
-                    </div>
-                    <div class="pinboard-body">
-                        <div class="table-container">
-                            <table class="compact-table">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Descrição</th>
-                                        <th>Valor</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="expensesTableBody">
-                                </tbody>
-                            </table>
-                            <div id="emptyExpensesState" class="empty-state">
-                                Nenhum gasto registrado.
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-item active" onclick="switchView('viewDashboard', this)">
+                <i class="fas fa-chart-pie"></i> Dash
+            </div>
+            <div class="nav-item" onclick="switchView('viewGroups', this)">
+                <i class="fas fa-layer-group"></i> Lotes
+            </div>
+            <div class="nav-item" onclick="switchView('viewPastures', this)">
+                <i class="fas fa-seedling"></i> Pastos
+            </div>
+            <div class="nav-item" onclick="switchView('viewHealth', this)">
+                <i class="fas fa-heartbeat"></i> Saúde
+            </div>
+            <div class="nav-item" onclick="switchView('viewFinancial', this)">
+                <i class="fas fa-wallet"></i> Finanças
             </div>
         </div>
+
     </div>
 
-    <div id="addGroupModal" class="modal">
+    <!-- === MODALS === -->
+
+    <!-- Novo Grupo -->
+    <div id="modalNewGroup" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('addGroupModal')">&times;</span>
-            <h2>➕ Novo Grupo de Gado</h2>
-            <div class="form-group">
-                <label>Nome do Grupo</label>
-                <input type="text" id="groupName" placeholder="Ex: Lote Janeiro 2025">
-            </div>
-            <div class="form-group">
-                <label>Quantidade de Animais</label>
-                <input type="number" id="groupQuantity" placeholder="0" min="1">
-            </div>
-            <div class="form-group">
-                <label>Peso Médio por Animal (kg)</label>
-                <input type="number" id="groupAvgWeight" placeholder="0">
-            </div>
-            <div class="form-group">
-                <label>Categoria</label>
-                <select id="groupCategory">
-                    <option value="Bezerro">Bezerro</option>
-                    <option value="Novilho">Novilho</option>
-                    <option value="Vaca">Vaca</option>
-                    <option value="Touro">Touro</option>
-                    <option value="Garrote">Garrote</option>
+            <h3>Novo Lote de Animais</h3>
+            <div class="form-group"><label>Nome do Lote</label><input type="text" id="newGroupName" class="form-input"></div>
+            <div class="form-group"><label>Categoria</label>
+                <select id="newGroupCategory" class="form-input">
+                    <option>Bezerros</option><option>Garrotes</option><option>Novilhas</option><option>Vacas</option><option>Touros</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Custo por Animal (R$)</label>
-                <input type="number" id="groupCostPerAnimal" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-                <label>ou Custo Total do Grupo (R$)</label>
-                <input type="number" id="groupTotalCost" placeholder="0.00" step="0.01">
-            </div>
-            <button class="btn" onclick="addGroup()" style="width: 100%; margin-top: 20px;">
-                Criar Grupo
-            </button>
+            <button class="btn" onclick="createGroup()">Salvar Lote</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalNewGroup')">Cancelar</button>
         </div>
     </div>
 
-    <div id="editGroupModal" class="modal">
+    <!-- Novo Pasto -->
+    <div id="modalNewPasture" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('editGroupModal')">&times;</span>
-            <h2>✏️ Editar Dados do Grupo</h2>
-            <div class="form-group">
-                <label>Nome do Grupo</label>
-                <input type="text" id="editGroupName">
-            </div>
-            <div class="form-group">
-                <label>Quantidade de Animais</label>
-                <input type="number" id="editGroupQuantity" min="1">
-            </div>
-            <div class="form-group">
-                <label>Peso Médio por Animal (kg)</label>
-                <input type="number" id="editGroupAvgWeight">
-            </div>
-            <div class="form-group">
-                <label>Categoria</label>
-                <select id="editGroupCategory">
-                    <option value="Bezerro">Bezerro</option>
-                    <option value="Novilho">Novilho</option>
-                    <option value="Vaca">Vaca</option>
-                    <option value="Touro">Touro</option>
-                    <option value="Garrote">Garrote</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label>Custo Inicial Total (R$)</label>
-                <input type="number" id="editGroupTotalCost" step="0.01">
-            </div>
-            <button class="btn btn-warning" onclick="saveGroupEdit()" style="width: 100%; margin-top: 20px;">
-                Salvar Alterações
-            </button>
+            <h3>Cadastrar Piquete</h3>
+            <div class="form-group"><label>Identificação (Ex: Piquete 01)</label><input type="text" id="newPastureName" class="form-input"></div>
+            <div class="form-group"><label>Área em Hectares (ha)</label><input type="number" id="newPastureArea" class="form-input"></div>
+            <div class="form-group"><label>Tipo de Forrageira</label><input type="text" id="newPastureGrass" class="form-input" placeholder="Ex: Brachiaria Brizantha"></div>
+            <button class="btn" onclick="createPasture()">Salvar Piquete</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalNewPasture')">Cancelar</button>
         </div>
     </div>
 
-    <div id="groupDetailsModal" class="modal">
-        <div class="modal-content" style="max-width: 800px;">
-            <span class="modal-close" onclick="closeModal('groupDetailsModal')">&times;</span>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                <h2 id="groupDetailsTitle" style="margin:0;">📊 Detalhes do Grupo</h2>
-                <button class="btn btn-warning btn-small" onclick="openEditGroupModal()">✏️ Editar Grupo</button>
+    <!-- Detalhes do Grupo -->
+    <div id="modalGroupDetails" class="modal">
+        <div class="modal-content">
+            <div class="flex-between">
+                <h3 id="detailGroupTitle">Lote 01</h3>
+                <span class="badge badge-success" id="detailGroupStatus">ATIVO</span>
             </div>
-            
-            <div id="groupDetailsContent"></div>
-            
-            <div style="margin-top: 20px;">
-                <h3>🌾 Aplicar Produto do Estoque</h3>
-                <div class="input-group">
-                    <select id="supplyProductSelect" style="flex: 1; padding: 12px; border: 2px solid #d1d5db; border-radius: 8px;">
-                        <option value="">Selecione um produto...</option>
+            <p id="detailGroupSubtitle" class="text-sm text-gray" style="margin-bottom: 15px;"></p>
+
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('tabOverview', event)">Resumo</div>
+                <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem & GMD</div>
+                <div class="tab" onclick="switchTab('tabAnimals', event)">Individuais</div>
+                <div class="tab" onclick="switchTab('tabHealth', event)">Sanitário</div>
+                <div class="tab" onclick="switchTab('tabReprod', event)" id="tabReprodHeader">Reprodução</div>
+            </div>
+
+            <!-- Tab: Visão Geral & Conversão -->
+            <div id="tabOverview" class="tab-content">
+                <div class="card" style="background: #f8fafc;">
+                    <h4><i class="fas fa-calculator"></i> Indicadores Zootécnicos</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+                        <div>
+                            <span class="text-sm text-gray">GMD Atual</span>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);" id="calcGMD">0.000</div>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray">Custo por @ Produzida</span>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent);" id="calcFCR">R$ 0,00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Movimentação de Pasto</label>
+                    <select id="movePastureSelect" class="form-input" onchange="moveGroup(this.value)"></select>
+                </div>
+
+                <div class="form-group">
+                    <label>Lançar Despesa de Ração/Suplemento</label>
+                    <div class="flex-between gap-2">
+                        <input type="number" id="feedCost" class="form-input" placeholder="Valor Total (R$)">
+                        <button class="btn btn-sm btn-secondary" onclick="addFeedExpense()">Lançar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Pesagens -->
+            <div id="tabWeights" class="tab-content hidden">
+                <div class="card" style="border: 1px solid #e2e8f0;">
+                    <label>Nova Pesagem do Lote (Média)</label>
+                    <div class="flex-between gap-2">
+                        <input type="date" id="weightDate" class="form-input">
+                        <input type="number" id="weightValue" class="form-input" placeholder="Kg Médio">
+                        <button class="btn btn-sm" onclick="addWeight()">Salvar</button>
+                    </div>
+                </div>
+                <div id="weightHistoryList" style="margin-top: 10px;"></div>
+            </div>
+
+            <!-- Tab: Animais Individuais -->
+            <div id="tabAnimals" class="tab-content hidden">
+                <div class="form-group">
+                    <div class="flex-between gap-2">
+                        <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
+                        <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
+                    </div>
+                </div>
+                <div id="animalList" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- Tab: Sanitário -->
+            <div id="tabHealth" class="tab-content hidden">
+                <div class="card" style="background: #fef2f2; border: 1px solid #fca5a5;">
+                    <label style="color: var(--danger);">Aplicação Sanitária</label>
+                    <input type="text" id="healthName" class="form-input" placeholder="Medicamento/Vacina" style="margin-bottom: 8px;">
+                    <div class="flex-between gap-2">
+                        <input type="date" id="healthDate" class="form-input">
+                        <input type="number" id="healthWithdrawal" class="form-input" placeholder="Carência (dias)">
+                    </div>
+                    <button class="btn btn-danger" style="margin-top: 10px;" onclick="addHealthEvent()">Registrar</button>
+                </div>
+                <h4 style="margin: 10px 0;">Histórico</h4>
+                <div id="healthHistoryList"></div>
+            </div>
+
+            <!-- Tab: Reprodução -->
+            <div id="tabReprod" class="tab-content hidden">
+                <div class="card" style="background: #fdf2f8; border: 1px solid #fbcfe8;">
+                    <label style="color: #db2777;">Registro Reprodutivo</label>
+                    <select id="reprodType" class="form-input" style="margin-bottom: 8px;">
+                        <option value="IATF">Inseminação (IATF)</option>
+                        <option value="Monta">Monta Natural</option>
+                        <option value="Toque">Diagnóstico (Toque)</option>
                     </select>
-                    <input type="number" id="supplyQuantityUsed" placeholder="Quantidade" step="0.01" style="width: 150px;">
-                    <input type="date" id="supplyDate" style="width: 150px;">
-                    <button class="btn btn-small" onclick="addSupplyExpense()">Aplicar</button>
+                    <input type="date" id="reprodDate" class="form-input">
+                    <button class="btn" style="margin-top: 10px; background-color: #db2777;" onclick="addReprodEvent()">Registrar Evento</button>
                 </div>
-                <div id="stockWarning" style="display: none; color: #ef4444; font-size: 0.9rem; margin-top: 5px;">
-                    ⚠️ Produto não disponível em estoque suficiente
-                </div>
+                <div id="reprodHistoryList"></div>
             </div>
 
-            <div style="margin-top: 20px;">
-                <h3>💵 Definir Receita (Venda)</h3>
-                <div class="input-group">
-                    <input type="number" id="revenueAmount" placeholder="Valor Total da Venda (R$)" step="0.01">
-                    <button class="btn btn-secondary btn-small" onclick="setRevenue()">Salvar Receita</button>
-                </div>
-            </div>
-
-            <div class="btn-group" style="margin-top: 20px;">
-                <button class="btn btn-delete" onclick="deleteGroup()">🗑️ Excluir Grupo</button>
-                <button class="btn btn-secondary" onclick="closeModal('groupDetailsModal')">Fechar</button>
-            </div>
+            <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalGroupDetails')">Fechar</button>
         </div>
     </div>
 
-    <div id="addProductModal" class="modal">
+    <!-- Modal Editar Animal -->
+    <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('addProductModal')">&times;</span>
-            <h2>📦 Adicionar Produto ao Estoque</h2>
+            <h3>Editar Animal</h3>
             <div class="form-group">
-                <label>Nome do Produto</label>
-                <input type="text" id="productName" placeholder="Ex: Ração, Sal Mineral">
+                <label>Novo Brinco/ID</label>
+                <input type="text" id="editAnimalIdInput" class="form-input">
             </div>
+            <input type="hidden" id="editAnimalIndex">
+            <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalEditAnimal')">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Modal Transação Financeira -->
+    <div id="modalTransaction" class="modal">
+        <div class="modal-content">
+            <h3 id="transTitle">Nova Transação</h3>
             <div class="form-group">
                 <label>Descrição</label>
-                <input type="text" id="productDescription" placeholder="Detalhes do produto">
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Quantidade</label>
-                    <input type="number" id="productQuantity" placeholder="0" step="0.01">
-                </div>
-                <div class="form-group">
-                    <label>Unidade</label>
-                    <select id="productUnit">
-                        <option value="kg">kg</option>
-                        <option value="litros">Litros</option>
-                        <option value="unidades">Unidades</option>
-                        <option value="sacas">Sacas</option>
-                    </select>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>Valor Total (R$)</label>
-                <input type="number" id="productValue" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-                <label>Tipo de Transação</label>
-                <select id="productTransactionType">
-                    <option value="compra">Compra (Adicionar ao Estoque)</option>
-                    <option value="venda">Venda (Remover do Estoque)</option>
-                </select>
-            </div>
-            <button class="btn" onclick="addProduct()" style="width: 100%; margin-top: 20px;">
-                Processar Transação
-            </button>
-        </div>
-    </div>
-
-    <div id="addExpenseModal" class="modal">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closeModal('addExpenseModal')">&times;</span>
-            <h2>💸 Registrar Gasto</h2>
-            <div class="form-group">
-                <label>Data do Gasto</label>
-                <input type="date" id="expenseDate">
-            </div>
-            <div class="form-group">
-                <label>Descrição</label>
-                <input type="text" id="expenseDescription" placeholder="Ex: Veterinário, Manutenção">
+                <input type="text" id="transDesc" class="form-input" placeholder="Ex: Venda Lote 01, Energia...">
             </div>
             <div class="form-group">
                 <label>Valor (R$)</label>
-                <input type="number" id="expenseAmount" placeholder="0.00" step="0.01">
+                <input type="number" id="transAmount" class="form-input" placeholder="0.00">
             </div>
             <div class="form-group">
-                <label>Categoria</label>
-                <input type="text" id="expenseCategory" placeholder="Ex: Saúde, Manutenção">
+                <label>Data</label>
+                <input type="date" id="transDate" class="form-input">
             </div>
-            <button class="btn" onclick="addExpense()" style="width: 100%; margin-top: 20px;">
-                Registrar Gasto
-            </button>
+            <input type="hidden" id="transType">
+            <button class="btn" id="btnSaveTrans" onclick="addTransaction()">Salvar</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalTransaction')">Cancelar</button>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-
+    <!-- Scripts -->
     <script>
-        // Configuração do Firebase
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyDyKezs7gqjE9HUw_HjUMqA7ofxc5Sp9Bc",
             authDomain: "meu-gado-site.firebaseapp.com",
@@ -1291,1102 +693,756 @@
             measurementId: "G-MYK82JG8E2"
         };
         
-        // Inicializar Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Dados globais
-        let currentUser = null;
-        let cattleGroups = [];
-        let stock = [];
-        let expenses = [];
-        let userLocation = { city: '', state: '', country: '', lat: null, lon: null };
-        let currentGroupId = null;
-        
-        // Chave API OpenWeatherMap
-        const OPENWEATHER_API_KEY = '6b78a94becfdff74b732c9bd59a89b1f';
-        
-        const LAST_USER_KEY = 'lastLoggedInUser';
-        const AUTO_LOGIN_KEY = 'autoLoginToken';
+        // --- DATA STRUCTURE ---
+        let currentUser = null; // { id, name, fullName }
+        let appData = {
+            groups: [], 
+            pastures: [], 
+            rainfall: [],
+            financials: [] // { id, type: 'income'|'expense', desc, amount, date }
+        };
 
-        // Sistema de armazenamento usando Firebase Firestore
+        // --- INIT ---
+        window.onload = function() {
+            document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
+        };
+
+        // --- CLOUD SYNC ---
+
+        async function loadData(userId) {
+            try {
+                const doc = await db.collection('users').doc(userId).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    // Merge logic to ensure new structure exists
+                    appData.groups = data.groups || [];
+                    appData.pastures = data.pastures || [];
+                    appData.rainfall = data.rainfall || [];
+                    appData.financials = data.financials || [];
+                } else {
+                    // New User on Cloud
+                    appData = { groups: [], pastures: [], rainfall: [], financials: [] };
+                    await saveData(); // Init doc
+                }
+                checkVaccineAlerts();
+                renderAll();
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+                alert("Erro ao conectar com a nuvem.");
+            }
+        }
+
         async function saveData() {
             if (!currentUser) return;
-
-            const userRef = db.collection('users').doc(currentUser.id);
-
-            const userData = {
-                cattleGroups: cattleGroups,
-                stock: stock,
-                expenses: expenses,
-                location: userLocation,
-                loginDate: currentUser.loginDate,
-                loginTime: currentUser.loginTime,
-                fullName: currentUser.fullName,
-                lastLogin: new Date().toISOString()
-            };
-
             try {
-                await userRef.set(userData, { merge: true });
-                console.log('Dados do usuário salvos no Firebase!');
+                // Save entire appData state to the user's document
+                await db.collection('users').doc(currentUser.id).set(appData, { merge: true });
+                // Optional: visual indicator of saving?
             } catch (error) {
-                console.error('Erro ao salvar dados:', error);
+                console.error("Erro ao salvar:", error);
             }
         }
 
-        // Carregar dados do Firebase Firestore
-        async function loadData(userId) {
-            const userRef = db.collection('users').doc(userId);
+        // --- AUTH LOGIC (Restored from Original) ---
 
-            try {
-                const doc = await userRef.get();
-                if (doc.exists) {
-                    const userData = doc.data();
-                    cattleGroups = userData.cattleGroups || [];
-                    stock = userData.stock || [];
-                    expenses = userData.expenses || [];
-                    userLocation = userData.location || { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
-                    console.log('Dados do usuário carregados do Firebase!');
-                    return userData;
-                } else {
-                    cattleGroups = [];
-                    stock = [];
-                    expenses = [];
-                    userLocation = { city: 'Carregando...', state: 'Carregando...', country: 'Carregando...' };
-                    console.log('Novo usuário, dados inicializados.');
-                    return null;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                return null;
+        function toggleAuthMode(mode) {
+            document.getElementById('authMessage').innerText = '';
+            if(mode === 'register') {
+                document.getElementById('loginFormBlock').classList.add('hidden');
+                document.getElementById('registerFormBlock').classList.remove('hidden');
+            } else {
+                document.getElementById('loginFormBlock').classList.remove('hidden');
+                document.getElementById('registerFormBlock').classList.add('hidden');
             }
         }
 
-        // Registrar novo usuário
-        async function registerUser(userName, fullName, password) {
-            const userId = userName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
-            const authRef = db.collection('auth').doc(userId);
-            const userRef = db.collection('users').doc(userId);
+        async function handleLogin(e) {
+            e.preventDefault();
+            const user = document.getElementById('loginUser').value.trim();
+            const pass = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('authMessage');
+
+            if(!user || !pass) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
+            msg.innerText = '';
+
+            const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 
             try {
-                const authDoc = await authRef.get();
-                if (authDoc.exists) {
-                    throw new Error('Nome de usuário já existe!');
-                }
-
-                const passwordHash = btoa(password + userId);
-
-                await authRef.set({
-                    userName: userName.trim(),
-                    fullName: fullName.trim(),
-                    passwordHash: passwordHash,
-                    createdAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString()
-                });
-
-                await userRef.set({
-                    cattleGroups: [],
-                    stock: [],
-                    expenses: [],
-                    location: userLocation,
-                    fullName: fullName.trim(),
-                    createdAt: new Date().toISOString()
-                });
-
-                return { success: true, userId: userId };
-            } catch (error) {
-                console.error('Erro ao registrar usuário:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Verificar credenciais do usuário
-        async function verifyUser(userName, password) {
-            const userId = userName.trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
-            const authRef = db.collection('auth').doc(userId);
-
-            try {
-                const authDoc = await authRef.get();
+                // Verify credentials against 'auth' collection
+                const authDoc = await db.collection('auth').doc(userId).get();
+                
                 if (!authDoc.exists) {
-                    throw new Error('Usuário não encontrado!');
+                    throw new Error('Usuário não encontrado.');
                 }
 
                 const authData = authDoc.data();
-                const passwordHash = btoa(password + userId);
+                const passwordHash = btoa(pass + userId); // Simple hash matching old system
 
                 if (authData.passwordHash !== passwordHash) {
-                    throw new Error('Senha incorreta!');
+                    throw new Error('Senha incorreta.');
                 }
 
-                await authRef.update({
-                    lastLogin: new Date().toISOString()
+                // Success
+                currentUser = {
+                    id: userId,
+                    name: authData.userName,
+                    fullName: authData.fullName
+                };
+
+                // Load Data
+                await loadData(userId);
+
+                // Switch Screens
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('welcomeMsg').innerText = `Olá, ${currentUser.fullName.split(' ')[0]}`;
+
+            } catch (error) {
+                msg.innerText = error.message;
+                btn.disabled = false;
+                btn.innerHTML = '<span>Entrar</span> <i class="fas fa-sign-in-alt"></i>';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value.trim();
+            const name = document.getElementById('regName').value.trim();
+            const pass = document.getElementById('regPass').value;
+            const btn = document.getElementById('btnRegister');
+            const msg = document.getElementById('authMessage');
+
+            if(user.length < 3) { msg.innerText = "Usuário muito curto."; return; }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
+
+            const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+
+            try {
+                const authDoc = await db.collection('auth').doc(userId).get();
+                if (authDoc.exists) throw new Error('Este usuário já existe.');
+
+                const passwordHash = btoa(pass + userId);
+
+                // Create Auth Record
+                await db.collection('auth').doc(userId).set({
+                    userName: user,
+                    fullName: name,
+                    passwordHash: passwordHash,
+                    createdAt: new Date().toISOString()
                 });
 
-                return { 
-                    success: true, 
-                    userId: userId,
-                    fullName: authData.fullName,
-                    userName: authData.userName
-                };
-            } catch (error) {
-                console.error('Erro na verificação:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Geolocalização
-        async function getUserLocation() {
-            try {
-                if ("geolocation" in navigator) {
-                    navigator.geolocation.getCurrentPosition(
-                        async (position) => {
-                            try {
-                                const lat = position.coords.latitude;
-                                const lon = position.coords.longitude;
-                                await getLocationFromCoords(lat, lon);
-                                await getRealWeatherData(lat, lon);
-                            } catch (error) {
-                                console.log('Erro ao obter localização:', error);
-                                setDefaultLocation();
-                            }
-                        },
-                        (error) => {
-                            console.log('Geolocalização negada ou erro:', error);
-                            setDefaultLocation();
-                        },
-                        {
-                            timeout: 10000,
-                            maximumAge: 300000
-                        }
-                    );
-                } else {
-                    setDefaultLocation();
-                }
-            } catch (error) {
-                console.log('Erro geral de localização:', error);
-                setDefaultLocation();
-            }
-        }
-
-        async function getLocationFromCoords(lat, lon) {
-            try {
-                const apiUrl = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&limit=1&appid=${OPENWEATHER_API_KEY}`;
+                // Auto Login
+                currentUser = { id: userId, name: user, fullName: name };
                 
-                const response = await fetch(apiUrl);
-                const data = await response.json();
+                // Initialize Data
+                appData = { groups: [], pastures: [], rainfall: [], financials: [] };
+                await saveData();
 
-                if (response.ok && data.length > 0) {
-                    const locationData = data[0];
-                    userLocation.city = locationData.name || 'Localização Desconhecida';
-                    userLocation.state = locationData.state || 'Região Desconhecida';
-                    userLocation.country = locationData.country || 'País Desconhecido';
-                    userLocation.lat = lat;
-                    userLocation.lon = lon;
-                    updateLocationDisplay();
-                } else {
-                    console.error('Erro ao buscar nome da localização:', data);
-                    setDefaultLocation();
-                }
+                // Switch UI
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                document.getElementById('welcomeMsg').innerText = `Olá, ${name.split(' ')[0]}`;
+
             } catch (error) {
-                console.error('Erro na requisição da API de geocodificação:', error);
-                setDefaultLocation();
+                msg.innerText = error.message;
+                btn.disabled = false;
+                btn.innerHTML = '<span>Criar Conta</span> <i class="fas fa-user-plus"></i>';
             }
-        }
-
-        async function setDefaultLocation() {
-            userLocation = {
-                city: 'Candelária',
-                state: 'Rio Grande do Sul',
-                country: 'Brasil',
-                lat: -29.67,
-                lon: -52.41
-            };
-            updateLocationDisplay();
-            await getRealWeatherData(userLocation.lat, userLocation.lon);
-        }
-
-        async function getRealWeatherData(lat, lon) {
-            if (OPENWEATHER_API_KEY === '' || OPENWEATHER_API_KEY === 'SUA_CHAVE_DE_API_AQUI') {
-                document.getElementById('tempValue').textContent = '--°C';
-                document.getElementById('weatherDesc').textContent = 'API Key necessária';
-                document.getElementById('humidityValue').textContent = '--%';
-                console.warn('Por favor, insira sua chave de API do OpenWeatherMap.');
-                return;
-            }
-
-            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=pt_br`;
-
-            try {
-                const response = await fetch(apiUrl);
-                const data = await response.json();
-
-                if (response.ok) {
-                    const temp = data.main.temp.toFixed(1);
-                    const humidity = data.main.humidity;
-                    const description = data.weather[0].description;
-
-                    document.getElementById('tempValue').textContent = `${temp}°C`;
-                    document.getElementById('weatherDesc').textContent = description.charAt(0).toUpperCase() + description.slice(1);
-                    document.getElementById('humidityValue').textContent = `${humidity}%`;
-                } else {
-                    console.error('Erro ao buscar dados do clima:', data.message);
-                    document.getElementById('tempValue').textContent = '--°C';
-                    document.getElementById('weatherDesc').textContent = 'Erro ao carregar';
-                    document.getElementById('humidityValue').textContent = '--%';
-                }
-            } catch (error) {
-                console.error('Erro na requisição da API do clima:', error);
-                document.getElementById('tempValue').textContent = '--°C';
-                document.getElementById('weatherDesc').textContent = 'Erro de conexão';
-                document.getElementById('humidityValue').textContent = '--%';
-            }
-        }
-
-        function updateLocationDisplay() {
-            const locationText = `${userLocation.city}, ${userLocation.state}`;
-            
-            const loginLocationInfo = document.getElementById('locationInfo');
-            const loginLocationText = document.getElementById('locationText');
-            if (loginLocationInfo && loginLocationText) {
-                loginLocationText.textContent = `📍 ${locationText}`;
-                loginLocationInfo.style.display = 'block';
-            }
-
-            const locationDisplay = document.getElementById('locationDisplay');
-            const dashboardLocation = document.getElementById('dashboardLocation');
-            
-            if (locationDisplay) {
-                locationDisplay.textContent = locationText;
-            }
-            if (dashboardLocation) {
-                dashboardLocation.textContent = locationText;
-            }
-        }
-
-        // Inicialização
-        document.addEventListener('DOMContentLoaded', async function() {
-            getUserLocation();
-            
-            const autoLoginToken = localStorage.getItem(AUTO_LOGIN_KEY);
-            if (autoLoginToken) {
-                try {
-                    const tokenData = JSON.parse(autoLoginToken);
-                    const result = await verifyUser(tokenData.userName, tokenData.password);
-                    
-                    if (result.success) {
-                        await loginUser(result);
-                        return;
-                    } else {
-                        localStorage.removeItem(AUTO_LOGIN_KEY);
-                    }
-                } catch (error) {
-                    console.error('Erro no login automático:', error);
-                    localStorage.removeItem(AUTO_LOGIN_KEY);
-                }
-            }
-            
-            showInitialPage();
-        });
-
-        function showInitialPage() {
-            hideAllPages();
-            document.getElementById('initialPage').style.display = 'flex';
-        }
-
-        function showLoginForm() {
-            hideAllPages();
-            document.getElementById('loginPage').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('loginUserName').focus();
-            }, 100);
-        }
-
-        function showRegisterForm() {
-            hideAllPages();
-            document.getElementById('registerPage').style.display = 'flex';
-            setTimeout(() => {
-                document.getElementById('registerUserName').focus();
-            }, 100);
-        }
-
-        function hideAllPages() {
-            document.getElementById('initialPage').style.display = 'none';
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('registerPage').style.display = 'none';
-        }
-
-        function showMessage(containerId, message, isError = true) {
-            const container = document.querySelector(`#${containerId} .login-form`);
-            
-            const existingMessage = container.querySelector('.error-message, .success-message');
-            if (existingMessage) {
-                existingMessage.remove();
-            }
-            
-            const messageDiv = document.createElement('div');
-            messageDiv.className = isError ? 'error-message' : 'success-message';
-            messageDiv.textContent = message;
-            
-            container.insertBefore(messageDiv, container.firstChild);
-            
-            setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.remove();
-                }
-            }, 5000);
-        }
-
-        async function register(event) {
-            event.preventDefault();
-            
-            const userName = document.getElementById('registerUserName').value.trim();
-            const fullName = document.getElementById('registerFullName').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const registerBtn = document.getElementById('registerBtn');
-            
-            if (userName.length < 3) {
-                showMessage('registerPage', 'Nome de usuário deve ter pelo menos 3 caracteres.');
-                return;
-            }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(userName)) {
-                showMessage('registerPage', 'Nome de usuário deve conter apenas letras, números e underscore.');
-                return;
-            }
-            
-            if (fullName.length < 2) {
-                showMessage('registerPage', 'Nome completo deve ter pelo menos 2 caracteres.');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('registerPage', 'Senha deve ter pelo menos 6 caracteres.');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                showMessage('registerPage', 'As senhas não coincidem.');
-                return;
-            }
-            
-            registerBtn.disabled = true;
-            registerBtn.textContent = 'Criando conta...';
-            
-            try {
-                const result = await registerUser(userName, fullName, password);
-                
-                if (result.success) {
-                    showMessage('registerPage', 'Conta criada com sucesso! Redirecionando...', false);
-                    
-                    setTimeout(() => {
-                        const userData = {
-                            success: true,
-                            userId: result.userId,
-                            fullName: fullName,
-                            userName: userName
-                        };
-                        loginUser(userData, userName, password);
-                    }, 1500);
-                } else {
-                    showMessage('registerPage', result.error);
-                }
-            } catch (error) {
-                showMessage('registerPage', 'Erro interno. Tente novamente.');
-                console.error('Erro no registro:', error);
-            }
-            
-            registerBtn.disabled = false;
-            registerBtn.textContent = 'Criar Conta';
-        }
-
-        async function login(event) {
-            event.preventDefault();
-            
-            const userName = document.getElementById('loginUserName').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const loginBtn = document.getElementById('loginBtn');
-            
-            if (userName.length < 3) {
-                showMessage('loginPage', 'Nome de usuário deve ter pelo menos 3 caracteres.');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('loginPage', 'Senha deve ter pelo menos 6 caracteres.');
-                return;
-            }
-            
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Entrando...';
-            
-            try {
-                const result = await verifyUser(userName, password);
-                
-                if (result.success) {
-                    await loginUser(result, userName, password);
-                } else {
-                    showMessage('loginPage', result.error);
-                }
-            } catch (error) {
-                showMessage('loginPage', 'Erro interno. Tente novamente.');
-                console.error('Erro no login:', error);
-            }
-            
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Entrar';
-        }
-
-        async function loginUser(userData, userName = null, password = null) {
-            await loadData(userData.userId);
-
-            currentUser = {
-                name: userData.userName || userData.fullName,
-                fullName: userData.fullName,
-                id: userData.userId,
-                loginDate: new Date().toLocaleDateString('pt-BR'),
-                loginTime: new Date().toLocaleTimeString('pt-BR'),
-                location: userLocation
-            };
-
-            await saveData();
-            
-            if (userName && password) {
-                const autoLoginData = {
-                    userName: userName,
-                    password: password
-                };
-                localStorage.setItem(AUTO_LOGIN_KEY, JSON.stringify(autoLoginData));
-            }
-            
-            showMainApp();
         }
 
         function logout() {
-            if (confirm('Tem certeza que deseja sair do sistema?')) {
-                currentUser = null;
-                localStorage.removeItem(AUTO_LOGIN_KEY);
-                
-                document.getElementById('loginUserName').value = '';
-                document.getElementById('loginPassword').value = '';
-                document.getElementById('registerUserName').value = '';
-                document.getElementById('registerFullName').value = '';
-                document.getElementById('registerPassword').value = '';
-                document.getElementById('confirmPassword').value = '';
-                
-                showInitialPage();
+            if(confirm('Sair do sistema?')) {
+                location.reload(); 
             }
         }
 
-        function showMainApp() {
-            hideAllPages();
-            const mainApp = document.getElementById('mainApp');
+        // --- LOGIC: ZOOTECNIA (Same as SmartGado 3.0) ---
+
+        function calculateGMD(group) {
+            if (!group.weighings || group.weighings.length < 2) return 0;
+            const sorted = [...group.weighings].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const last = sorted[sorted.length - 1];
+            const prev = sorted[sorted.length - 2];
+            const diffTime = Math.abs(new Date(last.date) - new Date(prev.date));
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays === 0) return 0;
+            return ((last.weight - prev.weight) / diffDays).toFixed(3);
+        }
+
+        function calculateFCR(group) {
+            if(!group.feedExpenses || group.feedExpenses.length === 0) return 0;
+            if(!group.weighings || group.weighings.length < 2) return 0;
+
+            const totalCost = group.feedExpenses.reduce((a, b) => a + b.value, 0);
             
-            mainApp.style.display = 'block';
-            mainApp.classList.add('active');
+            const initialWeight = group.weighings[0].weight;
+            const currentWeight = group.weighings[group.weighings.length - 1].weight;
+            const weightGainPerAnimal = currentWeight - initialWeight;
             
-            updateUserInterface();
-            updateDisplay();
+            if(weightGainPerAnimal <= 0) return 0;
+
+            const totalWeightGain = weightGainPerAnimal * (group.animals ? group.animals.length : group.quantity);
+            const costPerKg = totalCost / totalWeightGain;
+            return (costPerKg * 30).toFixed(2);
         }
 
-        function updateUserInterface() {
-            if (currentUser) {
-                const firstName = currentUser.fullName ? currentUser.fullName.split(' ')[0] : currentUser.name.split(' ')[0];
-                const displayName = currentUser.fullName || currentUser.name;
-                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
-                
-                document.getElementById('userDisplayName').textContent = firstName;
-                document.getElementById('dashboardUserName').textContent = displayName;
-                document.getElementById('userAvatar').textContent = initials.substring(0, 2);
-            }
-        }
+        function getStockingRate(pastureId) {
+            const pasture = appData.pastures.find(p => p.id == pastureId);
+            if (!pasture || !pasture.area) return 0;
 
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-        
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-            
-            if (id === 'addGroupModal') {
-                document.getElementById('groupName').value = '';
-                document.getElementById('groupQuantity').value = '';
-                document.getElementById('groupAvgWeight').value = '';
-                document.getElementById('groupCostPerAnimal').value = '';
-                document.getElementById('groupTotalCost').value = '';
-            }
-        }
-
-        async function addGroup() {
-            const name = document.getElementById('groupName').value.trim();
-            const quantity = parseInt(document.getElementById('groupQuantity').value);
-            const avgWeight = parseFloat(document.getElementById('groupAvgWeight').value);
-            const category = document.getElementById('groupCategory').value;
-            const costPerAnimal = parseFloat(document.getElementById('groupCostPerAnimal').value) || 0;
-            const totalCost = parseFloat(document.getElementById('groupTotalCost').value) || 0;
-            
-            if (!name || !quantity || quantity <= 0 || !avgWeight || avgWeight <= 0) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
-            }
-
-            let finalTotalCost = totalCost;
-            if (costPerAnimal > 0 && totalCost === 0) {
-                finalTotalCost = costPerAnimal * quantity;
-            } else if (costPerAnimal === 0 && totalCost === 0) {
-                alert('Por favor, informe o custo por animal ou o custo total do grupo.');
-                return;
-            }
-
-            const newGroup = {
-                id: Date.now().toString(),
-                name: name,
-                quantity: quantity,
-                avgWeight: avgWeight,
-                category: category,
-                initialCost: finalTotalCost,
-                supplyExpenses: [],
-                revenue: 0,
-                createdDate: new Date().toLocaleDateString('pt-BR'),
-                createdBy: currentUser.fullName || currentUser.name
-            };
-
-            cattleGroups.push(newGroup);
-            await saveData();
-            closeModal('addGroupModal');
-            updateDisplay();
-            alert(`Grupo "${name}" cadastrado com sucesso!`);
-        }
-
-        function showGroupDetails(groupId) {
-            currentGroupId = groupId;
-            const group = cattleGroups.find(g => g.id === groupId);
-            if (!group) return;
-
-            updateStockProductSelect();
-
-            document.getElementById('groupDetailsTitle').textContent = `📊 ${group.name}`;
-            
-            const totalSupplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-            const totalCost = group.initialCost + totalSupplies;
-            const profit = group.revenue - totalCost;
-            const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
-
-            let suppliesTable = '';
-            if (group.supplyExpenses.length > 0) {
-                suppliesTable = `
-                    <h4 style="margin-top: 20px;">Gastos com Insumos (Alimentação/Manejo)</h4>
-                    <table class="compact-table">
-                        <thead>
-                            <tr>
-                                <th>Data</th>
-                                <th>Produto</th>
-                                <th>Quantidade</th>
-                                <th>Valor Unit.</th>
-                                <th>Valor Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${group.supplyExpenses.map(exp => `
-                                <tr>
-                                    <td>${exp.date}</td>
-                                    <td>${exp.productName || exp.description}</td>
-                                    <td>${exp.quantity ? exp.quantity.toFixed(2) + ' ' + exp.unit : '-'}</td>
-                                    <td>${exp.unitValue ? 'R$ ' + exp.unitValue.toFixed(2).replace('.', ',') : '-'}</td>
-                                    <td>R$ ${exp.amount.toFixed(2).replace('.', ',')}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            document.getElementById('groupDetailsContent').innerHTML = `
-                <div class="group-info" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px;">
-                    <div class="group-info-item">
-                        <div class="group-info-label">Quantidade</div>
-                        <div class="group-info-value">${group.quantity} animais</div>
-                    </div>
-                    <div class="group-info-item">
-                        <div class="group-info-label">Peso Médio</div>
-                        <div class="group-info-value">${group.avgWeight} kg</div>
-                    </div>
-                    <div class="group-info-item">
-                        <div class="group-info-label">Categoria</div>
-                        <div class="group-info-value">${group.category}</div>
-                    </div>
-                    <div class="group-info-item">
-                        <div class="group-info-label">Data de Cadastro</div>
-                        <div class="group-info-value">${group.createdDate}</div>
-                    </div>
-                </div>
-
-                <div class="financial-summary">
-                    <div class="financial-grid">
-                        <div class="financial-item">
-                            <span class="financial-label">Investimento Inicial</span>
-                            <span class="financial-value" style="color: #ef4444;">R$ ${group.initialCost.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="financial-item">
-                            <span class="financial-label">Gastos com Insumos</span>
-                            <span class="financial-value" style="color: #f59e0b;">R$ ${totalSupplies.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="financial-item">
-                            <span class="financial-label">Custo Total</span>
-                            <span class="financial-value" style="color: #6b7280;">R$ ${totalCost.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="financial-item">
-                            <span class="financial-label">Receita</span>
-                            <span class="financial-value" style="color: #10b981;">R$ ${group.revenue.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                        <div class="financial-item" style="grid-column: span 2; background: ${profit >= 0 ? '#ecfdf5' : '#fef2f2'};">
-                            <span class="financial-label" style="font-size: 1.1rem;"><strong>Lucro/Prejuízo</strong></span>
-                            <span class="financial-value ${profitClass}" style="font-size: 1.5rem;">R$ ${profit.toFixed(2).replace('.', ',')}</span>
-                        </div>
-                    </div>
-                </div>
-
-                ${suppliesTable}
-            `;
-
-            openModal('groupDetailsModal');
-        }
-
-        // NOVA FUNÇÃO: Abrir modal de edição com dados preenchidos
-        function openEditGroupModal() {
-            if (!currentGroupId) return;
-            const group = cattleGroups.find(g => g.id === currentGroupId);
-            if (!group) return;
-
-            document.getElementById('editGroupName').value = group.name;
-            document.getElementById('editGroupQuantity').value = group.quantity;
-            document.getElementById('editGroupAvgWeight').value = group.avgWeight;
-            document.getElementById('editGroupCategory').value = group.category;
-            document.getElementById('editGroupTotalCost').value = group.initialCost;
-
-            // Fechar o modal de detalhes e abrir o de edição
-            closeModal('groupDetailsModal');
-            openModal('editGroupModal');
-        }
-
-        // NOVA FUNÇÃO: Salvar edição do grupo
-        async function saveGroupEdit() {
-            if (!currentGroupId) return;
-            
-            const name = document.getElementById('editGroupName').value.trim();
-            const quantity = parseInt(document.getElementById('editGroupQuantity').value);
-            const avgWeight = parseFloat(document.getElementById('editGroupAvgWeight').value);
-            const category = document.getElementById('editGroupCategory').value;
-            const initialCost = parseFloat(document.getElementById('editGroupTotalCost').value);
-
-            if (!name || !quantity || quantity <= 0 || !avgWeight || avgWeight <= 0) {
-                alert('Por favor, preencha os campos obrigatórios corretamente.');
-                return;
-            }
-
-            const groupIndex = cattleGroups.findIndex(g => g.id === currentGroupId);
-            if (groupIndex !== -1) {
-                // Atualizar propriedades
-                cattleGroups[groupIndex].name = name;
-                cattleGroups[groupIndex].quantity = quantity;
-                cattleGroups[groupIndex].avgWeight = avgWeight;
-                cattleGroups[groupIndex].category = category;
-                cattleGroups[groupIndex].initialCost = initialCost || 0;
-
-                await saveData();
-                closeModal('editGroupModal');
-                
-                // Reabrir detalhes atualizados
-                showGroupDetails(currentGroupId);
-                updateDisplay();
-                alert('Grupo atualizado com sucesso!');
-            }
-        }
-
-        function updateStockProductSelect() {
-            const select = document.getElementById('supplyProductSelect');
-            if (!select) return;
-
-            select.innerHTML = '<option value="">Selecione um produto...</option>';
-            
-            stock.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.id;
-                option.textContent = `${product.name} (${product.quantity.toFixed(2)} ${product.unit} disponível)`;
-                select.appendChild(option);
-            });
-
-            select.addEventListener('change', function() {
-                const stockWarning = document.getElementById('stockWarning');
-                if (this.value) {
-                    const product = stock.find(p => p.id === this.value);
-                    if (product && product.quantity <= 0) {
-                        stockWarning.style.display = 'block';
-                    } else {
-                        stockWarning.style.display = 'none';
-                    }
-                } else {
-                    stockWarning.style.display = 'none';
+            let totalWeight = 0;
+            appData.groups.forEach(g => {
+                if (g.currentPastureId == pastureId) {
+                    const currentWeight = g.weighings.length > 0 ? g.weighings[g.weighings.length - 1].weight : 0;
+                    const qtd = g.animals && g.animals.length > 0 ? g.animals.length : (g.quantity || 0);
+                    totalWeight += (currentWeight * qtd);
                 }
             });
+
+            const ua = totalWeight / 450; 
+            return (ua / pasture.area).toFixed(2);
         }
 
-        async function addSupplyExpense() {
-            if (!currentGroupId) return;
+        function checkVaccineAlerts() {
+            const alertArea = document.getElementById('alertArea');
+            alertArea.innerHTML = '';
+        }
 
-            const productSelect = document.getElementById('supplyProductSelect');
-            const productId = productSelect.value;
-            const quantityUsed = parseFloat(document.getElementById('supplyQuantityUsed').value);
-            const date = document.getElementById('supplyDate').value;
+        // --- ACTIONS (Now with await saveData()) ---
 
-            if (!productId || !quantityUsed || quantityUsed <= 0 || !date) {
-                alert('Por favor, preencha todos os campos corretamente.');
-                return;
-            }
+        async function createGroup() {
+            const name = document.getElementById('newGroupName').value;
+            const category = document.getElementById('newGroupCategory').value;
+            if(!name) return;
 
-            const product = stock.find(p => p.id === productId);
-            if (!product) {
-                alert('Produto não encontrado!');
-                return;
-            }
-
-            if (product.quantity < quantityUsed) {
-                alert(`Quantidade insuficiente em estoque! Disponível: ${product.quantity} ${product.unit}`);
-                return;
-            }
-
-            const group = cattleGroups.find(g => g.id === currentGroupId);
-            if (!group) return;
-
-            const avgUnitValue = product.totalValue / product.quantity;
-            const totalCost = avgUnitValue * quantityUsed;
-
-            product.quantity -= quantityUsed;
-            product.totalValue -= totalCost;
-
-            if (product.quantity <= 0) {
-                stock = stock.filter(p => p.id !== productId);
-            }
-
-            group.supplyExpenses.push({
-                date: date,
-                productName: product.name,
-                description: `${quantityUsed.toFixed(2)} ${product.unit} de ${product.name}`,
-                quantity: quantityUsed,
-                unit: product.unit,
-                amount: totalCost,
-                unitValue: avgUnitValue
+            appData.groups.push({
+                id: Date.now(),
+                name,
+                category,
+                quantity: 0,
+                animals: [],
+                weighings: [],
+                health: [],
+                reproduction: [],
+                feedExpenses: [],
+                currentPastureId: null
             });
-
-            document.getElementById('supplyProductSelect').value = '';
-            document.getElementById('supplyQuantityUsed').value = '';
-            document.getElementById('supplyDate').value = '';
-
             await saveData();
-            updateStockProductSelect();
-            showGroupDetails(currentGroupId);
-            updateDisplay();
-            alert(`${quantityUsed.toFixed(2)} ${product.unit} de ${product.name} aplicado ao grupo com sucesso!`);
+            closeModal('modalNewGroup');
+            document.getElementById('newGroupName').value = '';
+            renderAll();
         }
 
-        async function setRevenue() {
-            if (!currentGroupId) return;
-
-            const amount = parseFloat(document.getElementById('revenueAmount').value);
-
-            if (!amount || amount <= 0) {
-                alert('Por favor, informe um valor válido.');
-                return;
-            }
-
-            const group = cattleGroups.find(g => g.id === currentGroupId);
-            if (!group) return;
-
-            group.revenue = amount;
-            document.getElementById('revenueAmount').value = '';
-
-            await saveData();
-            showGroupDetails(currentGroupId);
-            updateDisplay();
-            alert('Receita atualizada com sucesso!');
-        }
-
-        async function deleteGroup() {
-            if (!currentGroupId) return;
-
-            if (confirm('Tem certeza que deseja excluir este grupo? Esta ação não pode ser desfeita.')) {
-                cattleGroups = cattleGroups.filter(g => g.id !== currentGroupId);
-                await saveData();
-                closeModal('groupDetailsModal');
-                updateDisplay();
-                alert('Grupo excluído com sucesso!');
-            }
-        }
-
-        function updateGroupsList() {
-            const groupsList = document.getElementById('groupsList');
+        async function createPasture() {
+            const name = document.getElementById('newPastureName').value;
+            const area = parseFloat(document.getElementById('newPastureArea').value);
+            const grass = document.getElementById('newPastureGrass').value;
             
-            if (cattleGroups.length === 0) {
-                groupsList.innerHTML = '<div class="empty-state">Nenhum grupo cadastrado.</div>';
-                return;
+            if(!name || !area) return;
+
+            appData.pastures.push({ id: Date.now(), name, area, grass });
+            await saveData();
+            closeModal('modalNewPasture');
+            renderAll();
+        }
+
+        async function addRainfall() {
+            const date = document.getElementById('rainDate').value;
+            const mm = parseFloat(document.getElementById('rainMm').value);
+            if(date && mm >= 0) {
+                const existing = appData.rainfall.find(r => r.date === date);
+                if(existing) existing.mm = mm;
+                else appData.rainfall.push({date, mm});
+                
+                appData.rainfall.sort((a,b) => new Date(a.date) - new Date(b.date));
+                await saveData();
+                alert('Chuva registrada!');
+                renderAll();
+            }
+        }
+
+        // --- DETAILS & EDIT ---
+
+        let activeGroupId = null;
+
+        function openGroupDetails(id) {
+            activeGroupId = id;
+            const group = appData.groups.find(g => g.id == id);
+            
+            document.getElementById('detailGroupTitle').innerText = group.name;
+            document.getElementById('detailGroupSubtitle').innerText = `${group.category} • ${group.animals.length || group.quantity} animais`;
+
+            const inWithdrawal = group.health && group.health.some(h => new Date(h.withdrawEnd) >= new Date());
+            const statusBadge = document.getElementById('detailGroupStatus');
+            if(inWithdrawal) {
+                statusBadge.className = 'badge badge-danger';
+                statusBadge.innerText = 'EM CARÊNCIA';
+            } else {
+                statusBadge.className = 'badge badge-success';
+                statusBadge.innerText = 'LIBERADO';
             }
 
-            groupsList.innerHTML = cattleGroups.map(group => {
-                const totalSupplies = group.supplyExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-                const totalCost = group.initialCost + totalSupplies;
-                const profit = group.revenue - totalCost;
-                const profitClass = profit >= 0 ? 'profit-positive' : 'profit-negative';
+            const gmd = calculateGMD(group);
+            document.getElementById('calcGMD').innerText = `${gmd} kg/dia`;
+            
+            const fcr = calculateFCR(group);
+            document.getElementById('calcFCR').innerText = fcr > 0 ? `R$ ${fcr}` : '--';
 
-                return `
-                    <div class="group-item" onclick="showGroupDetails('${group.id}')">
-                        <div class="group-header">
-                            <div class="group-name">${group.name}</div>
-                            <div class="group-count">${group.quantity} 🐄</div>
-                        </div>
-                        <div class="group-info">
-                            <div class="group-info-item">
-                                <span class="group-info-label">Custo Total</span>
-                                <span class="group-info-value">R$ ${totalCost.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                            <div class="group-info-item">
-                                <span class="group-info-label">Receita</span>
-                                <span class="group-info-value">R$ ${group.revenue.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                            <div class="group-info-item">
-                                <span class="group-info-label">Lucro</span>
-                                <span class="group-info-value ${profitClass}">R$ ${profit.toFixed(2).replace('.', ',')}</span>
-                            </div>
-                        </div>
+            if(group.category === 'Vacas' || group.category === 'Novilhas') {
+                document.getElementById('tabReprodHeader').classList.remove('hidden');
+            } else {
+                document.getElementById('tabReprodHeader').classList.add('hidden');
+            }
+
+            renderWeightList(group);
+            renderAnimalList(group);
+            renderHealthList(group);
+            renderReprodList(group);
+            
+            const pSelect = document.getElementById('movePastureSelect');
+            pSelect.innerHTML = '<option value="">Sem pasto definido</option>' + 
+                appData.pastures.map(p => `<option value="${p.id}" ${group.currentPastureId == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
+
+            openModal('modalGroupDetails');
+        }
+
+        async function addWeight() {
+            const date = document.getElementById('weightDate').value;
+            const weight = parseFloat(document.getElementById('weightValue').value);
+            if(!date || !weight) return;
+
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.weighings.push({date, weight});
+            await saveData();
+            openGroupDetails(activeGroupId);
+            renderAll();
+        }
+
+        function renderWeightList(group) {
+            const list = document.getElementById('weightHistoryList');
+            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w => 
+                `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
+            ).join('');
+        }
+
+        async function addAnimalToGroup() {
+            const id = document.getElementById('newAnimalId').value;
+            if(!id) return;
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.animals.push({ id, entryDate: new Date().toISOString().split('T')[0] });
+            group.quantity = group.animals.length;
+            document.getElementById('newAnimalId').value = '';
+            await saveData();
+            renderAnimalList(group);
+            renderAll();
+        }
+
+        function renderAnimalList(group) {
+            const list = document.getElementById('animalList');
+            list.innerHTML = group.animals.map((a, idx) => 
+                `<div class="list-item text-sm">
+                    <span><i class="fas fa-tag"></i> ${a.id}</span>
+                    <div class="btn-group-row">
+                        <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="removeAnimal(${idx})" title="Remover"><i class="fas fa-trash"></i></button>
                     </div>
-                `;
+                </div>`
+            ).join('');
+        }
+
+        function openEditAnimal(idx) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const animal = group.animals[idx];
+            document.getElementById('editAnimalIndex').value = idx;
+            document.getElementById('editAnimalIdInput').value = animal.id;
+            openModal('modalEditAnimal');
+        }
+
+        async function saveAnimalEdit() {
+            const idx = document.getElementById('editAnimalIndex').value;
+            const newId = document.getElementById('editAnimalIdInput').value;
+            if(!newId) return;
+
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.animals[idx].id = newId;
+            
+            await saveData();
+            closeModal('modalEditAnimal');
+            renderAnimalList(group);
+            renderAll();
+        }
+
+        async function removeAnimal(idx) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.animals.splice(idx, 1);
+            group.quantity = group.animals.length;
+            await saveData();
+            renderAnimalList(group);
+            renderAll();
+        }
+
+        async function addHealthEvent() {
+            const name = document.getElementById('healthName').value;
+            const date = document.getElementById('healthDate').value;
+            const days = parseInt(document.getElementById('healthWithdrawal').value) || 0;
+            if(!name || !date) return;
+
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            
+            const endDate = new Date(date);
+            endDate.setDate(endDate.getDate() + days);
+
+            group.health.push({
+                name, date, withdrawDays: days, withdrawEnd: endDate.toISOString().split('T')[0]
+            });
+            
+            document.getElementById('healthName').value = '';
+            document.getElementById('healthWithdrawal').value = '';
+            await saveData();
+            openGroupDetails(activeGroupId);
+            renderAll();
+        }
+
+        function renderHealthList(group) {
+            const list = document.getElementById('healthHistoryList');
+            list.innerHTML = group.health.map(h => {
+                const isBlocked = new Date(h.withdrawEnd) >= new Date();
+                return `<div class="list-item text-sm">
+                    <div>
+                        <strong>${h.name}</strong><br>
+                        <span class="text-gray">${new Date(h.date).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    ${isBlocked ? `<span class="badge badge-danger">Carência até ${new Date(h.withdrawEnd).toLocaleDateString('pt-BR')}</span>` : '<span class="badge badge-success">OK</span>'}
+                </div>`;
             }).join('');
         }
 
-        async function addProduct() {
-            const name = document.getElementById('productName').value.trim();
-            const description = document.getElementById('productDescription').value.trim();
-            const quantity = parseFloat(document.getElementById('productQuantity').value);
-            const unit = document.getElementById('productUnit').value;
-            const value = parseFloat(document.getElementById('productValue').value);
-            const transactionType = document.getElementById('productTransactionType').value;
-            
-            if (!name || !description || isNaN(quantity) || quantity <= 0 || isNaN(value) || value < 0) {
-                alert('Por favor, preencha todos os campos do produto corretamente.');
-                return;
+        async function addReprodEvent() {
+            const type = document.getElementById('reprodType').value;
+            const date = document.getElementById('reprodDate').value;
+            if(!date) return;
+
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            let expectedBirth = null;
+
+            if(type === 'IATF' || type === 'Monta') {
+                const d = new Date(date);
+                d.setDate(d.getDate() + 290);
+                expectedBirth = d.toISOString().split('T')[0];
             }
 
-            const existingProduct = stock.find(p => p.name.toLowerCase() === name.toLowerCase());
+            if(!group.reproduction) group.reproduction = [];
+            group.reproduction.push({ type, date, expectedBirth });
+            await saveData();
+            renderReprodList(group);
+        }
+
+        function renderReprodList(group) {
+            const list = document.getElementById('reprodHistoryList');
+            if(!group.reproduction) { list.innerHTML = ''; return; }
             
-            if (transactionType === 'venda') {
-                if (!existingProduct || existingProduct.quantity < quantity) {
-                    alert('Quantidade insuficiente em estoque para venda!');
-                    return;
-                }
-                
-                existingProduct.quantity -= quantity;
-                existingProduct.totalValue = Math.max(0, existingProduct.totalValue - value);
-                
-                existingProduct.transactions = existingProduct.transactions || [];
-                existingProduct.transactions.push({
-                    type: 'venda',
-                    date: new Date().toLocaleDateString('pt-BR'),
-                    quantity: quantity,
-                    value: value
+            list.innerHTML = group.reproduction.map(r => 
+                `<div class="list-item text-sm">
+                    <div><strong>${r.type}</strong> em ${new Date(r.date).toLocaleDateString('pt-BR')}</div>
+                    ${r.expectedBirth ? `<div style="color:var(--primary); font-size:0.8rem;">Parto prev: ${new Date(r.expectedBirth).toLocaleDateString('pt-BR')}</div>` : ''}
+                </div>`
+            ).join('');
+        }
+
+        async function addFeedExpense() {
+            const val = parseFloat(document.getElementById('feedCost').value);
+            if(!val) return;
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            if(!group.feedExpenses) group.feedExpenses = [];
+            group.feedExpenses.push({ date: new Date().toISOString().split('T')[0], value: val });
+            document.getElementById('feedCost').value = '';
+            await saveData();
+            openGroupDetails(activeGroupId);
+            renderAll();
+        }
+
+        async function moveGroup(pid) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.currentPastureId = pid || null;
+            await saveData();
+            renderAll();
+        }
+
+        // --- FINANCIAL MODULE ---
+
+        function openTransactionModal(type) {
+            document.getElementById('transType').value = type;
+            document.getElementById('transTitle').innerText = type === 'income' ? 'Nova Receita' : 'Nova Despesa';
+            document.getElementById('transTitle').className = type === 'income' ? 'text-success' : 'text-danger';
+            document.getElementById('btnSaveTrans').className = type === 'income' ? 'btn btn-success' : 'btn btn-danger';
+            openModal('modalTransaction');
+        }
+
+        async function addTransaction() {
+            const type = document.getElementById('transType').value;
+            const desc = document.getElementById('transDesc').value;
+            const amount = parseFloat(document.getElementById('transAmount').value);
+            const date = document.getElementById('transDate').value;
+
+            if(!desc || !amount || !date) return;
+
+            if(!appData.financials) appData.financials = [];
+            
+            appData.financials.push({
+                id: Date.now(),
+                type, desc, amount, date
+            });
+
+            await saveData();
+            closeModal('modalTransaction');
+            document.getElementById('transDesc').value = '';
+            document.getElementById('transAmount').value = '';
+            renderAll();
+        }
+
+        function renderFinancials() {
+            // Calculate Totals
+            let totalIncome = 0;
+            let totalExpense = 0;
+
+            // 1. General Financials
+            if(appData.financials) {
+                appData.financials.forEach(t => {
+                    if(t.type === 'income') totalIncome += t.amount;
+                    else totalExpense += t.amount;
                 });
-                
-                if (existingProduct.quantity === 0) {
-                    stock = stock.filter(p => p.id !== existingProduct.id);
-                }
-                
-                alert(`Venda de ${quantity} ${unit} de ${name} registrada com sucesso!`);
-            } else {
-                if (existingProduct) {
-                    existingProduct.quantity += quantity;
-                    existingProduct.totalValue += value;
-                    
-                    existingProduct.transactions = existingProduct.transactions || [];
-                    existingProduct.transactions.push({
-                        type: 'compra',
-                        date: new Date().toLocaleDateString('pt-BR'),
-                        quantity: quantity,
-                        value: value
+            }
+
+            // 2. Add Feed Expenses from Groups (Implicit Expense)
+            let feedTotal = 0;
+            appData.groups.forEach(g => {
+                if(g.feedExpenses) {
+                    g.feedExpenses.forEach(f => {
+                        feedTotal += f.value;
                     });
-                } else {
-                    const newProduct = {
-                        id: Date.now().toString(),
-                        name: name,
-                        description: description,
-                        quantity: quantity,
-                        unit: unit,
-                        totalValue: value,
-                        transactions: [{
-                            type: 'compra',
-                            date: new Date().toLocaleDateString('pt-BR'),
-                            quantity: quantity,
-                            value: value
-                        }]
-                    };
-                    stock.push(newProduct);
                 }
-                
-                alert(`${quantity} ${unit} de ${name} adicionado ao estoque!`);
-            }
-            
-            document.getElementById('productName').value = '';
-            document.getElementById('productDescription').value = '';
-            document.getElementById('productQuantity').value = '';
-            document.getElementById('productValue').value = '';
-            
-            await saveData();
-            closeModal('addProductModal');
-            updateStockTable();
-        }
+            });
+            totalExpense += feedTotal;
 
-        function updateStockTable() {
-            const tbody = document.getElementById('stockTableBody');
-            const emptyState = document.getElementById('emptyStockState');
+            // Render Summary
+            document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
+            document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
             
-            if (stock.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-                tbody.innerHTML = stock.map(product => {
-                    const avgValue = product.quantity > 0 ? product.totalValue / product.quantity : 0;
-                    return `
-                        <tr>
-                            <td>
-                                <strong>${product.name}</strong><br>
-                                <small style="color: #6b7280;">${product.description}</small><br>
-                                <small style="color: #059669;">Valor médio: R$ ${avgValue.toFixed(2).replace('.', ',')}/${product.unit}</small>
-                            </td>
-                            <td>
-                                <span class="badge badge-number">${product.quantity.toFixed(2)} ${product.unit}</span><br>
-                                <small style="color: #6b7280;">Total: R$ ${product.totalValue.toFixed(2).replace('.', ',')}</small>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-        }
-        
-        async function addExpense() {
-            const date = document.getElementById('expenseDate').value;
-            const description = document.getElementById('expenseDescription').value.trim();
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const category = document.getElementById('expenseCategory').value.trim();
+            const net = totalIncome - totalExpense;
+            const elNet = document.getElementById('finNetProfit');
+            elNet.innerText = `R$ ${net.toFixed(2)}`;
+            elNet.className = net >= 0 ? 'text-success' : 'text-danger';
 
-            if (!date || !description || isNaN(amount) || amount <= 0 || !category) {
-                alert('Por favor, preencha todos os campos do gasto corretamente.');
-                return;
-            }
+            // Render List (Combined)
+            const list = document.getElementById('financialList');
+            let allTrans = [];
             
-            const newExpense = {
-                date: date,
-                description: description,
-                amount: amount,
-                category: category
-            };
+            // Add General
+            if(appData.financials) allTrans = [...appData.financials];
             
-            expenses.push(newExpense);
-            
-            document.getElementById('expenseDate').value = '';
-            document.getElementById('expenseDescription').value = '';
-            document.getElementById('expenseAmount').value = '';
-            document.getElementById('expenseCategory').value = '';
-            
-            await saveData();
-            closeModal('addExpenseModal');
-            updateExpensesTable();
-            updateFinancialSummary(); // Atualiza o financeiro ao adicionar gasto
-            alert('Gasto registrado com sucesso!');
-        }
-
-        function updateExpensesTable() {
-            const tbody = document.getElementById('expensesTableBody');
-            const emptyState = document.getElementById('emptyExpensesState');
-            
-            if (expenses.length === 0) {
-                tbody.innerHTML = '';
-                emptyState.style.display = 'block';
-            } else {
-                emptyState.style.display = 'none';
-                
-                const recentExpenses = expenses.slice(-5).reverse();
-                
-                tbody.innerHTML = recentExpenses.map(expense => `
-                    <tr>
-                        <td>${expense.date}</td>
-                        <td>${expense.description}</td>
-                        <td>R$ ${expense.amount.toFixed(2).replace('.', ',')}</td>
-                    </tr>
-                `).join('');
-            }
-        }
-
-        // FUNÇÃO FINANCEIRA CORRIGIDA
-        function updateFinancialSummary() {
-            let totalInvestment = 0;
-            let totalSupplies = 0;
-            let totalRevenue = 0;
-
-            // 1. Somar dados dos grupos
-            cattleGroups.forEach(group => {
-                totalInvestment += group.initialCost || 0;
-                
-                // Somar insumos deste grupo
-                const groupSupplies = group.supplyExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-                totalSupplies += groupSupplies;
-                
-                totalRevenue += group.revenue || 0;
+            // Add Feed (as read-only items in the list for visibility)
+            appData.groups.forEach(g => {
+                if(g.feedExpenses) {
+                    g.feedExpenses.forEach(f => {
+                        allTrans.push({
+                            type: 'expense',
+                            desc: `Ração: ${g.name}`,
+                            amount: f.value,
+                            date: f.date,
+                            isFeed: true
+                        });
+                    });
+                }
             });
 
-            // 2. Somar gastos gerais (Veterinário, Manutenção, etc.)
-            expenses.forEach(expense => {
-                totalSupplies += expense.amount || 0;
+            // Sort by Date Desc
+            allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            list.innerHTML = allTrans.map(t => {
+                const color = t.type === 'income' ? 'text-success' : 'text-danger';
+                const icon = t.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down';
+                return `
+                <div class="list-item">
+                    <div>
+                        <div style="font-weight:600;">${t.desc}</div>
+                        <div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')} ${t.isFeed ? '(Automático)' : ''}</div>
+                    </div>
+                    <div class="${color}" style="font-weight:bold;">
+                        ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+
+        // --- RENDER & CHARTS ---
+
+        let chartInstance = null;
+        let pieInstance = null;
+
+        function renderAll() {
+            const totalAnimals = appData.groups.reduce((acc, g) => acc + (g.animals.length || g.quantity), 0);
+            document.getElementById('dashTotalAnimals').innerText = totalAnimals;
+
+            let sumGmd = 0, countGmd = 0;
+            appData.groups.forEach(g => {
+                const val = parseFloat(calculateGMD(g));
+                if(val > 0) { sumGmd += val; countGmd++; }
+            });
+            document.getElementById('dashAvgGMD').innerText = countGmd ? (sumGmd/countGmd).toFixed(3) : '0.000';
+
+            renderGroupsList();
+            renderPasturesGrid();
+            renderHealthAlerts();
+            renderFinancials(); // NEW
+            updateCharts();
+        }
+
+        function renderGroupsList() {
+            document.getElementById('groupsList').innerHTML = appData.groups.map(g => {
+                const lastWeight = g.weighings.length ? g.weighings[g.weighings.length-1].weight : '-';
+                return `
+                <div class="card list-item" onclick="openGroupDetails(${g.id})">
+                    <div>
+                        <div style="font-weight:bold; color:var(--dark);">${g.name}</div>
+                        <div class="text-sm text-gray">${g.category} • ${g.animals.length || g.quantity} cab</div>
+                    </div>
+                    <div class="text-center">
+                        <div style="font-weight:bold; color:var(--primary);">${lastWeight} kg</div>
+                        <div class="text-sm text-gray">Peso Médio</div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderPasturesGrid() {
+            document.getElementById('pasturesGrid').innerHTML = appData.pastures.map(p => {
+                const ua = getStockingRate(p.id);
+                const groups = appData.groups.filter(g => g.currentPastureId == p.id);
+                const isOccupied = groups.length > 0;
+                
+                return `
+                <div class="paddock-cell ${isOccupied ? 'occupied' : ''}">
+                    <strong>${p.name}</strong>
+                    <div class="text-sm">${p.area} ha</div>
+                    <div style="font-size:0.75rem; margin-top:4px;">${ua} UA/ha</div>
+                    ${isOccupied ? `<small style="color:var(--primary-dark); font-weight:bold;">${groups.length} Lotes</small>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        function renderHealthAlerts() {
+            const wList = document.getElementById('withdrawalList');
+            const activeW = [];
+            const today = new Date();
+
+            appData.groups.forEach(g => {
+                if(g.health) {
+                    g.health.forEach(h => {
+                        if(new Date(h.withdrawEnd) >= today) {
+                            activeW.push(`<div><strong>${g.name}</strong>: ${h.name} até ${new Date(h.withdrawEnd).toLocaleDateString('pt-BR')}</div>`);
+                        }
+                    });
+                }
             });
 
-            const totalProfit = totalRevenue - (totalInvestment + totalSupplies);
-            const profitClass = totalProfit >= 0 ? 'profit-positive' : 'profit-negative';
-
-            document.getElementById('totalInvestment').textContent = `R$ ${totalInvestment.toFixed(2).replace('.', ',')}`;
-            document.getElementById('totalSupplies').textContent = `R$ ${totalSupplies.toFixed(2).replace('.', ',')}`;
-            document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
-            
-            const profitElement = document.getElementById('totalProfit');
-            profitElement.textContent = `R$ ${totalProfit.toFixed(2).replace('.', ',')}`;
-            profitElement.className = `financial-value ${profitClass}`;
+            wList.innerHTML = activeW.length ? activeW.join('') : '<p class="text-sm text-gray text-center">Nenhuma carência ativa.</p>';
         }
 
-        function updateDisplay() {
-            document.getElementById('totalGroups').textContent = cattleGroups.length;
-            
-            updateGroupsList();
-            updateStockTable();
-            updateExpensesTable();
-            updateFinancialSummary();
+        function updateCharts() {
+            const labels = appData.rainfall.map(r => r.date.substring(5));
+            const rainData = appData.rainfall.map(r => r.mm);
+            const weightData = rainData.map(r => Math.random() * 5 + 300); // Visual demo only
+
+            const ctx1 = document.getElementById('rainWeightChart').getContext('2d');
+            if(chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Chuva (mm)',
+                            data: rainData,
+                            backgroundColor: '#60a5fa',
+                            yAxisID: 'y',
+                            order: 2
+                        },
+                        {
+                            label: 'Evolução Peso (kg)',
+                            data: weightData,
+                            borderColor: '#059669',
+                            type: 'line',
+                            yAxisID: 'y1',
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: { mode: 'index', intersect: false },
+                    scales: {
+                        y: { type: 'linear', display: true, position: 'left', title: {display:true, text:'Milímetros'} },
+                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'Peso Médio'} }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('herdPieChart').getContext('2d');
+            const cats = {};
+            appData.groups.forEach(g => {
+                const qtd = g.animals.length || g.quantity;
+                cats[g.category] = (cats[g.category] || 0) + qtd;
+            });
+
+            if(pieInstance) pieInstance.destroy();
+            pieInstance = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(cats),
+                    datasets: [{
+                        data: Object.values(cats),
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
         }
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter') {
-                const activeElement = document.activeElement;
-                
-                if (activeElement && (activeElement.id === 'loginUserName' || activeElement.id === 'loginPassword')) {
-                    const form = activeElement.closest('form');
-                    if (form) {
-                        form.dispatchEvent(new Event('submit'));
-                    }
-                }
-                
-                if (activeElement && (activeElement.id === 'registerUserName' || activeElement.id === 'registerFullName' || 
-                    activeElement.id === 'registerPassword' || activeElement.id === 'confirmPassword')) {
-                    const form = activeElement.closest('form');
-                    if (form) {
-                        form.dispatchEvent(new Event('submit'));
-                    }
-                }
-            }
-        });
+        function printHealthReport() {
+            const el = document.getElementById('viewHealth');
+            html2pdf().from(el).save('Relatorio_Sanitario_SmartGado.pdf');
+        }
+
+        function switchView(id, nav) {
+            document.querySelectorAll('.view-section').forEach(e => e.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+            nav.classList.add('active');
+        }
+
+        function switchTab(id, event) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+            document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function openModal(id) { document.getElementById(id).classList.add('active'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
     </script>
 </body>
 </html>
