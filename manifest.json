@@ -1,6 +1,6 @@
 {
-  "name": "SmartGado 3.0",
-  "short_name": "SmartGado",
+  "name": "MeuGado",
+  "short_name": "MeuGado",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f8fafc",
