@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartGado 3.0 - Cloud Edition</title>
+    <title>SmartGado 3.0 - AI Edition</title>
     
     <!-- PWA Manifest & Icons -->
     <link rel="manifest" href="manifest.json">
@@ -20,6 +20,7 @@
     <!-- Firebase SDKs (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
     <style>
         :root {
@@ -33,6 +34,7 @@
             --gray: #6b7280;          /* Gray 500 */
             --light: #f3f4f6;         /* Gray 100 */
             --white: #ffffff;
+            --ai-color: #7c3aed;      /* Violet 600 */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -184,6 +186,9 @@
         
         .btn-success { background: #16a34a; }
         .btn-success:hover { background: #15803d; }
+        
+        .btn-accent { background: var(--accent); }
+        .btn-accent:hover { background: #b45309; }
 
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
         
@@ -303,6 +308,115 @@
         }
         .fin-box h4 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; margin-bottom: 5px; }
         .fin-box div { font-size: 1.1rem; font-weight: bold; }
+        
+        .sim-result-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        /* --- AI Chat Styles --- */
+        .ai-fab {
+            position: fixed;
+            bottom: 90px; /* Above navbar */
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: var(--ai-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
+            cursor: pointer;
+            z-index: 1500;
+            transition: transform 0.2s;
+            font-size: 1.5rem;
+        }
+        .ai-fab:hover { transform: scale(1.1); }
+        
+        .chat-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-container {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            height: 500px;
+            max-height: 80vh;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .chat-header {
+            background: var(--ai-color);
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f3f4f6;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-footer {
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            display: flex;
+            gap: 10px;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            outline: none;
+        }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .bubble-user {
+            background: var(--ai-color);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .bubble-ai {
+            background: white;
+            color: var(--dark);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .typing-indicator {
+            font-style: italic;
+            color: var(--gray);
+            font-size: 0.8rem;
+            margin-left: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -371,6 +485,7 @@
             
             <!-- VIEW: DASHBOARD -->
             <div id="viewDashboard" class="view-section">
+                
                 <div class="dashboard-grid">
                     <div class="stat-card" style="border-color: var(--primary);">
                         <i class="fas fa-cow"></i>
@@ -382,15 +497,10 @@
                         <div class="stat-value" id="dashAvgGMD">0.00</div>
                         <div class="stat-label">GMD Médio (kg/dia)</div>
                     </div>
-                    <div class="stat-card" style="border-color: var(--accent);">
-                        <i class="fas fa-coins"></i>
-                        <div class="stat-value" id="dashTotalValue">R$ 0</div>
-                        <div class="stat-label">Estoque Estimado (@)</div>
-                    </div>
                 </div>
 
                 <div class="card">
-                    <h3><i class="fas fa-chart-line"></i> Desempenho: Chuva x Peso</h3>
+                    <h3><i class="fas fa-cloud-showers-heavy"></i> Desempenho: Chuva x Peso</h3>
                     <p class="text-sm text-gray" style="margin-bottom:10px;">Relação entre precipitação e ganho de peso.</p>
                     <canvas id="rainWeightChart" height="200"></canvas>
                 </div>
@@ -508,6 +618,31 @@
             </div>
         </div>
 
+        <!-- AI FLOATING BUTTON -->
+        <div class="ai-fab" onclick="toggleChat()">
+            <i class="fas fa-robot"></i>
+        </div>
+
+        <!-- AI CHAT MODAL -->
+        <div id="aiChatModal" class="chat-modal">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div><i class="fas fa-user-md"></i> Consultor Veterinário (IA)</div>
+                    <div style="cursor:pointer;" onclick="toggleChat()"><i class="fas fa-times"></i></div>
+                </div>
+                <div class="chat-body" id="chatBody">
+                    <div class="chat-bubble bubble-ai">
+                        Olá! Sou seu assistente virtual. Posso ajudar com dúvidas sobre doenças, vacinação, nutrição ou manejo. Em que posso ajudar hoje?
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">Consultor digitando...</div>
+                <div class="chat-footer">
+                    <input type="text" id="userChatInput" class="chat-input" placeholder="Digite sua dúvida..." onkeydown="checkChatEnter(event)">
+                    <button class="btn btn-sm" style="background: var(--ai-color);" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- === MODALS === -->
@@ -551,6 +686,7 @@
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('tabOverview', event)">Resumo</div>
                 <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem & GMD</div>
+                <div class="tab" onclick="switchTab('tabSim', event)">Simulador</div>
                 <div class="tab" onclick="switchTab('tabAnimals', event)">Individuais</div>
                 <div class="tab" onclick="switchTab('tabHealth', event)">Sanitário</div>
                 <div class="tab" onclick="switchTab('tabReprod', event)" id="tabReprodHeader">Reprodução</div>
@@ -597,6 +733,49 @@
                     </div>
                 </div>
                 <div id="weightHistoryList" style="margin-top: 10px;"></div>
+            </div>
+
+            <!-- Tab: Simulador -->
+            <div id="tabSim" class="tab-content hidden">
+                <div class="card" style="border: 1px solid #fed7aa; background-color: #fffaf0;">
+                    <h4><i class="fas fa-stopwatch"></i> Previsão de Abate</h4>
+                    <p class="text-sm text-gray" style="margin-bottom: 10px;">Projete o peso futuro e receita.</p>
+                    
+                    <div class="form-group">
+                        <label>Data Prevista de Venda</label>
+                        <input type="date" id="simDate" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>GMD Projetado (kg/dia)</label>
+                        <input type="number" id="simGMD" class="form-input" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço Venda Arroba (R$)</label>
+                        <input type="number" id="simPrice" class="form-input" placeholder="300.00">
+                    </div>
+                    
+                    <button class="btn btn-accent" onclick="runSimulation()">Calcular Previsão</button>
+                    
+                    <div id="simResult" class="sim-result-box hidden">
+                        <div class="flex-between">
+                            <span>Dias Restantes:</span>
+                            <strong id="resDays">0</strong>
+                        </div>
+                        <div class="flex-between">
+                            <span>Peso Projetado (kg):</span>
+                            <strong id="resWeight">0</strong>
+                        </div>
+                        <div class="flex-between">
+                            <span>Peso em Arrobas:</span>
+                            <strong id="resArrobas">0</strong>
+                        </div>
+                        <hr style="margin: 8px 0; border: 0; border-top: 1px solid #bbf7d0;">
+                        <div class="flex-between" style="color: var(--primary-dark); font-size: 1.1rem;">
+                            <span>Receita Total:</span>
+                            <strong id="resRevenue">R$ 0,00</strong>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab: Animais Individuais -->
@@ -702,7 +881,8 @@
             groups: [], 
             pastures: [], 
             rainfall: [],
-            financials: [] // { id, type: 'income'|'expense', desc, amount, date }
+            financials: [],
+            market: { price: 0 }
         };
 
         // --- INIT ---
@@ -719,15 +899,14 @@
                 const doc = await db.collection('users').doc(userId).get();
                 if (doc.exists) {
                     const data = doc.data();
-                    // Merge logic to ensure new structure exists
                     appData.groups = data.groups || [];
                     appData.pastures = data.pastures || [];
                     appData.rainfall = data.rainfall || [];
                     appData.financials = data.financials || [];
+                    appData.market = data.market || { price: 0 };
                 } else {
-                    // New User on Cloud
-                    appData = { groups: [], pastures: [], rainfall: [], financials: [] };
-                    await saveData(); // Init doc
+                    appData = { groups: [], pastures: [], rainfall: [], financials: [], market: { price: 0 } };
+                    await saveData(); 
                 }
                 checkVaccineAlerts();
                 renderAll();
@@ -740,15 +919,13 @@
         async function saveData() {
             if (!currentUser) return;
             try {
-                // Save entire appData state to the user's document
                 await db.collection('users').doc(currentUser.id).set(appData, { merge: true });
-                // Optional: visual indicator of saving?
             } catch (error) {
                 console.error("Erro ao salvar:", error);
             }
         }
 
-        // --- AUTH LOGIC (Restored from Original) ---
+        // --- AUTH LOGIC ---
 
         function toggleAuthMode(mode) {
             document.getElementById('authMessage').innerText = '';
@@ -777,31 +954,14 @@
             const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
 
             try {
-                // Verify credentials against 'auth' collection
                 const authDoc = await db.collection('auth').doc(userId).get();
-                
-                if (!authDoc.exists) {
-                    throw new Error('Usuário não encontrado.');
-                }
-
+                if (!authDoc.exists) throw new Error('Usuário não encontrado.');
                 const authData = authDoc.data();
-                const passwordHash = btoa(pass + userId); // Simple hash matching old system
+                if (authData.passwordHash !== btoa(pass + userId)) throw new Error('Senha incorreta.');
 
-                if (authData.passwordHash !== passwordHash) {
-                    throw new Error('Senha incorreta.');
-                }
-
-                // Success
-                currentUser = {
-                    id: userId,
-                    name: authData.userName,
-                    fullName: authData.fullName
-                };
-
-                // Load Data
+                currentUser = { id: userId, name: authData.userName, fullName: authData.fullName };
                 await loadData(userId);
 
-                // Switch Screens
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 document.getElementById('welcomeMsg').innerText = `Olá, ${currentUser.fullName.split(' ')[0]}`;
@@ -832,24 +992,14 @@
                 const authDoc = await db.collection('auth').doc(userId).get();
                 if (authDoc.exists) throw new Error('Este usuário já existe.');
 
-                const passwordHash = btoa(pass + userId);
-
-                // Create Auth Record
                 await db.collection('auth').doc(userId).set({
-                    userName: user,
-                    fullName: name,
-                    passwordHash: passwordHash,
-                    createdAt: new Date().toISOString()
+                    userName: user, fullName: name, passwordHash: btoa(pass + userId), createdAt: new Date().toISOString()
                 });
 
-                // Auto Login
                 currentUser = { id: userId, name: user, fullName: name };
-                
-                // Initialize Data
-                appData = { groups: [], pastures: [], rainfall: [], financials: [] };
+                appData = { groups: [], pastures: [], rainfall: [], financials: [], market: { price: 0 } };
                 await saveData();
 
-                // Switch UI
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 document.getElementById('welcomeMsg').innerText = `Olá, ${name.split(' ')[0]}`;
@@ -862,12 +1012,100 @@
         }
 
         function logout() {
-            if(confirm('Sair do sistema?')) {
-                location.reload(); 
+            if(confirm('Sair do sistema?')) { location.reload(); }
+        }
+
+        // --- AI CHAT LOGIC (Gemini API) ---
+        
+        const apiKey = ""; // API Key provided by environment
+
+        function toggleChat() {
+            const modal = document.getElementById('aiChatModal');
+            if (modal.style.display === 'flex') {
+                modal.style.display = 'none';
+            } else {
+                modal.style.display = 'flex';
+                setTimeout(() => document.getElementById('userChatInput').focus(), 100);
             }
         }
 
-        // --- LOGIC: ZOOTECNIA (Same as SmartGado 3.0) ---
+        function checkChatEnter(event) {
+            if (event.key === 'Enter') {
+                sendChatMessage();
+            }
+        }
+
+        function appendMessage(sender, text) {
+            const body = document.getElementById('chatBody');
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble ${sender === 'user' ? 'bubble-user' : 'bubble-ai'}`;
+            bubble.innerText = text;
+            body.appendChild(bubble);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const input = document.getElementById('userChatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            // User message
+            appendMessage('user', text);
+            input.value = '';
+
+            // Show typing
+            const indicator = document.getElementById('typingIndicator');
+            indicator.style.display = 'block';
+
+            // Call API
+            try {
+                const aiResponse = await callGeminiAPI(text);
+                indicator.style.display = 'none';
+                appendMessage('ai', aiResponse);
+            } catch (error) {
+                indicator.style.display = 'none';
+                appendMessage('ai', 'Desculpe, estou tendo problemas de conexão. Tente novamente.');
+                console.error("Gemini Error:", error);
+            }
+        }
+
+        async function callGeminiAPI(userText) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const systemInstruction = "Você é um consultor veterinário e zootecnista especialista em gado de corte e leite. Responda dúvidas sobre doenças, manejo, nutrição e reprodução de forma técnica mas acessível ao produtor rural. Sempre alerte que suas respostas são informativas e não substituem a visita presencial de um veterinário. Seja conciso.";
+
+            const payload = {
+                contents: [{ parts: [{ text: userText }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] }
+            };
+
+            // Retry logic with exponential backoff
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 429) {
+                            const delay = Math.pow(2, i) * 1000;
+                            await new Promise(r => setTimeout(r, delay));
+                            continue;
+                        }
+                        throw new Error(`API Error: ${response.statusText}`);
+                    }
+
+                    const data = await response.json();
+                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não entendi sua pergunta.";
+                } catch (e) {
+                    if (i === 4) throw e;
+                }
+            }
+        }
+
+        // --- CORE FUNCTIONS ---
 
         function calculateGMD(group) {
             if (!group.weighings || group.weighings.length < 2) return 0;
@@ -883,15 +1121,11 @@
         function calculateFCR(group) {
             if(!group.feedExpenses || group.feedExpenses.length === 0) return 0;
             if(!group.weighings || group.weighings.length < 2) return 0;
-
             const totalCost = group.feedExpenses.reduce((a, b) => a + b.value, 0);
-            
             const initialWeight = group.weighings[0].weight;
             const currentWeight = group.weighings[group.weighings.length - 1].weight;
             const weightGainPerAnimal = currentWeight - initialWeight;
-            
             if(weightGainPerAnimal <= 0) return 0;
-
             const totalWeightGain = weightGainPerAnimal * (group.animals ? group.animals.length : group.quantity);
             const costPerKg = totalCost / totalWeightGain;
             return (costPerKg * 30).toFixed(2);
@@ -900,7 +1134,6 @@
         function getStockingRate(pastureId) {
             const pasture = appData.pastures.find(p => p.id == pastureId);
             if (!pasture || !pasture.area) return 0;
-
             let totalWeight = 0;
             appData.groups.forEach(g => {
                 if (g.currentPastureId == pastureId) {
@@ -909,7 +1142,6 @@
                     totalWeight += (currentWeight * qtd);
                 }
             });
-
             const ua = totalWeight / 450; 
             return (ua / pasture.area).toFixed(2);
         }
@@ -919,24 +1151,14 @@
             alertArea.innerHTML = '';
         }
 
-        // --- ACTIONS (Now with await saveData()) ---
+        // --- ACTIONS ---
 
         async function createGroup() {
             const name = document.getElementById('newGroupName').value;
             const category = document.getElementById('newGroupCategory').value;
             if(!name) return;
-
             appData.groups.push({
-                id: Date.now(),
-                name,
-                category,
-                quantity: 0,
-                animals: [],
-                weighings: [],
-                health: [],
-                reproduction: [],
-                feedExpenses: [],
-                currentPastureId: null
+                id: Date.now(), name, category, quantity: 0, animals: [], weighings: [], health: [], reproduction: [], feedExpenses: [], currentPastureId: null
             });
             await saveData();
             closeModal('modalNewGroup');
@@ -948,9 +1170,7 @@
             const name = document.getElementById('newPastureName').value;
             const area = parseFloat(document.getElementById('newPastureArea').value);
             const grass = document.getElementById('newPastureGrass').value;
-            
             if(!name || !area) return;
-
             appData.pastures.push({ id: Date.now(), name, area, grass });
             await saveData();
             closeModal('modalNewPasture');
@@ -964,12 +1184,46 @@
                 const existing = appData.rainfall.find(r => r.date === date);
                 if(existing) existing.mm = mm;
                 else appData.rainfall.push({date, mm});
-                
                 appData.rainfall.sort((a,b) => new Date(a.date) - new Date(b.date));
                 await saveData();
                 alert('Chuva registrada!');
                 renderAll();
             }
+        }
+
+        // --- SIMULATOR LOGIC ---
+        function runSimulation() {
+            const date = document.getElementById('simDate').value;
+            const gmd = parseFloat(document.getElementById('simGMD').value);
+            const price = parseFloat(document.getElementById('simPrice').value);
+            
+            if(!date || !gmd || !price || !activeGroupId) { alert('Preencha todos os campos.'); return; }
+
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const currentWeight = group.weighings.length > 0 ? group.weighings[group.weighings.length - 1].weight : 0;
+            const qtd = group.animals.length || group.quantity;
+
+            if(currentWeight === 0) { alert('O lote precisa ter ao menos uma pesagem.'); return; }
+
+            const today = new Date();
+            const targetDate = new Date(date);
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if(diffDays <= 0) { alert('A data deve ser futura.'); return; }
+
+            const futureWeightPerAnimal = currentWeight + (gmd * diffDays);
+            const totalWeight = futureWeightPerAnimal * qtd;
+            // Cálculo Arroba: Peso Vivo / 30 (Regra comum para negociação em arrobas de peso vivo)
+            const totalArrobas = totalWeight / 30; 
+            const revenue = totalArrobas * price;
+
+            document.getElementById('resDays').innerText = diffDays;
+            document.getElementById('resWeight').innerText = futureWeightPerAnimal.toFixed(1);
+            document.getElementById('resArrobas').innerText = totalArrobas.toFixed(1);
+            document.getElementById('resRevenue').innerText = `R$ ${revenue.toFixed(2)}`;
+            
+            document.getElementById('simResult').classList.remove('hidden');
         }
 
         // --- DETAILS & EDIT ---
@@ -985,25 +1239,20 @@
 
             const inWithdrawal = group.health && group.health.some(h => new Date(h.withdrawEnd) >= new Date());
             const statusBadge = document.getElementById('detailGroupStatus');
-            if(inWithdrawal) {
-                statusBadge.className = 'badge badge-danger';
-                statusBadge.innerText = 'EM CARÊNCIA';
-            } else {
-                statusBadge.className = 'badge badge-success';
-                statusBadge.innerText = 'LIBERADO';
-            }
+            statusBadge.className = inWithdrawal ? 'badge badge-danger' : 'badge badge-success';
+            statusBadge.innerText = inWithdrawal ? 'EM CARÊNCIA' : 'LIBERADO';
 
             const gmd = calculateGMD(group);
             document.getElementById('calcGMD').innerText = `${gmd} kg/dia`;
-            
-            const fcr = calculateFCR(group);
-            document.getElementById('calcFCR').innerText = fcr > 0 ? `R$ ${fcr}` : '--';
+            document.getElementById('calcFCR').innerText = calculateFCR(group) > 0 ? `R$ ${calculateFCR(group)}` : '--';
 
-            if(group.category === 'Vacas' || group.category === 'Novilhas') {
-                document.getElementById('tabReprodHeader').classList.remove('hidden');
-            } else {
-                document.getElementById('tabReprodHeader').classList.add('hidden');
-            }
+            // Sim Pre-fill
+            document.getElementById('simGMD').value = gmd > 0 ? gmd : '';
+            // Market Price Removed from Dashboard, so defaults to empty
+            document.getElementById('simPrice').value = '';
+            document.getElementById('simResult').classList.add('hidden');
+
+            document.getElementById('tabReprodHeader').classList.toggle('hidden', !(group.category === 'Vacas' || group.category === 'Novilhas'));
 
             renderWeightList(group);
             renderAnimalList(group);
@@ -1021,7 +1270,6 @@
             const date = document.getElementById('weightDate').value;
             const weight = parseFloat(document.getElementById('weightValue').value);
             if(!date || !weight) return;
-
             const group = appData.groups.find(g => g.id == activeGroupId);
             group.weighings.push({date, weight});
             await saveData();
@@ -1073,10 +1321,8 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             if(!newId) return;
-
             const group = appData.groups.find(g => g.id == activeGroupId);
             group.animals[idx].id = newId;
-            
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
@@ -1097,16 +1343,10 @@
             const date = document.getElementById('healthDate').value;
             const days = parseInt(document.getElementById('healthWithdrawal').value) || 0;
             if(!name || !date) return;
-
             const group = appData.groups.find(g => g.id == activeGroupId);
-            
             const endDate = new Date(date);
             endDate.setDate(endDate.getDate() + days);
-
-            group.health.push({
-                name, date, withdrawDays: days, withdrawEnd: endDate.toISOString().split('T')[0]
-            });
-            
+            group.health.push({ name, date, withdrawDays: days, withdrawEnd: endDate.toISOString().split('T')[0] });
             document.getElementById('healthName').value = '';
             document.getElementById('healthWithdrawal').value = '';
             await saveData();
@@ -1119,10 +1359,7 @@
             list.innerHTML = group.health.map(h => {
                 const isBlocked = new Date(h.withdrawEnd) >= new Date();
                 return `<div class="list-item text-sm">
-                    <div>
-                        <strong>${h.name}</strong><br>
-                        <span class="text-gray">${new Date(h.date).toLocaleDateString('pt-BR')}</span>
-                    </div>
+                    <div><strong>${h.name}</strong><br><span class="text-gray">${new Date(h.date).toLocaleDateString('pt-BR')}</span></div>
                     ${isBlocked ? `<span class="badge badge-danger">Carência até ${new Date(h.withdrawEnd).toLocaleDateString('pt-BR')}</span>` : '<span class="badge badge-success">OK</span>'}
                 </div>`;
             }).join('');
@@ -1132,16 +1369,13 @@
             const type = document.getElementById('reprodType').value;
             const date = document.getElementById('reprodDate').value;
             if(!date) return;
-
             const group = appData.groups.find(g => g.id == activeGroupId);
             let expectedBirth = null;
-
             if(type === 'IATF' || type === 'Monta') {
                 const d = new Date(date);
                 d.setDate(d.getDate() + 290);
                 expectedBirth = d.toISOString().split('T')[0];
             }
-
             if(!group.reproduction) group.reproduction = [];
             group.reproduction.push({ type, date, expectedBirth });
             await saveData();
@@ -1151,7 +1385,6 @@
         function renderReprodList(group) {
             const list = document.getElementById('reprodHistoryList');
             if(!group.reproduction) { list.innerHTML = ''; return; }
-            
             list.innerHTML = group.reproduction.map(r => 
                 `<div class="list-item text-sm">
                     <div><strong>${r.type}</strong> em ${new Date(r.date).toLocaleDateString('pt-BR')}</div>
@@ -1194,16 +1427,9 @@
             const desc = document.getElementById('transDesc').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
             const date = document.getElementById('transDate').value;
-
             if(!desc || !amount || !date) return;
-
             if(!appData.financials) appData.financials = [];
-            
-            appData.financials.push({
-                id: Date.now(),
-                type, desc, amount, date
-            });
-
+            appData.financials.push({ id: Date.now(), type, desc, amount, date });
             await saveData();
             closeModal('modalTransaction');
             document.getElementById('transDesc').value = '';
@@ -1212,79 +1438,45 @@
         }
 
         function renderFinancials() {
-            // Calculate Totals
             let totalIncome = 0;
             let totalExpense = 0;
-
-            // 1. General Financials
             if(appData.financials) {
-                appData.financials.forEach(t => {
-                    if(t.type === 'income') totalIncome += t.amount;
-                    else totalExpense += t.amount;
-                });
+                appData.financials.forEach(t => { if(t.type === 'income') totalIncome += t.amount; else totalExpense += t.amount; });
             }
-
-            // 2. Add Feed Expenses from Groups (Implicit Expense)
             let feedTotal = 0;
             appData.groups.forEach(g => {
-                if(g.feedExpenses) {
-                    g.feedExpenses.forEach(f => {
-                        feedTotal += f.value;
-                    });
-                }
+                if(g.feedExpenses) { g.feedExpenses.forEach(f => { feedTotal += f.value; }); }
             });
             totalExpense += feedTotal;
 
-            // Render Summary
             document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
             document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
-            
             const net = totalIncome - totalExpense;
             const elNet = document.getElementById('finNetProfit');
             elNet.innerText = `R$ ${net.toFixed(2)}`;
             elNet.className = net >= 0 ? 'text-success' : 'text-danger';
 
-            // Render List (Combined)
             const list = document.getElementById('financialList');
             let allTrans = [];
-            
-            // Add General
             if(appData.financials) allTrans = [...appData.financials];
-            
-            // Add Feed (as read-only items in the list for visibility)
             appData.groups.forEach(g => {
                 if(g.feedExpenses) {
                     g.feedExpenses.forEach(f => {
-                        allTrans.push({
-                            type: 'expense',
-                            desc: `Ração: ${g.name}`,
-                            amount: f.value,
-                            date: f.date,
-                            isFeed: true
-                        });
+                        allTrans.push({ type: 'expense', desc: `Ração: ${g.name}`, amount: f.value, date: f.date, isFeed: true });
                     });
                 }
             });
-
-            // Sort by Date Desc
             allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
 
             list.innerHTML = allTrans.map(t => {
                 const color = t.type === 'income' ? 'text-success' : 'text-danger';
-                const icon = t.type === 'income' ? 'fa-arrow-up' : 'fa-arrow-down';
                 return `
                 <div class="list-item">
-                    <div>
-                        <div style="font-weight:600;">${t.desc}</div>
-                        <div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')} ${t.isFeed ? '(Automático)' : ''}</div>
-                    </div>
-                    <div class="${color}" style="font-weight:bold;">
-                        ${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}
-                    </div>
+                    <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')} ${t.isFeed ? '(Automático)' : ''}</div></div>
+                    <div class="${color}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
                 </div>`;
             }).join('');
         }
-
 
         // --- RENDER & CHARTS ---
 
@@ -1292,9 +1484,16 @@
         let pieInstance = null;
 
         function renderAll() {
-            const totalAnimals = appData.groups.reduce((acc, g) => acc + (g.animals.length || g.quantity), 0);
+            // Stats
+            let totalAnimals = 0;
+            appData.groups.forEach(g => {
+                const qtd = g.animals.length || g.quantity;
+                totalAnimals += qtd;
+            });
+            
             document.getElementById('dashTotalAnimals').innerText = totalAnimals;
 
+            // GMD
             let sumGmd = 0, countGmd = 0;
             appData.groups.forEach(g => {
                 const val = parseFloat(calculateGMD(g));
@@ -1305,7 +1504,7 @@
             renderGroupsList();
             renderPasturesGrid();
             renderHealthAlerts();
-            renderFinancials(); // NEW
+            renderFinancials();
             updateCharts();
         }
 
@@ -1331,7 +1530,6 @@
                 const ua = getStockingRate(p.id);
                 const groups = appData.groups.filter(g => g.currentPastureId == p.id);
                 const isOccupied = groups.length > 0;
-                
                 return `
                 <div class="paddock-cell ${isOccupied ? 'occupied' : ''}">
                     <strong>${p.name}</strong>
@@ -1346,7 +1544,6 @@
             const wList = document.getElementById('withdrawalList');
             const activeW = [];
             const today = new Date();
-
             appData.groups.forEach(g => {
                 if(g.health) {
                     g.health.forEach(h => {
@@ -1356,38 +1553,23 @@
                     });
                 }
             });
-
             wList.innerHTML = activeW.length ? activeW.join('') : '<p class="text-sm text-gray text-center">Nenhuma carência ativa.</p>';
         }
 
         function updateCharts() {
             const labels = appData.rainfall.map(r => r.date.substring(5));
             const rainData = appData.rainfall.map(r => r.mm);
-            const weightData = rainData.map(r => Math.random() * 5 + 300); // Visual demo only
+            const weightData = rainData.map(r => Math.random() * 5 + 300);
 
             const ctx1 = document.getElementById('rainWeightChart').getContext('2d');
             if(chartInstance) chartInstance.destroy();
-
             chartInstance = new Chart(ctx1, {
                 type: 'bar',
                 data: {
                     labels: labels,
                     datasets: [
-                        {
-                            label: 'Chuva (mm)',
-                            data: rainData,
-                            backgroundColor: '#60a5fa',
-                            yAxisID: 'y',
-                            order: 2
-                        },
-                        {
-                            label: 'Evolução Peso (kg)',
-                            data: weightData,
-                            borderColor: '#059669',
-                            type: 'line',
-                            yAxisID: 'y1',
-                            order: 1
-                        }
+                        { label: 'Chuva (mm)', data: rainData, backgroundColor: '#60a5fa', yAxisID: 'y', order: 2 },
+                        { label: 'Evolução Peso (kg)', data: weightData, borderColor: '#059669', type: 'line', yAxisID: 'y1', order: 1 }
                     ]
                 },
                 options: {
@@ -1406,16 +1588,12 @@
                 const qtd = g.animals.length || g.quantity;
                 cats[g.category] = (cats[g.category] || 0) + qtd;
             });
-
             if(pieInstance) pieInstance.destroy();
             pieInstance = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: Object.keys(cats),
-                    datasets: [{
-                        data: Object.values(cats),
-                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444']
-                    }]
+                    datasets: [{ data: Object.values(cats), backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'] }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
