@@ -1,4 +1,4 @@
-const CACHE_NAME = 'smartgado-v3-ai';
+const CACHE_NAME = 'MeuGado';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
