@@ -892,6 +892,19 @@
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
         };
 
+        // --- SERVICE WORKER REGISTRATION (PWA) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker registrado com sucesso: ', registration.scope);
+                    })
+                    .catch(err => {
+                        console.log('Falha no registro do ServiceWorker: ', err);
+                    });
+            });
+        }
+
         // --- CLOUD SYNC ---
 
         async function loadData(userId) {
