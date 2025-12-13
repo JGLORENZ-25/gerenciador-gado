@@ -250,6 +250,7 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .gap-2 { gap: 8px; }
         .text-sm { font-size: 0.85rem; }
+        .text-xs { font-size: 0.75rem; } /* Adicionado */
         .text-gray { color: var(--gray); }
         .text-danger { color: var(--danger); }
         .text-success { color: #16a34a; }
@@ -277,7 +278,7 @@
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div style="font-size: 4rem; margin-bottom: 20px; color: var(--primary);">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.3 (Custo Lote e Uso Individual)</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.3</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -440,7 +441,7 @@
             <div class="form-group">
                 <label>Valor Total de Compra (R$)</label>
                 <input type="number" id="newGroupInitialCost" class="form-input" placeholder="0.00" step="0.01">
-                <div class="text-sm text-gray" style="margin-top: 5px;">Custo inicial do lote (será adicionado ao histórico).</div>
+                <div class="text-sm text-gray" style="margin-top: 5px;">Custo inicial do lote (será adicionado ao histórico e despesas).</div>
             </div>
             <button class="btn" onclick="createGroup()">Salvar Lote</button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalNewGroup')">Cancelar</button>
@@ -652,8 +653,12 @@
         <div class="modal-content">
             <h3>Editar Animal</h3>
             <div class="form-group">
-                <label>Novo Brinco/ID</label>
+                <label>Brinco/ID</label>
                 <input type="text" id="editAnimalIdInput" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Peso Individual (kg)</label>
+                <input type="number" id="editAnimalWeightInput" class="form-input" placeholder="0.00" step="0.01">
             </div>
             <input type="hidden" id="editAnimalIndex">
             <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
@@ -847,6 +852,22 @@
             return ((last.weight - prev.weight) / diffDays).toFixed(3);
         }
 
+        // NOVO: Função para obter o peso médio atual (prefere individual)
+        function getCurrentLotWeight(group) {
+            if (group.animals && group.animals.length > 0) {
+                const animalsWithWeight = group.animals.filter(a => a.weight > 0);
+                if (animalsWithWeight.length > 0) {
+                    const totalWeight = animalsWithWeight.reduce((sum, a) => sum + a.weight, 0);
+                    return { weight: (totalWeight / animalsWithWeight.length), source: 'INDIVIDUAL' };
+                }
+            }
+            // Fallback para a última pesagem do lote
+            if (group.weighings && group.weighings.length > 0) {
+                return { weight: group.weighings[group.weighings.length - 1].weight, source: 'LOTE' };
+            }
+            return { weight: 0, source: 'N/A' };
+        }
+
         function calculateGroupCost(group) {
             let total = 0;
             if(group.costHistory) {
@@ -861,7 +882,8 @@
             let totalWeight = 0;
             appData.groups.forEach(g => {
                 if (g.currentPastureId == pastureId) {
-                    const currentWeight = g.weighings.length > 0 ? g.weighings[g.weighings.length - 1].weight : 0;
+                    // Usa o peso médio atual, seja do lote ou individual
+                    const currentWeight = getCurrentLotWeight(g).weight; 
                     const qtd = g.animals && g.animals.length > 0 ? g.animals.length : (g.quantity || 0);
                     totalWeight += (currentWeight * qtd);
                 }
@@ -874,7 +896,7 @@
         async function createGroup() {
             const name = document.getElementById('newGroupName').value;
             const category = document.getElementById('newGroupCategory').value;
-            const initialCost = parseFloat(document.getElementById('newGroupInitialCost').value) || 0; // NOVO CAMPO
+            const initialCost = parseFloat(document.getElementById('newGroupInitialCost').value) || 0;
             
             if(!name) return;
             
@@ -890,7 +912,7 @@
                 currentPastureId: null
             };
 
-            // NOVO: Adiciona o custo inicial ao histórico
+            // Adiciona o custo inicial ao histórico
             if (initialCost > 0) {
                 newGroup.costHistory.push({
                     date: new Date().toISOString().split('T')[0],
@@ -899,8 +921,19 @@
                     qty: 1,
                     unit: 'un',
                     totalCost: initialCost,
-                    isInitialCost: true // Flag para identificar
+                    isInitialCost: true
                 });
+                
+                // === CORREÇÃO: Adicionar ao Financeiro (Despesa) ===
+                appData.financials.push({
+                    id: Date.now() + 1,
+                    type: 'expense',
+                    desc: `Compra Lote: ${name}`,
+                    amount: initialCost,
+                    date: new Date().toISOString().split('T')[0],
+                    isGroupPurchase: true
+                });
+                // ==============================================
             }
 
             appData.groups.push(newGroup);
@@ -1003,7 +1036,7 @@
             renderAll();
         }
 
-        // --- USO DE ESTOQUE (MODIFICADO) ---
+        // --- USO DE ESTOQUE ---
         let activeGroupId = null;
 
         function openGroupDetails(id) {
@@ -1024,12 +1057,12 @@
             // Reset Tab Estoque
             document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
             
-            // NOVO: Popula o seletor de animal individual
+            // Popula o seletor de animal individual
             const animalSelect = document.getElementById('useAnimalId');
             animalSelect.innerHTML = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || 
                                      '<option value="">Nenhum animal cadastrado</option>';
 
-            // NOVO: Reseta o escopo de uso e atualiza o estado dos inputs
+            // Reseta o escopo de uso e atualiza o estado dos inputs
             document.getElementById('scopeLot').checked = true; // Default para uso no lote
             toggleIndividualUsage(); // Chama para aplicar o estado inicial (Uso no Lote)
 
@@ -1044,7 +1077,7 @@
             openModal('modalGroupDetails');
         }
 
-        // NOVO: Altera os labels e visibilidade com base no escopo de uso
+        // Altera os labels e visibilidade com base no escopo de uso
         function toggleIndividualUsage() {
             const scope = document.querySelector('input[name="usageScope"]:checked').value;
             const individualSelect = document.getElementById('individualAnimalSelect');
@@ -1103,8 +1136,8 @@
             const usageType = document.getElementById('useStockType').value;
             const prodId = document.getElementById('useStockProduct').value;
             const date = document.getElementById('useDate').value;
-            const scope = document.querySelector('input[name="usageScope"]:checked').value; // NOVO
-            const animalId = document.getElementById('useAnimalId').value; // NOVO
+            const scope = document.querySelector('input[name="usageScope"]:checked').value;
+            const animalId = document.getElementById('useAnimalId').value;
 
             if(!prodId || !date) { alert('Selecione um produto e a data.'); return; }
             if(scope === 'individual' && !animalId) { alert('Selecione o animal para uso individual.'); return; }
@@ -1150,9 +1183,6 @@
                 qtyUsed = parseFloat(document.getElementById('useQtyTotal').value);
                 if(!qtyUsed) { alert('Informe a quantidade utilizada.'); return; }
 
-                // Para nutrição/outros: se é individual, é a dose única. Se é lote, é a quantidade total distribuída.
-                // A validação de estoque se mantém a mesma.
-                
                 if(qtyUsed > product.currentQty) {
                     alert(`Estoque insuficiente! Você precisa de ${qtyUsed.toFixed(2)} ${product.unit}, mas só tem ${parseFloat(product.currentQty).toFixed(2)} ${product.unit}.`);
                     return;
@@ -1171,8 +1201,8 @@
                 qty: qtyUsed,
                 unit: product.unit,
                 totalCost: cost,
-                scope: scope, // NOVO: 'lot' ou 'individual'
-                animalId: scope === 'individual' ? animalId : null // NOVO: ID do animal, se aplicável
+                scope: scope,
+                animalId: scope === 'individual' ? animalId : null
             });
 
             await saveData();
@@ -1182,7 +1212,7 @@
             renderAll();
         }
 
-        // NOVO: Adicionado badge para custo individual/inicial
+        // Adicionado badge para custo individual/inicial
         function renderGroupCostHistory(group) {
             const list = document.getElementById('groupCostList');
             if(!group.costHistory || group.costHistory.length === 0) {
@@ -1240,7 +1270,8 @@
             const id = document.getElementById('newAnimalId').value;
             if(!id) return;
             const group = appData.groups.find(g => g.id == activeGroupId);
-            group.animals.push({ id, entryDate: new Date().toISOString().split('T')[0] });
+            // MODIFICADO: Adicionando 'weight: 0' como padrão
+            group.animals.push({ id, entryDate: new Date().toISOString().split('T')[0], weight: 0 }); 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
             await saveData();
@@ -1248,11 +1279,15 @@
             renderAll();
         }
 
+        // MODIFICADO: Agora exibe o peso individual
         function renderAnimalList(group) {
             const list = document.getElementById('animalList');
             list.innerHTML = group.animals.map((a, idx) => 
                 `<div class="list-item text-sm">
-                    <span><i class="fas fa-tag"></i> ${a.id}</span>
+                    <div>
+                        <span><i class="fas fa-tag"></i> <strong>${a.id}</strong></span>
+                        <div class="text-xs text-gray" style="margin-top:2px;">Peso: ${a.weight ? a.weight.toFixed(2) + ' kg' : 'Não informado'}</div>
+                    </div>
                     <div class="btn-group-row">
                         <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})" title="Editar"><i class="fas fa-pencil-alt"></i></button>
                         <button class="btn btn-danger btn-sm" onclick="removeAnimal(${idx})" title="Remover"><i class="fas fa-trash"></i></button>
@@ -1266,15 +1301,23 @@
             const animal = group.animals[idx];
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
+            // NOVO: Preenche o campo de peso
+            document.getElementById('editAnimalWeightInput').value = animal.weight || ''; 
             openModal('modalEditAnimal');
         }
 
         async function saveAnimalEdit() {
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
+            // NOVO: Lê o peso
+            const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0; 
+
             if(!newId) return;
+            
             const group = appData.groups.find(g => g.id == activeGroupId);
             group.animals[idx].id = newId;
+            group.animals[idx].weight = newWeight; // NOVO: Salva o peso
+            
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
@@ -1299,10 +1342,14 @@
             if(!date || !gmd || !price || !activeGroupId) { alert('Preencha todos os campos.'); return; }
 
             const group = appData.groups.find(g => g.id == activeGroupId);
-            const currentWeight = group.weighings.length > 0 ? group.weighings[group.weighings.length - 1].weight : 0;
+            
+            // MODIFICADO: Usa a função que prioriza o peso individual
+            const currentWeightInfo = getCurrentLotWeight(group);
+            const currentWeight = currentWeightInfo.weight; // será 0 se N/A
+            
             const qtd = group.animals.length || group.quantity;
 
-            if(currentWeight === 0) { alert('O lote precisa ter ao menos uma pesagem.'); return; }
+            if(currentWeight === 0) { alert('O lote precisa ter o peso médio atual (individual ou por lote) para simulação.'); return; }
 
             const today = new Date();
             const targetDate = new Date(date);
@@ -1324,6 +1371,9 @@
         // --- FINANCEIRO ---
         function openTransactionModal(type) {
             document.getElementById('transType').value = type;
+            document.getElementById('transDesc').value = '';
+            document.getElementById('transAmount').value = '';
+            document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('transTitle').innerText = type === 'income' ? 'Nova Receita' : 'Nova Despesa';
             document.getElementById('transTitle').className = type === 'income' ? 'text-success' : 'text-danger';
             document.getElementById('btnSaveTrans').className = type === 'income' ? 'btn btn-success' : 'btn btn-danger';
@@ -1341,9 +1391,6 @@
             appData.financials.push({ id: Date.now(), type, desc, amount, date });
             await saveData();
             closeModal('modalTransaction');
-            
-            document.getElementById('transDesc').value = '';
-            document.getElementById('transAmount').value = '';
             
             renderAll();
         }
@@ -1368,9 +1415,12 @@
             });
             document.getElementById('dashAvgGMD').innerText = countGmd ? (sumGmd/countGmd).toFixed(3) : '0.000';
 
-            // Lists
+            // Lists (MODIFICADO para usar peso individual)
             document.getElementById('groupsList').innerHTML = appData.groups.map(g => {
-                const lastWeight = g.weighings.length ? g.weighings[g.weighings.length-1].weight : '-';
+                const currentWeightInfo = getCurrentLotWeight(g);
+                const displayWeight = currentWeightInfo.weight > 0 ? currentWeightInfo.weight.toFixed(2) : '-';
+                const sourceTag = currentWeightInfo.source === 'INDIVIDUAL' ? '<span class="stock-tag">Ind.</span>' : '';
+
                 return `
                 <div class="card list-item" onclick="openGroupDetails(${g.id})">
                     <div>
@@ -1378,7 +1428,7 @@
                         <div class="text-sm text-gray">${g.category} • ${g.animals.length || g.quantity} cab</div>
                     </div>
                     <div class="text-center">
-                        <div style="font-weight:bold; color:var(--primary);">${lastWeight} kg</div>
+                        <div style="font-weight:bold; color:var(--primary);">${displayWeight} kg ${sourceTag}</div>
                         <div class="text-sm text-gray">Peso Médio</div>
                     </div>
                 </div>`;
