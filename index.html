@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeuGado</title>
     
-    <!-- PWA Manifest & Icons -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2395/2395796.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2395/2395796.png">
 
-    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Firebase SDKs (Compat) -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -34,7 +30,6 @@
             --gray: #6b7280;          /* Gray 500 */
             --light: #f3f4f6;         /* Gray 100 */
             --white: #ffffff;
-            --ai-color: #7c3aed;      /* Violet 600 */
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -43,7 +38,7 @@
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: #f8fafc;
             color: var(--dark);
-            padding-bottom: 80px; /* Space for mobile nav */
+            padding-bottom: 90px;
         }
 
         /* --- Layout --- */
@@ -55,14 +50,15 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             backdrop-filter: blur(10px);
             display: flex;
-            justify-content: space-around;
-            padding: 12px 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            justify-content: space-between;
+            padding: 10px 10px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
             z-index: 1000;
             border-top: 1px solid #e5e7eb;
+            overflow-x: auto;
         }
 
         .nav-item {
@@ -71,15 +67,17 @@
             align-items: center;
             color: var(--gray);
             text-decoration: none;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: 0.3s;
             flex: 1;
+            min-width: 50px;
+            padding: 4px 0;
         }
 
-        .nav-item i { font-size: 1.25rem; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item.active { color: var(--primary); font-weight: 600; }
-        .nav-item.active i { transform: translateY(-2px); }
+        .nav-item i { font-size: 1.2rem; margin-bottom: 4px; transition: 0.3s; }
+        .nav-item.active { color: var(--primary); font-weight: 700; }
+        .nav-item.active i { transform: translateY(-3px); color: var(--primary); }
 
         /* --- Cards --- */
         .card {
@@ -157,6 +155,7 @@
         .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
         .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
         .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
+        .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
 
         /* --- Forms & Buttons --- */
         .btn {
@@ -175,20 +174,14 @@
             gap: 8px;
         }
         .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn:active { transform: translateY(0); }
         .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
         .btn-outline:hover { background: var(--primary-light); }
         
         .btn-danger { background: var(--danger); }
-        .btn-danger:hover { background: #b91c1c; }
-        
         .btn-success { background: #16a34a; }
-        .btn-success:hover { background: #15803d; }
-        
-        .btn-accent { background: var(--accent); }
-        .btn-accent:hover { background: #b45309; }
+        .btn-secondary { background: var(--secondary); }
 
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
         
@@ -262,258 +255,80 @@
         .text-success { color: #16a34a; }
 
         /* --- Specific Components --- */
-        .header-user {
-            display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;
-        }
-        .header-title h2 { font-size: 1.5rem; color: var(--dark); }
-        .header-title p { color: var(--gray); font-size: 0.9rem; }
-
-        .paddock-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 12px;
-        }
-        .paddock-cell {
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 12px;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .paddock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .paddock-cell { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; }
         .paddock-cell:hover { border-color: var(--primary); }
         .paddock-cell.occupied { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
         
-        .auth-toggle {
-            margin-top: 15px;
-            font-size: 0.9rem;
-            color: var(--primary);
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .auth-toggle { margin-top: 15px; font-size: 0.9rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
 
-        .financial-summary {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        .fin-box {
-            background: white;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid #e5e7eb;
-        }
-        .fin-box h4 { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; margin-bottom: 5px; }
+        .financial-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .fin-box { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e5e7eb; }
         .fin-box div { font-size: 1.1rem; font-weight: bold; }
         
-        .sim-result-box {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 12px;
-            padding: 16px;
-            margin-top: 16px;
-        }
-
-        /* --- AI Chat Styles --- */
-        .ai-fab {
-            position: fixed;
-            bottom: 90px; /* Above navbar */
-            right: 20px;
-            width: 60px;
-            height: 60px;
-            background: var(--ai-color);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(124, 58, 237, 0.3);
-            cursor: pointer;
-            z-index: 1500;
-            transition: transform 0.2s;
-            font-size: 1.5rem;
-        }
-        .ai-fab:hover { transform: scale(1.1); }
-        
-        .chat-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-        .chat-container {
-            background: white;
-            width: 90%;
-            max-width: 400px;
-            height: 500px;
-            max-height: 80vh;
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .chat-header {
-            background: var(--ai-color);
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .chat-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-            background: #f3f4f6;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .chat-footer {
-            padding: 10px;
-            background: white;
-            border-top: 1px solid #e5e7eb;
-            display: flex;
-            gap: 10px;
-        }
-        .chat-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            outline: none;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
-        .bubble-user {
-            background: var(--ai-color);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .bubble-ai {
-            background: white;
-            color: var(--dark);
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .typing-indicator {
-            font-style: italic;
-            color: var(--gray);
-            font-size: 0.8rem;
-            margin-left: 10px;
-            display: none;
-        }
+        .sim-result-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-top: 16px; }
+        .stock-tag { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- === AUTH SCREEN === -->
     <div id="authScreen" class="app-container" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div style="font-size: 4rem; margin-bottom: 20px; color: var(--primary);">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.3 (testes)</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.3 (Custo Lote e Uso Individual)</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <input type="text" id="loginUser" class="form-input" placeholder="Usuário (Login)" required autocomplete="username">
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="loginPass" class="form-input" placeholder="Senha" required autocomplete="current-password">
-                    </div>
-                    <button type="submit" class="btn" id="btnLogin">
-                        <span>Entrar</span> <i class="fas fa-sign-in-alt"></i>
-                    </button>
+                    <div class="form-group"><input type="text" id="loginUser" class="form-input" placeholder="Usuário (Login)" required autocomplete="username"></div>
+                    <div class="form-group"><input type="password" id="loginPass" class="form-input" placeholder="Senha" required autocomplete="current-password"></div>
+                    <button type="submit" class="btn" id="btnLogin"><span>Entrar</span> <i class="fas fa-sign-in-alt"></i></button>
                 </form>
                 <div class="auth-toggle" onclick="toggleAuthMode('register')">Não tem conta? Registrar-se</div>
             </div>
 
             <div id="registerFormBlock" class="hidden">
                 <form onsubmit="handleRegister(event)">
-                    <div class="form-group">
-                        <input type="text" id="regUser" class="form-input" placeholder="Novo Usuário (Login)" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="regName" class="form-input" placeholder="Nome Completo" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="password" id="regPass" class="form-input" placeholder="Criar Senha" required>
-                    </div>
-                    <button type="submit" class="btn" id="btnRegister">
-                        <span>Criar Conta</span> <i class="fas fa-user-plus"></i>
-                    </button>
+                    <div class="form-group"><input type="text" id="regUser" class="form-input" placeholder="Novo Usuário (Login)" required></div>
+                    <div class="form-group"><input type="text" id="regName" class="form-input" placeholder="Nome Completo" required></div>
+                    <div class="form-group"><input type="password" id="regPass" class="form-input" placeholder="Criar Senha" required></div>
+                    <button type="submit" class="btn" id="btnRegister"><span>Criar Conta</span> <i class="fas fa-user-plus"></i></button>
                 </form>
                 <div class="auth-toggle" onclick="toggleAuthMode('login')">Já tem conta? Fazer Login</div>
             </div>
-            
             <p id="authMessage" style="margin-top:20px; color: var(--danger); font-size: 0.9rem;"></p>
         </div>
     </div>
 
-    <!-- === MAIN APP === -->
     <div id="appScreen" class="hidden">
         
         <div class="app-container" style="padding-bottom: 0;">
             <div class="header-user">
-                <div class="header-title">
-                    <h2 id="welcomeMsg">Olá, Produtor</h2>
-                    <p id="dateDisplay"></p>
-                </div>
+                <div class="header-title"><h2 id="welcomeMsg">Olá, Produtor</h2><p id="dateDisplay"></p></div>
                 <button onclick="logout()" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </div>
-            
-            <!-- Notification Area -->
             <div id="alertArea"></div>
         </div>
 
         <div class="app-container" id="mainContent">
             
-            <!-- VIEW: DASHBOARD -->
             <div id="viewDashboard" class="view-section">
-                
                 <div class="dashboard-grid">
                     <div class="stat-card" style="border-color: var(--primary);">
-                        <i class="fas fa-cow"></i>
-                        <div class="stat-value" id="dashTotalAnimals">0</div>
-                        <div class="stat-label">Total Cabeças</div>
+                        <i class="fas fa-cow"></i><div class="stat-value" id="dashTotalAnimals">0</div><div class="stat-label">Total Cabeças</div>
                     </div>
                     <div class="stat-card" style="border-color: var(--secondary);">
-                        <i class="fas fa-weight-hanging"></i>
-                        <div class="stat-value" id="dashAvgGMD">0.00</div>
-                        <div class="stat-label">GMD Médio (kg/dia)</div>
+                        <i class="fas fa-weight-hanging"></i><div class="stat-value" id="dashAvgGMD">0.00</div><div class="stat-label">GMD Médio (kg/dia)</div>
                     </div>
                 </div>
 
                 <div class="card">
                     <h3><i class="fas fa-cloud-showers-heavy"></i> Desempenho: Chuva x Peso</h3>
-                    <p class="text-sm text-gray" style="margin-bottom:10px;">Relação entre precipitação e ganho de peso.</p>
                     <canvas id="rainWeightChart" height="200"></canvas>
-                </div>
-
-                <div class="card">
-                    <h3><i class="fas fa-chart-pie"></i> Distribuição do Rebanho</h3>
-                    <div style="height: 250px; display: flex; justify-content: center;">
-                        <canvas id="herdPieChart"></canvas>
-                    </div>
                 </div>
             </div>
 
-            <!-- VIEW: LOTES (GRUPOS) -->
             <div id="viewGroups" class="view-section hidden">
                 <div class="flex-between" style="margin-bottom: 16px;">
                     <h2>Meus Lotes</h2>
@@ -522,19 +337,15 @@
                 <div id="groupsList"></div>
             </div>
 
-            <!-- VIEW: PASTAGENS -->
             <div id="viewPastures" class="view-section hidden">
                 <div class="flex-between" style="margin-bottom: 16px;">
                     <h2>Gestão de Pastos</h2>
                     <button class="btn btn-sm" onclick="openModal('modalNewPasture')"><i class="fas fa-plus"></i> Piquete</button>
                 </div>
-                
                 <div class="card">
                     <h3><i class="fas fa-map-marked-alt"></i> Mapa de Lotação</h3>
-                    <p class="text-sm text-gray" style="margin-bottom: 15px;">Clique no pasto para ver detalhes.</p>
                     <div class="paddock-grid" id="pasturesGrid"></div>
                 </div>
-
                 <div class="card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe;">
                     <h3><i class="fas fa-cloud-rain"></i> Pluviômetro Digital</h3>
                     <div class="flex-between gap-2">
@@ -545,28 +356,28 @@
                 </div>
             </div>
 
-            <!-- VIEW: SANITÁRIO -->
-            <div id="viewHealth" class="view-section hidden">
+            <div id="viewStock" class="view-section hidden">
                 <div class="flex-between" style="margin-bottom: 16px;">
-                    <h2>Controle Sanitário</h2>
-                    <button class="btn btn-outline btn-sm" onclick="printHealthReport()"><i class="fas fa-file-pdf"></i> Gerar PDF</button>
+                    <h2>Controle de Estoque</h2>
+                    <button class="btn btn-sm btn-secondary" onclick="openModal('modalNewStockItem')"><i class="fas fa-box-open"></i> Novo Item</button>
                 </div>
                 
-                <div class="card" style="border-left: 5px solid var(--danger);">
-                    <h3><i class="fas fa-ban"></i> Períodos de Carência Ativos</h3>
-                    <div id="withdrawalList"></div>
+                <div class="card" style="background: #f0f9ff; border-color: #bae6fd;">
+                    <div class="flex-between">
+                        <div><h4>Valor em Estoque</h4><div class="text-sm text-gray">Produtos armazenados</div></div>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: var(--secondary);" id="stockTotalValue">R$ 0,00</div>
+                    </div>
                 </div>
-                
+
                 <div class="card">
-                    <h3><i class="fas fa-syringe"></i> Próximas Vacinas</h3>
-                    <div id="vaccineList"></div>
+                    <h3><i class="fas fa-cubes"></i> Meus Produtos</h3>
+                    <div id="inventoryList"></div>
                 </div>
             </div>
 
-            <!-- VIEW: FINANCEIRO -->
             <div id="viewFinancial" class="view-section hidden">
                 <div class="flex-between" style="margin-bottom: 16px;">
-                    <h2>Financeiro & Lucros</h2>
+                    <h2>Financeiro</h2>
                     <div class="btn-group-row">
                         <button class="btn btn-sm btn-success" onclick="openTransactionModal('income')"><i class="fas fa-plus"></i> Receita</button>
                         <button class="btn btn-sm btn-danger" onclick="openTransactionModal('expense')"><i class="fas fa-minus"></i> Despesa</button>
@@ -588,18 +399,15 @@
                             <div id="finNetProfit">R$ 0,00</div>
                         </div>
                     </div>
-                    <p class="text-sm text-center text-gray">* Inclui gastos de ração lançados nos lotes.</p>
                 </div>
 
                 <div class="card">
-                    <h3><i class="fas fa-list"></i> Últimos Lançamentos</h3>
+                    <h3><i class="fas fa-list"></i> Histórico</h3>
                     <div id="financialList"></div>
                 </div>
             </div>
-
         </div>
 
-        <!-- Navigation Bar -->
         <div class="nav-bar">
             <div class="nav-item active" onclick="switchView('viewDashboard', this)">
                 <i class="fas fa-chart-pie"></i> Dash
@@ -610,44 +418,16 @@
             <div class="nav-item" onclick="switchView('viewPastures', this)">
                 <i class="fas fa-seedling"></i> Pastos
             </div>
-            <div class="nav-item" onclick="switchView('viewHealth', this)">
-                <i class="fas fa-heartbeat"></i> Saúde
+            <div class="nav-item" onclick="switchView('viewStock', this)">
+                <i class="fas fa-boxes"></i> Estoque
             </div>
             <div class="nav-item" onclick="switchView('viewFinancial', this)">
-                <i class="fas fa-wallet"></i> Finanças
-            </div>
-        </div>
-
-        <!-- AI FLOATING BUTTON -->
-        <div class="ai-fab" onclick="toggleChat()">
-            <i class="fas fa-robot"></i>
-        </div>
-
-        <!-- AI CHAT MODAL -->
-        <div id="aiChatModal" class="chat-modal">
-            <div class="chat-container">
-                <div class="chat-header">
-                    <div><i class="fas fa-user-md"></i> Consultor Veterinário (IA)</div>
-                    <div style="cursor:pointer;" onclick="toggleChat()"><i class="fas fa-times"></i></div>
-                </div>
-                <div class="chat-body" id="chatBody">
-                    <div class="chat-bubble bubble-ai">
-                        Olá! Sou seu assistente virtual. Posso ajudar com dúvidas sobre doenças, vacinação, nutrição ou manejo. Em que posso ajudar hoje?
-                    </div>
-                </div>
-                <div class="typing-indicator" id="typingIndicator">Consultor digitando...</div>
-                <div class="chat-footer">
-                    <input type="text" id="userChatInput" class="chat-input" placeholder="Digite sua dúvida..." onkeydown="checkChatEnter(event)">
-                    <button class="btn btn-sm" style="background: var(--ai-color);" onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i></button>
-                </div>
+                <i class="fas fa-wallet"></i> Caixa
             </div>
         </div>
 
     </div>
 
-    <!-- === MODALS === -->
-
-    <!-- Novo Grupo -->
     <div id="modalNewGroup" class="modal">
         <div class="modal-content">
             <h3>Novo Lote de Animais</h3>
@@ -657,12 +437,16 @@
                     <option>Bezerros</option><option>Garrotes</option><option>Novilhas</option><option>Vacas</option><option>Touros</option>
                 </select>
             </div>
+            <div class="form-group">
+                <label>Valor Total de Compra (R$)</label>
+                <input type="number" id="newGroupInitialCost" class="form-input" placeholder="0.00" step="0.01">
+                <div class="text-sm text-gray" style="margin-top: 5px;">Custo inicial do lote (será adicionado ao histórico).</div>
+            </div>
             <button class="btn" onclick="createGroup()">Salvar Lote</button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalNewGroup')">Cancelar</button>
         </div>
     </div>
 
-    <!-- Novo Pasto -->
     <div id="modalNewPasture" class="modal">
         <div class="modal-content">
             <h3>Cadastrar Piquete</h3>
@@ -674,57 +458,158 @@
         </div>
     </div>
 
-    <!-- Detalhes do Grupo -->
+    <div id="modalNewStockItem" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
+            <p class="text-sm text-gray" style="margin-bottom:15px;">Adicione quantidade e o valor total gasto.</p>
+
+            <div class="form-group">
+                <label>Nome do Produto</label>
+                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Ivermectina...">
+            </div>
+
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="stockCategory" class="form-input">
+                    <option value="Ração">Ração / Nutrição</option>
+                    <option value="Sal Mineral">Sal Mineral</option>
+                    <option value="Vacina">Vacina</option>
+                    <option value="Medicamento">Medicamento</option>
+                    <option value="Outros">Outros Materiais</option>
+                </select>
+            </div>
+
+            <div class="flex-between gap-2">
+                <div class="form-group" style="flex:1">
+                    <label>Qtd Comprada</label>
+                    <input type="number" id="stockQty" class="form-input" placeholder="Ex: 50" step="0.01">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Unidade</label>
+                    <select id="stockUnit" class="form-input">
+                        <option value="kg">Kg (Quilos)</option>
+                        <option value="ml">ml (Mililitros)</option>
+                        <option value="lt">Lt (Litros)</option>
+                        <option value="ds">Doses</option>
+                        <option value="un">Unid.</option>
+                        <option value="sc">Sacos</option>
+                        <option value="fr">Frascos</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Valor TOTAL Gasto (R$)</label>
+                <input type="number" id="stockTotalSpend" class="form-input" placeholder="0.00" oninput="calculateUnitCost()">
+                <div class="text-sm text-gray text-center" id="unitCostDisplay" style="margin-top:5px;">Custo Unitário: R$ 0,00</div>
+            </div>
+
+            <div class="form-group">
+                <label style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="autoLaunchFinance" checked> 
+                    Lançar Despesa no Financeiro automaticamente?
+                </label>
+            </div>
+
+            <button class="btn btn-secondary" onclick="addStockItem()">Adicionar ao Estoque</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalNewStockItem')">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modalGroupDetails" class="modal">
         <div class="modal-content">
             <div class="flex-between">
-                <h3 id="detailGroupTitle">Lote 01</h3>
+                <h3 id="detailGroupTitle">Lote</h3>
                 <span class="badge badge-success" id="detailGroupStatus">ATIVO</span>
             </div>
             <p id="detailGroupSubtitle" class="text-sm text-gray" style="margin-bottom: 15px;"></p>
 
             <div class="tabs">
                 <div class="tab active" onclick="switchTab('tabOverview', event)">Resumo</div>
-                <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem & GMD</div>
+                <div class="tab" onclick="switchTab('tabStockUse', event)">Usar Estoque</div>
+                <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem</div>
+                <div class="tab" onclick="switchTab('tabAnimals', event)">Animais</div>
                 <div class="tab" onclick="switchTab('tabSim', event)">Simulador</div>
-                <div class="tab" onclick="switchTab('tabAnimals', event)">Individuais</div>
-                <div class="tab" onclick="switchTab('tabHealth', event)">Sanitário</div>
-                <div class="tab" onclick="switchTab('tabReprod', event)" id="tabReprodHeader">Reprodução</div>
             </div>
 
-            <!-- Tab: Visão Geral & Conversão -->
             <div id="tabOverview" class="tab-content">
                 <div class="card" style="background: #f8fafc;">
-                    <h4><i class="fas fa-calculator"></i> Indicadores Zootécnicos</h4>
+                    <h4><i class="fas fa-calculator"></i> Custos & Desempenho</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                         <div>
                             <span class="text-sm text-gray">GMD Atual</span>
                             <div style="font-size: 1.2rem; font-weight: bold; color: var(--primary);" id="calcGMD">0.000</div>
                         </div>
                         <div>
-                            <span class="text-sm text-gray">Custo por @ Produzida</span>
-                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--accent);" id="calcFCR">R$ 0,00</div>
+                            <span class="text-sm text-gray">Custo Total Lote</span>
+                            <div style="font-size: 1.2rem; font-weight: bold; color: var(--danger);" id="calcTotalCost">R$ 0,00</div>
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <label>Movimentação de Pasto</label>
                     <select id="movePastureSelect" class="form-input" onchange="moveGroup(this.value)"></select>
                 </div>
-
-                <div class="form-group">
-                    <label>Lançar Despesa de Ração/Suplemento</label>
-                    <div class="flex-between gap-2">
-                        <input type="number" id="feedCost" class="form-input" placeholder="Valor Total (R$)">
-                        <button class="btn btn-sm btn-secondary" onclick="addFeedExpense()">Lançar</button>
-                    </div>
-                </div>
             </div>
 
-            <!-- Tab: Pesagens -->
+            <div id="tabStockUse" class="tab-content hidden">
+                <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                    <label style="color:var(--secondary); font-weight:bold;">1. O que foi usado?</label>
+                    <select id="useStockType" class="form-input" onchange="populateStockUsageSelect()" style="margin-bottom:10px;">
+                        <option value="nutrition">Nutrição (Ração/Sal)</option>
+                        <option value="health">Sanitário (Vacina/Remédio)</option>
+                        <option value="other">Outros</option>
+                    </select>
+
+                    <label style="color:var(--secondary); font-weight:bold; margin-top:15px;">2. Tipo de Uso</label>
+                    <div class="flex-between gap-2" style="margin-bottom: 15px;">
+                        <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="radio" name="usageScope" value="lot" id="scopeLot" checked onchange="toggleIndividualUsage()"> Uso no Lote
+                        </label>
+                        <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
+                            <input type="radio" name="usageScope" value="individual" id="scopeIndividual" onchange="toggleIndividualUsage()"> Uso Individual
+                        </label>
+                    </div>
+                    
+                    <div id="individualAnimalSelect" class="form-group hidden">
+                        <label class="text-sm">Animal Alvo (Brinco/ID)</label>
+                        <select id="useAnimalId" class="form-input"></select>
+                    </div>
+                    <label class="text-sm">Selecione o Produto do Estoque</label>
+                    <select id="useStockProduct" class="form-input" style="margin-bottom:10px;"></select>
+
+                    <div id="usageBlockNutrition"> 
+                        <label class="text-sm" id="labelQtyTotal">Quantidade Total fornecida ao lote</label>
+                        <div class="flex-between gap-2">
+                            <input type="number" id="useQtyTotal" class="form-input" placeholder="Ex: 40">
+                            <span id="useUnitDisplay1" style="font-weight:bold;">kg</span>
+                        </div>
+                    </div>
+
+                    <div id="usageBlockHealth" class="hidden">
+                        <label class="text-sm">Dose por Animal</label>
+                        <div class="flex-between gap-2">
+                            <input type="number" id="useDosePerAnimal" class="form-input" placeholder="Ex: 5">
+                            <span id="useUnitDisplay2" style="font-weight:bold;">ml</span>
+                        </div>
+                        <div class="text-sm text-gray" id="healthDoseHint" style="margin-top:5px;">O sistema multiplicará pela quantidade de animais.</div>
+                        
+                        <label class="text-sm" style="margin-top:10px;">Carência (Dias)</label>
+                        <input type="number" id="useWithdrawal" class="form-input" placeholder="0">
+                    </div>
+
+                    <label class="text-sm" style="margin-top:10px;">Data da Aplicação/Uso</label>
+                    <input type="date" id="useDate" class="form-input">
+
+                    <button class="btn btn-secondary" style="margin-top:15px;" onclick="confirmStockUsage()">Confirmar Uso e Custo</button>
+                </div>
+
+                <h4 style="margin-top:20px;">Histórico de Custos do Lote</h4>
+                <div id="groupCostList"></div>
+            </div>
+
             <div id="tabWeights" class="tab-content hidden">
-                <div class="card" style="border: 1px solid #e2e8f0;">
+                <div class="card">
                     <label>Nova Pesagem do Lote (Média)</label>
                     <div class="flex-between gap-2">
                         <input type="date" id="weightDate" class="form-input">
@@ -735,50 +620,6 @@
                 <div id="weightHistoryList" style="margin-top: 10px;"></div>
             </div>
 
-            <!-- Tab: Simulador -->
-            <div id="tabSim" class="tab-content hidden">
-                <div class="card" style="border: 1px solid #fed7aa; background-color: #fffaf0;">
-                    <h4><i class="fas fa-stopwatch"></i> Previsão de Abate</h4>
-                    <p class="text-sm text-gray" style="margin-bottom: 10px;">Projete o peso futuro e receita.</p>
-                    
-                    <div class="form-group">
-                        <label>Data Prevista de Venda</label>
-                        <input type="date" id="simDate" class="form-input">
-                    </div>
-                    <div class="form-group">
-                        <label>GMD Projetado (kg/dia)</label>
-                        <input type="number" id="simGMD" class="form-input" step="0.01">
-                    </div>
-                    <div class="form-group">
-                        <label>Preço Venda Arroba (R$)</label>
-                        <input type="number" id="simPrice" class="form-input" placeholder="300.00">
-                    </div>
-                    
-                    <button class="btn btn-accent" onclick="runSimulation()">Calcular Previsão</button>
-                    
-                    <div id="simResult" class="sim-result-box hidden">
-                        <div class="flex-between">
-                            <span>Dias Restantes:</span>
-                            <strong id="resDays">0</strong>
-                        </div>
-                        <div class="flex-between">
-                            <span>Peso Projetado (kg):</span>
-                            <strong id="resWeight">0</strong>
-                        </div>
-                        <div class="flex-between">
-                            <span>Peso em Arrobas:</span>
-                            <strong id="resArrobas">0</strong>
-                        </div>
-                        <hr style="margin: 8px 0; border: 0; border-top: 1px solid #bbf7d0;">
-                        <div class="flex-between" style="color: var(--primary-dark); font-size: 1.1rem;">
-                            <span>Receita Total:</span>
-                            <strong id="resRevenue">R$ 0,00</strong>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab: Animais Individuais -->
             <div id="tabAnimals" class="tab-content hidden">
                 <div class="form-group">
                     <div class="flex-between gap-2">
@@ -789,41 +630,24 @@
                 <div id="animalList" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
 
-            <!-- Tab: Sanitário -->
-            <div id="tabHealth" class="tab-content hidden">
-                <div class="card" style="background: #fef2f2; border: 1px solid #fca5a5;">
-                    <label style="color: var(--danger);">Aplicação Sanitária</label>
-                    <input type="text" id="healthName" class="form-input" placeholder="Medicamento/Vacina" style="margin-bottom: 8px;">
-                    <div class="flex-between gap-2">
-                        <input type="date" id="healthDate" class="form-input">
-                        <input type="number" id="healthWithdrawal" class="form-input" placeholder="Carência (dias)">
+            <div id="tabSim" class="tab-content hidden">
+                <div class="card" style="border: 1px solid #fed7aa; background-color: #fffaf0;">
+                    <h4><i class="fas fa-stopwatch"></i> Previsão de Abate</h4>
+                    <div class="form-group"><label>Data Prevista</label><input type="date" id="simDate" class="form-input"></div>
+                    <div class="form-group"><label>GMD Projetado (kg/dia)</label><input type="number" id="simGMD" class="form-input" step="0.01"></div>
+                    <div class="form-group"><label>Preço Venda Arroba (R$)</label><input type="number" id="simPrice" class="form-input"></div>
+                    <button class="btn btn-accent" onclick="runSimulation()">Calcular</button>
+                    <div id="simResult" class="sim-result-box hidden">
+                        <div class="flex-between"><span>Peso Proj:</span><strong id="resWeight">0</strong></div>
+                        <div class="flex-between" style="color:var(--primary);"><span>Receita Total:</span><strong id="resRevenue">R$ 0,00</strong></div>
                     </div>
-                    <button class="btn btn-danger" style="margin-top: 10px;" onclick="addHealthEvent()">Registrar</button>
                 </div>
-                <h4 style="margin: 10px 0;">Histórico</h4>
-                <div id="healthHistoryList"></div>
-            </div>
-
-            <!-- Tab: Reprodução -->
-            <div id="tabReprod" class="tab-content hidden">
-                <div class="card" style="background: #fdf2f8; border: 1px solid #fbcfe8;">
-                    <label style="color: #db2777;">Registro Reprodutivo</label>
-                    <select id="reprodType" class="form-input" style="margin-bottom: 8px;">
-                        <option value="IATF">Inseminação (IATF)</option>
-                        <option value="Monta">Monta Natural</option>
-                        <option value="Toque">Diagnóstico (Toque)</option>
-                    </select>
-                    <input type="date" id="reprodDate" class="form-input">
-                    <button class="btn" style="margin-top: 10px; background-color: #db2777;" onclick="addReprodEvent()">Registrar Evento</button>
-                </div>
-                <div id="reprodHistoryList"></div>
             </div>
 
             <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalGroupDetails')">Fechar</button>
         </div>
     </div>
 
-    <!-- Modal Editar Animal -->
     <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
             <h3>Editar Animal</h3>
@@ -837,7 +661,6 @@
         </div>
     </div>
 
-    <!-- Modal Transação Financeira -->
     <div id="modalTransaction" class="modal">
         <div class="modal-content">
             <h3 id="transTitle">Nova Transação</h3>
@@ -846,7 +669,7 @@
                 <input type="text" id="transDesc" class="form-input" placeholder="Ex: Venda Lote 01, Energia...">
             </div>
             <div class="form-group">
-                <label>Valor (R$)</label>
+                <label>Valor Total (R$)</label>
                 <input type="number" id="transAmount" class="form-input" placeholder="0.00">
             </div>
             <div class="form-group">
@@ -859,7 +682,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
     <script>
         // --- FIREBASE CONFIG ---
         const firebaseConfig = {
@@ -876,12 +698,13 @@
         const db = firebase.firestore();
 
         // --- DATA STRUCTURE ---
-        let currentUser = null; // { id, name, fullName }
+        let currentUser = null; 
         let appData = {
             groups: [], 
             pastures: [], 
             rainfall: [],
             financials: [],
+            inventory: [], 
             market: { price: 0 }
         };
 
@@ -893,7 +716,6 @@
         };
 
         // --- CLOUD SYNC ---
-
         async function loadData(userId) {
             try {
                 const doc = await db.collection('users').doc(userId).get();
@@ -903,16 +725,15 @@
                     appData.pastures = data.pastures || [];
                     appData.rainfall = data.rainfall || [];
                     appData.financials = data.financials || [];
-                    appData.market = data.market || { price: 0 };
+                    appData.inventory = data.inventory || [];
                 } else {
-                    appData = { groups: [], pastures: [], rainfall: [], financials: [], market: { price: 0 } };
+                    appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
                     await saveData(); 
                 }
-                checkVaccineAlerts();
                 renderAll();
             } catch (error) {
                 console.error("Erro ao carregar:", error);
-                alert("Erro ao conectar com a nuvem.");
+                alert("Erro ao carregar dados.");
             }
         }
 
@@ -926,7 +747,6 @@
         }
 
         // --- AUTH LOGIC ---
-
         function toggleAuthMode(mode) {
             document.getElementById('authMessage').innerText = '';
             if(mode === 'register') {
@@ -997,7 +817,7 @@
                 });
 
                 currentUser = { id: userId, name: user, fullName: name };
-                appData = { groups: [], pastures: [], rainfall: [], financials: [], market: { price: 0 } };
+                appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
                 await saveData();
 
                 document.getElementById('authScreen').classList.add('hidden');
@@ -1015,98 +835,7 @@
             if(confirm('Sair do sistema?')) { location.reload(); }
         }
 
-        // --- AI CHAT LOGIC (Gemini API) ---
-        
-        const apiKey = ""; // API Key provided by environment
-
-        function toggleChat() {
-            const modal = document.getElementById('aiChatModal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-            } else {
-                modal.style.display = 'flex';
-                setTimeout(() => document.getElementById('userChatInput').focus(), 100);
-            }
-        }
-
-        function checkChatEnter(event) {
-            if (event.key === 'Enter') {
-                sendChatMessage();
-            }
-        }
-
-        function appendMessage(sender, text) {
-            const body = document.getElementById('chatBody');
-            const bubble = document.createElement('div');
-            bubble.className = `chat-bubble ${sender === 'user' ? 'bubble-user' : 'bubble-ai'}`;
-            bubble.innerText = text;
-            body.appendChild(bubble);
-            body.scrollTop = body.scrollHeight;
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('userChatInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            // User message
-            appendMessage('user', text);
-            input.value = '';
-
-            // Show typing
-            const indicator = document.getElementById('typingIndicator');
-            indicator.style.display = 'block';
-
-            // Call API
-            try {
-                const aiResponse = await callGeminiAPI(text);
-                indicator.style.display = 'none';
-                appendMessage('ai', aiResponse);
-            } catch (error) {
-                indicator.style.display = 'none';
-                appendMessage('ai', 'Desculpe, estou tendo problemas de conexão. Tente novamente.');
-                console.error("Gemini Error:", error);
-            }
-        }
-
-        async function callGeminiAPI(userText) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            
-            const systemInstruction = "Você é um consultor veterinário e zootecnista especialista em gado de corte e leite. Responda dúvidas sobre doenças, manejo, nutrição e reprodução de forma técnica mas acessível ao produtor rural. Sempre alerte que suas respostas são informativas e não substituem a visita presencial de um veterinário. Seja conciso.";
-
-            const payload = {
-                contents: [{ parts: [{ text: userText }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] }
-            };
-
-            // Retry logic with exponential backoff
-            for (let i = 0; i < 5; i++) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 429) {
-                            const delay = Math.pow(2, i) * 1000;
-                            await new Promise(r => setTimeout(r, delay));
-                            continue;
-                        }
-                        throw new Error(`API Error: ${response.statusText}`);
-                    }
-
-                    const data = await response.json();
-                    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Não entendi sua pergunta.";
-                } catch (e) {
-                    if (i === 4) throw e;
-                }
-            }
-        }
-
         // --- CORE FUNCTIONS ---
-
         function calculateGMD(group) {
             if (!group.weighings || group.weighings.length < 2) return 0;
             const sorted = [...group.weighings].sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -1118,17 +847,12 @@
             return ((last.weight - prev.weight) / diffDays).toFixed(3);
         }
 
-        function calculateFCR(group) {
-            if(!group.feedExpenses || group.feedExpenses.length === 0) return 0;
-            if(!group.weighings || group.weighings.length < 2) return 0;
-            const totalCost = group.feedExpenses.reduce((a, b) => a + b.value, 0);
-            const initialWeight = group.weighings[0].weight;
-            const currentWeight = group.weighings[group.weighings.length - 1].weight;
-            const weightGainPerAnimal = currentWeight - initialWeight;
-            if(weightGainPerAnimal <= 0) return 0;
-            const totalWeightGain = weightGainPerAnimal * (group.animals ? group.animals.length : group.quantity);
-            const costPerKg = totalCost / totalWeightGain;
-            return (costPerKg * 30).toFixed(2);
+        function calculateGroupCost(group) {
+            let total = 0;
+            if(group.costHistory) {
+                total += group.costHistory.reduce((a, b) => a + b.totalCost, 0);
+            }
+            return total.toFixed(2);
         }
 
         function getStockingRate(pastureId) {
@@ -1146,23 +870,47 @@
             return (ua / pasture.area).toFixed(2);
         }
 
-        function checkVaccineAlerts() {
-            const alertArea = document.getElementById('alertArea');
-            alertArea.innerHTML = '';
-        }
-
-        // --- ACTIONS ---
-
+        // --- ACTIONS: GROUP & PASTURE ---
         async function createGroup() {
             const name = document.getElementById('newGroupName').value;
             const category = document.getElementById('newGroupCategory').value;
+            const initialCost = parseFloat(document.getElementById('newGroupInitialCost').value) || 0; // NOVO CAMPO
+            
             if(!name) return;
-            appData.groups.push({
-                id: Date.now(), name, category, quantity: 0, animals: [], weighings: [], health: [], reproduction: [], feedExpenses: [], currentPastureId: null
-            });
+            
+            const newGroup = {
+                id: Date.now(), 
+                name, 
+                category, 
+                quantity: 0, 
+                animals: [], 
+                weighings: [], 
+                health: [], 
+                costHistory: [], 
+                currentPastureId: null
+            };
+
+            // NOVO: Adiciona o custo inicial ao histórico
+            if (initialCost > 0) {
+                newGroup.costHistory.push({
+                    date: new Date().toISOString().split('T')[0],
+                    itemName: "Compra Inicial do Lote",
+                    category: "Custo Fixo",
+                    qty: 1,
+                    unit: 'un',
+                    totalCost: initialCost,
+                    isInitialCost: true // Flag para identificar
+                });
+            }
+
+            appData.groups.push(newGroup);
             await saveData();
             closeModal('modalNewGroup');
+            
+            // Limpa inputs
             document.getElementById('newGroupName').value = '';
+            document.getElementById('newGroupInitialCost').value = ''; 
+
             renderAll();
         }
 
@@ -1191,43 +939,71 @@
             }
         }
 
-        // --- SIMULATOR LOGIC ---
-        function runSimulation() {
-            const date = document.getElementById('simDate').value;
-            const gmd = parseFloat(document.getElementById('simGMD').value);
-            const price = parseFloat(document.getElementById('simPrice').value);
-            
-            if(!date || !gmd || !price || !activeGroupId) { alert('Preencha todos os campos.'); return; }
-
-            const group = appData.groups.find(g => g.id == activeGroupId);
-            const currentWeight = group.weighings.length > 0 ? group.weighings[group.weighings.length - 1].weight : 0;
-            const qtd = group.animals.length || group.quantity;
-
-            if(currentWeight === 0) { alert('O lote precisa ter ao menos uma pesagem.'); return; }
-
-            const today = new Date();
-            const targetDate = new Date(date);
-            const diffTime = targetDate - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-            if(diffDays <= 0) { alert('A data deve ser futura.'); return; }
-
-            const futureWeightPerAnimal = currentWeight + (gmd * diffDays);
-            const totalWeight = futureWeightPerAnimal * qtd;
-            // Cálculo Arroba: Peso Vivo / 30 (Regra comum para negociação em arrobas de peso vivo)
-            const totalArrobas = totalWeight / 30; 
-            const revenue = totalArrobas * price;
-
-            document.getElementById('resDays').innerText = diffDays;
-            document.getElementById('resWeight').innerText = futureWeightPerAnimal.toFixed(1);
-            document.getElementById('resArrobas').innerText = totalArrobas.toFixed(1);
-            document.getElementById('resRevenue').innerText = `R$ ${revenue.toFixed(2)}`;
-            
-            document.getElementById('simResult').classList.remove('hidden');
+        // --- ESTOQUE ---
+        function calculateUnitCost() {
+            const qty = parseFloat(document.getElementById('stockQty').value) || 0;
+            const total = parseFloat(document.getElementById('stockTotalSpend').value) || 0;
+            const display = document.getElementById('unitCostDisplay');
+            if(qty > 0 && total > 0) {
+                display.innerText = `Custo Unitário: R$ ${(total / qty).toFixed(2)}`;
+            } else {
+                display.innerText = `Custo Unitário: R$ 0,00`;
+            }
         }
 
-        // --- DETAILS & EDIT ---
+        async function addStockItem() {
+            const name = document.getElementById('stockName').value;
+            const category = document.getElementById('stockCategory').value;
+            const unit = document.getElementById('stockUnit').value;
+            const qty = parseFloat(document.getElementById('stockQty').value);
+            const totalSpend = parseFloat(document.getElementById('stockTotalSpend').value);
+            const autoLaunch = document.getElementById('autoLaunchFinance').checked;
 
+            if(!name || !qty || !totalSpend) { alert("Preencha todos os campos."); return; }
+
+            // Verifica se já existe produto com mesmo nome E unidade
+            let existingItem = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit);
+            
+            if(existingItem) {
+                // Média ponderada do custo
+                const totalValueOld = existingItem.currentQty * existingItem.avgPrice;
+                const totalValueNew = totalSpend;
+                const newQty = existingItem.currentQty + qty;
+                existingItem.avgPrice = (totalValueOld + totalValueNew) / newQty;
+                existingItem.currentQty = newQty;
+            } else {
+                appData.inventory.push({
+                    id: Date.now(),
+                    name: name,
+                    category: category,
+                    unit: unit,
+                    avgPrice: totalSpend / qty,
+                    currentQty: qty
+                });
+            }
+
+            if(autoLaunch) {
+                appData.financials.push({
+                    id: Date.now(),
+                    type: 'expense',
+                    desc: `Compra Estoque: ${name}`,
+                    amount: totalSpend,
+                    date: new Date().toISOString().split('T')[0],
+                    isStock: true
+                });
+            }
+
+            await saveData();
+            closeModal('modalNewStockItem');
+            
+            document.getElementById('stockName').value = '';
+            document.getElementById('stockQty').value = '';
+            document.getElementById('stockTotalSpend').value = '';
+            
+            renderAll();
+        }
+
+        // --- USO DE ESTOQUE (MODIFICADO) ---
         let activeGroupId = null;
 
         function openGroupDetails(id) {
@@ -1242,28 +1018,204 @@
             statusBadge.className = inWithdrawal ? 'badge badge-danger' : 'badge badge-success';
             statusBadge.innerText = inWithdrawal ? 'EM CARÊNCIA' : 'LIBERADO';
 
-            const gmd = calculateGMD(group);
-            document.getElementById('calcGMD').innerText = `${gmd} kg/dia`;
-            document.getElementById('calcFCR').innerText = calculateFCR(group) > 0 ? `R$ ${calculateFCR(group)}` : '--';
+            document.getElementById('calcGMD').innerText = `${calculateGMD(group)} kg/dia`;
+            document.getElementById('calcTotalCost').innerText = `R$ ${calculateGroupCost(group)}`;
 
-            // Sim Pre-fill
-            document.getElementById('simGMD').value = gmd > 0 ? gmd : '';
-            // Market Price Removed from Dashboard, so defaults to empty
-            document.getElementById('simPrice').value = '';
-            document.getElementById('simResult').classList.add('hidden');
+            // Reset Tab Estoque
+            document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
+            
+            // NOVO: Popula o seletor de animal individual
+            const animalSelect = document.getElementById('useAnimalId');
+            animalSelect.innerHTML = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || 
+                                     '<option value="">Nenhum animal cadastrado</option>';
 
-            document.getElementById('tabReprodHeader').classList.toggle('hidden', !(group.category === 'Vacas' || group.category === 'Novilhas'));
+            // NOVO: Reseta o escopo de uso e atualiza o estado dos inputs
+            document.getElementById('scopeLot').checked = true; // Default para uso no lote
+            toggleIndividualUsage(); // Chama para aplicar o estado inicial (Uso no Lote)
 
+            renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
-            renderHealthList(group);
-            renderReprodList(group);
             
             const pSelect = document.getElementById('movePastureSelect');
             pSelect.innerHTML = '<option value="">Sem pasto definido</option>' + 
                 appData.pastures.map(p => `<option value="${p.id}" ${group.currentPastureId == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
 
             openModal('modalGroupDetails');
+        }
+
+        // NOVO: Altera os labels e visibilidade com base no escopo de uso
+        function toggleIndividualUsage() {
+            const scope = document.querySelector('input[name="usageScope"]:checked').value;
+            const individualSelect = document.getElementById('individualAnimalSelect');
+            const healthDoseHint = document.getElementById('healthDoseHint');
+            const labelQtyTotal = document.getElementById('labelQtyTotal');
+
+            if (scope === 'individual') {
+                individualSelect.classList.remove('hidden');
+                healthDoseHint.innerText = 'Quantidade utilizada é a dose única (Ex: 5ml).';
+                labelQtyTotal.innerText = 'Quantidade/Dose única utilizada';
+            } else {
+                individualSelect.classList.add('hidden');
+                healthDoseHint.innerText = 'O sistema multiplicará pela quantidade de animais.';
+                labelQtyTotal.innerText = 'Quantidade Total fornecida ao lote';
+            }
+            populateStockUsageSelect(); // Para re-renderizar unidades se necessário
+        }
+
+
+        function populateStockUsageSelect() {
+            const type = document.getElementById('useStockType').value;
+            const select = document.getElementById('useStockProduct');
+            const list = appData.inventory || [];
+            
+            let filtered = [];
+            
+            // Esconde/Mostra inputs baseados no tipo
+            document.getElementById('usageBlockNutrition').classList.add('hidden');
+            document.getElementById('usageBlockHealth').classList.add('hidden');
+
+            if(type === 'nutrition') {
+                filtered = list.filter(i => (i.category === 'Ração' || i.category === 'Sal Mineral') && i.currentQty > 0);
+                document.getElementById('usageBlockNutrition').classList.remove('hidden');
+            } else if (type === 'health') {
+                filtered = list.filter(i => (i.category === 'Vacina' || i.category === 'Medicamento') && i.currentQty > 0);
+                document.getElementById('usageBlockHealth').classList.remove('hidden');
+            } else {
+                filtered = list.filter(i => i.category === 'Outros' && i.currentQty > 0);
+                document.getElementById('usageBlockNutrition').classList.remove('hidden');
+            }
+
+            select.innerHTML = '<option value="">Selecione...</option>' + 
+                filtered.map(i => `<option value="${i.id}" data-unit="${i.unit}">${i.name} (Disp: ${parseFloat(i.currentQty).toFixed(2)} ${i.unit})</option>`).join('');
+
+            // Atualiza labels de unidade
+            select.onchange = function() {
+                const opt = select.options[select.selectedIndex];
+                const u = opt ? (opt.getAttribute('data-unit') || '--') : '--';
+                document.getElementById('useUnitDisplay1').innerText = u;
+                document.getElementById('useUnitDisplay2').innerText = u;
+            }
+        }
+
+        async function confirmStockUsage() {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const usageType = document.getElementById('useStockType').value;
+            const prodId = document.getElementById('useStockProduct').value;
+            const date = document.getElementById('useDate').value;
+            const scope = document.querySelector('input[name="usageScope"]:checked').value; // NOVO
+            const animalId = document.getElementById('useAnimalId').value; // NOVO
+
+            if(!prodId || !date) { alert('Selecione um produto e a data.'); return; }
+            if(scope === 'individual' && !animalId) { alert('Selecione o animal para uso individual.'); return; }
+
+            // BUSCA CORRIGIDA (numero vs string)
+            const product = appData.inventory.find(i => i.id == prodId);
+            
+            if(!product) { alert('Erro: Produto não encontrado no estoque.'); return; }
+
+            let qtyUsed = 0;
+            const numAnimals = group.animals.length || group.quantity || 1;
+
+            if(usageType === 'health') {
+                const dose = parseFloat(document.getElementById('useDosePerAnimal').value);
+                const withdrawal = parseInt(document.getElementById('useWithdrawal').value) || 0;
+                
+                if(!dose) { alert('Informe a dose por animal.'); return; }
+                
+                if (scope === 'individual') {
+                    qtyUsed = dose; // Apenas uma dose para um animal
+                } else { 
+                    qtyUsed = dose * numAnimals; // Dose para todos os animais
+                }
+
+                if(qtyUsed > product.currentQty) {
+                    alert(`Estoque insuficiente! Você precisa de ${qtyUsed.toFixed(2)} ${product.unit}, mas só tem ${parseFloat(product.currentQty).toFixed(2)} ${product.unit}.`);
+                    return;
+                }
+
+                if(withdrawal > 0) {
+                    const endDate = new Date(date);
+                    endDate.setDate(endDate.getDate() + withdrawal);
+                    group.health.push({
+                        name: product.name,
+                        date: date,
+                        withdrawDays: withdrawal,
+                        withdrawEnd: endDate.toISOString().split('T')[0],
+                        scope: scope, 
+                        animalId: scope === 'individual' ? animalId : null 
+                    });
+                }
+            } else { // nutrition or other
+                qtyUsed = parseFloat(document.getElementById('useQtyTotal').value);
+                if(!qtyUsed) { alert('Informe a quantidade utilizada.'); return; }
+
+                // Para nutrição/outros: se é individual, é a dose única. Se é lote, é a quantidade total distribuída.
+                // A validação de estoque se mantém a mesma.
+                
+                if(qtyUsed > product.currentQty) {
+                    alert(`Estoque insuficiente! Você precisa de ${qtyUsed.toFixed(2)} ${product.unit}, mas só tem ${parseFloat(product.currentQty).toFixed(2)} ${product.unit}.`);
+                    return;
+                }
+            }
+
+            // Baixa no estoque
+            product.currentQty -= qtyUsed;
+            const cost = qtyUsed * product.avgPrice;
+            
+            // Adiciona ao histórico de custo do lote
+            group.costHistory.push({
+                date: date,
+                itemName: product.name,
+                category: product.category,
+                qty: qtyUsed,
+                unit: product.unit,
+                totalCost: cost,
+                scope: scope, // NOVO: 'lot' ou 'individual'
+                animalId: scope === 'individual' ? animalId : null // NOVO: ID do animal, se aplicável
+            });
+
+            await saveData();
+            
+            alert(`Sucesso! Custo de R$ ${cost.toFixed(2)} lançado.`);
+            openGroupDetails(activeGroupId);
+            renderAll();
+        }
+
+        // NOVO: Adicionado badge para custo individual/inicial
+        function renderGroupCostHistory(group) {
+            const list = document.getElementById('groupCostList');
+            if(!group.costHistory || group.costHistory.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum custo registrado.</p>';
+                return;
+            }
+            
+            list.innerHTML = [...group.costHistory].sort((a,b) => new Date(b.date) - new Date(a.date)).map(c => {
+                let scopeInfo = '';
+                if (c.scope === 'individual' && c.animalId) {
+                    scopeInfo = ` <span class="badge badge-warning">Animal: ${c.animalId}</span>`;
+                } else if (c.isInitialCost) {
+                    scopeInfo = ' <span class="badge badge-purple">CUSTO INICIAL</span>';
+                }
+
+                return `
+                <div class="list-item text-sm">
+                    <div>
+                        <strong>${c.itemName}</strong>${scopeInfo}
+                        <span class="text-gray">(${c.qty.toFixed(1)} ${c.unit})</span>
+                        <div style="font-size:0.75rem;">${new Date(c.date).toLocaleDateString('pt-BR')}</div>
+                    </div>
+                    <div class="text-danger font-bold">- R$ ${c.totalCost.toFixed(2)}</div>
+                </div>
+            `;}).join('');
+        }
+
+        // --- SUB-FUNCTIONS ---
+        async function moveGroup(pid) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            group.currentPastureId = pid || null;
+            await saveData();
+            renderAll();
         }
 
         async function addWeight() {
@@ -1338,82 +1290,38 @@
             renderAll();
         }
 
-        async function addHealthEvent() {
-            const name = document.getElementById('healthName').value;
-            const date = document.getElementById('healthDate').value;
-            const days = parseInt(document.getElementById('healthWithdrawal').value) || 0;
-            if(!name || !date) return;
+        // --- SIMULATOR ---
+        function runSimulation() {
+            const date = document.getElementById('simDate').value;
+            const gmd = parseFloat(document.getElementById('simGMD').value);
+            const price = parseFloat(document.getElementById('simPrice').value);
+            
+            if(!date || !gmd || !price || !activeGroupId) { alert('Preencha todos os campos.'); return; }
+
             const group = appData.groups.find(g => g.id == activeGroupId);
-            const endDate = new Date(date);
-            endDate.setDate(endDate.getDate() + days);
-            group.health.push({ name, date, withdrawDays: days, withdrawEnd: endDate.toISOString().split('T')[0] });
-            document.getElementById('healthName').value = '';
-            document.getElementById('healthWithdrawal').value = '';
-            await saveData();
-            openGroupDetails(activeGroupId);
-            renderAll();
+            const currentWeight = group.weighings.length > 0 ? group.weighings[group.weighings.length - 1].weight : 0;
+            const qtd = group.animals.length || group.quantity;
+
+            if(currentWeight === 0) { alert('O lote precisa ter ao menos uma pesagem.'); return; }
+
+            const today = new Date();
+            const targetDate = new Date(date);
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+            if(diffDays <= 0) { alert('A data deve ser futura.'); return; }
+
+            const futureWeightPerAnimal = currentWeight + (gmd * diffDays);
+            const totalWeight = futureWeightPerAnimal * qtd;
+            const totalArrobas = totalWeight / 30; 
+            const revenue = totalArrobas * price;
+
+            document.getElementById('resWeight').innerText = futureWeightPerAnimal.toFixed(1) + ' kg';
+            document.getElementById('resRevenue').innerText = `R$ ${revenue.toFixed(2)}`;
+            document.getElementById('simResult').classList.remove('hidden');
         }
 
-        function renderHealthList(group) {
-            const list = document.getElementById('healthHistoryList');
-            list.innerHTML = group.health.map(h => {
-                const isBlocked = new Date(h.withdrawEnd) >= new Date();
-                return `<div class="list-item text-sm">
-                    <div><strong>${h.name}</strong><br><span class="text-gray">${new Date(h.date).toLocaleDateString('pt-BR')}</span></div>
-                    ${isBlocked ? `<span class="badge badge-danger">Carência até ${new Date(h.withdrawEnd).toLocaleDateString('pt-BR')}</span>` : '<span class="badge badge-success">OK</span>'}
-                </div>`;
-            }).join('');
-        }
-
-        async function addReprodEvent() {
-            const type = document.getElementById('reprodType').value;
-            const date = document.getElementById('reprodDate').value;
-            if(!date) return;
-            const group = appData.groups.find(g => g.id == activeGroupId);
-            let expectedBirth = null;
-            if(type === 'IATF' || type === 'Monta') {
-                const d = new Date(date);
-                d.setDate(d.getDate() + 290);
-                expectedBirth = d.toISOString().split('T')[0];
-            }
-            if(!group.reproduction) group.reproduction = [];
-            group.reproduction.push({ type, date, expectedBirth });
-            await saveData();
-            renderReprodList(group);
-        }
-
-        function renderReprodList(group) {
-            const list = document.getElementById('reprodHistoryList');
-            if(!group.reproduction) { list.innerHTML = ''; return; }
-            list.innerHTML = group.reproduction.map(r => 
-                `<div class="list-item text-sm">
-                    <div><strong>${r.type}</strong> em ${new Date(r.date).toLocaleDateString('pt-BR')}</div>
-                    ${r.expectedBirth ? `<div style="color:var(--primary); font-size:0.8rem;">Parto prev: ${new Date(r.expectedBirth).toLocaleDateString('pt-BR')}</div>` : ''}
-                </div>`
-            ).join('');
-        }
-
-        async function addFeedExpense() {
-            const val = parseFloat(document.getElementById('feedCost').value);
-            if(!val) return;
-            const group = appData.groups.find(g => g.id == activeGroupId);
-            if(!group.feedExpenses) group.feedExpenses = [];
-            group.feedExpenses.push({ date: new Date().toISOString().split('T')[0], value: val });
-            document.getElementById('feedCost').value = '';
-            await saveData();
-            openGroupDetails(activeGroupId);
-            renderAll();
-        }
-
-        async function moveGroup(pid) {
-            const group = appData.groups.find(g => g.id == activeGroupId);
-            group.currentPastureId = pid || null;
-            await saveData();
-            renderAll();
-        }
-
-        // --- FINANCIAL MODULE ---
-
+        // --- FINANCEIRO ---
         function openTransactionModal(type) {
             document.getElementById('transType').value = type;
             document.getElementById('transTitle').innerText = type === 'income' ? 'Nova Receita' : 'Nova Despesa';
@@ -1427,61 +1335,21 @@
             const desc = document.getElementById('transDesc').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
             const date = document.getElementById('transDate').value;
+            
             if(!desc || !amount || !date) return;
-            if(!appData.financials) appData.financials = [];
+
             appData.financials.push({ id: Date.now(), type, desc, amount, date });
             await saveData();
             closeModal('modalTransaction');
+            
             document.getElementById('transDesc').value = '';
             document.getElementById('transAmount').value = '';
+            
             renderAll();
         }
 
-        function renderFinancials() {
-            let totalIncome = 0;
-            let totalExpense = 0;
-            if(appData.financials) {
-                appData.financials.forEach(t => { if(t.type === 'income') totalIncome += t.amount; else totalExpense += t.amount; });
-            }
-            let feedTotal = 0;
-            appData.groups.forEach(g => {
-                if(g.feedExpenses) { g.feedExpenses.forEach(f => { feedTotal += f.value; }); }
-            });
-            totalExpense += feedTotal;
-
-            document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
-            document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
-            const net = totalIncome - totalExpense;
-            const elNet = document.getElementById('finNetProfit');
-            elNet.innerText = `R$ ${net.toFixed(2)}`;
-            elNet.className = net >= 0 ? 'text-success' : 'text-danger';
-
-            const list = document.getElementById('financialList');
-            let allTrans = [];
-            if(appData.financials) allTrans = [...appData.financials];
-            appData.groups.forEach(g => {
-                if(g.feedExpenses) {
-                    g.feedExpenses.forEach(f => {
-                        allTrans.push({ type: 'expense', desc: `Ração: ${g.name}`, amount: f.value, date: f.date, isFeed: true });
-                    });
-                }
-            });
-            allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
-
-            list.innerHTML = allTrans.map(t => {
-                const color = t.type === 'income' ? 'text-success' : 'text-danger';
-                return `
-                <div class="list-item">
-                    <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')} ${t.isFeed ? '(Automático)' : ''}</div></div>
-                    <div class="${color}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
-                </div>`;
-            }).join('');
-        }
-
-        // --- RENDER & CHARTS ---
-
+        // --- RENDER ---
         let chartInstance = null;
-        let pieInstance = null;
 
         function renderAll() {
             // Stats
@@ -1490,7 +1358,6 @@
                 const qtd = g.animals.length || g.quantity;
                 totalAnimals += qtd;
             });
-            
             document.getElementById('dashTotalAnimals').innerText = totalAnimals;
 
             // GMD
@@ -1501,14 +1368,7 @@
             });
             document.getElementById('dashAvgGMD').innerText = countGmd ? (sumGmd/countGmd).toFixed(3) : '0.000';
 
-            renderGroupsList();
-            renderPasturesGrid();
-            renderHealthAlerts();
-            renderFinancials();
-            updateCharts();
-        }
-
-        function renderGroupsList() {
+            // Lists
             document.getElementById('groupsList').innerHTML = appData.groups.map(g => {
                 const lastWeight = g.weighings.length ? g.weighings[g.weighings.length-1].weight : '-';
                 return `
@@ -1523,9 +1383,7 @@
                     </div>
                 </div>`;
             }).join('');
-        }
 
-        function renderPasturesGrid() {
             document.getElementById('pasturesGrid').innerHTML = appData.pastures.map(p => {
                 const ua = getStockingRate(p.id);
                 const groups = appData.groups.filter(g => g.currentPastureId == p.id);
@@ -1538,70 +1396,74 @@
                     ${isOccupied ? `<small style="color:var(--primary-dark); font-weight:bold;">${groups.length} Lotes</small>` : ''}
                 </div>`;
             }).join('');
-        }
 
-        function renderHealthAlerts() {
-            const wList = document.getElementById('withdrawalList');
-            const activeW = [];
-            const today = new Date();
-            appData.groups.forEach(g => {
-                if(g.health) {
-                    g.health.forEach(h => {
-                        if(new Date(h.withdrawEnd) >= today) {
-                            activeW.push(`<div><strong>${g.name}</strong>: ${h.name} até ${new Date(h.withdrawEnd).toLocaleDateString('pt-BR')}</div>`);
-                        }
-                    });
-                }
-            });
-            wList.innerHTML = activeW.length ? activeW.join('') : '<p class="text-sm text-gray text-center">Nenhuma carência ativa.</p>';
-        }
+            // Estoque Render
+            let stockTotal = 0;
+            const inventoryList = document.getElementById('inventoryList');
+            if(appData.inventory.length === 0) {
+                inventoryList.innerHTML = '<p class="text-center text-gray" style="padding:20px;">Estoque vazio.</p>';
+            } else {
+                inventoryList.innerHTML = appData.inventory.map(i => {
+                    stockTotal += (i.currentQty * i.avgPrice);
+                    let badgeClass = 'badge-info';
+                    if(i.category === 'Vacina') badgeClass = 'badge-danger';
+                    if(i.category === 'Ração') badgeClass = 'badge-success';
+                    return `
+                    <div class="list-item">
+                        <div>
+                            <div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div>
+                            <div class="text-sm text-gray">Custo Médio: R$ ${i.avgPrice.toFixed(2)} / ${i.unit}</div>
+                        </div>
+                        <div class="text-center">
+                            <strong style="font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</strong>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+            document.getElementById('stockTotalValue').innerText = `R$ ${stockTotal.toFixed(2)}`;
 
-        function updateCharts() {
-            const labels = appData.rainfall.map(r => r.date.substring(5));
-            const rainData = appData.rainfall.map(r => r.mm);
-            const weightData = rainData.map(r => Math.random() * 5 + 300);
+            // Financeiro
+            let totalIncome = 0;
+            let totalExpense = 0;
+            const listFin = document.getElementById('financialList');
+            let allTrans = appData.financials ? [...appData.financials] : [];
+            
+            allTrans.forEach(t => { if(t.type === 'income') totalIncome += t.amount; else totalExpense += t.amount; });
+            allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            const ctx1 = document.getElementById('rainWeightChart').getContext('2d');
+            listFin.innerHTML = allTrans.map(t => {
+                const color = t.type === 'income' ? 'text-success' : 'text-danger';
+                return `
+                <div class="list-item">
+                    <div>
+                        <div style="font-weight:600;">${t.desc}</div>
+                        <div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div>
+                    </div>
+                    <div class="${color}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
+            document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
+            const net = totalIncome - totalExpense;
+            const elNet = document.getElementById('finNetProfit');
+            elNet.innerText = `R$ ${net.toFixed(2)}`;
+            elNet.className = net >= 0 ? 'text-success' : 'text-danger';
+
+            // Chart
+            const ctx = document.getElementById('rainWeightChart').getContext('2d');
             if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx1, {
+            chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: appData.rainfall.map(r => r.date.substring(5)),
                     datasets: [
-                        { label: 'Chuva (mm)', data: rainData, backgroundColor: '#60a5fa', yAxisID: 'y', order: 2 },
-                        { label: 'Evolução Peso (kg)', data: weightData, borderColor: '#059669', type: 'line', yAxisID: 'y1', order: 1 }
+                        { label: 'Chuva (mm)', data: appData.rainfall.map(r=>r.mm), backgroundColor: '#60a5fa', yAxisID: 'y' },
+                        { label: 'Peso Simulado', data: appData.rainfall.map(r=>Math.random()*5+300), type: 'line', borderColor: '#059669', yAxisID: 'y1' }
                     ]
                 },
-                options: {
-                    responsive: true,
-                    interaction: { mode: 'index', intersect: false },
-                    scales: {
-                        y: { type: 'linear', display: true, position: 'left', title: {display:true, text:'Milímetros'} },
-                        y1: { type: 'linear', display: true, position: 'right', grid: {drawOnChartArea: false}, title: {display:true, text:'Peso Médio'} }
-                    }
-                }
+                options: { responsive: true, scales: { y: {position:'left'}, y1: {position:'right', grid:{drawOnChartArea:false}} } }
             });
-
-            const ctx2 = document.getElementById('herdPieChart').getContext('2d');
-            const cats = {};
-            appData.groups.forEach(g => {
-                const qtd = g.animals.length || g.quantity;
-                cats[g.category] = (cats[g.category] || 0) + qtd;
-            });
-            if(pieInstance) pieInstance.destroy();
-            pieInstance = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(cats),
-                    datasets: [{ data: Object.values(cats), backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-        }
-
-        function printHealthReport() {
-            const el = document.getElementById('viewHealth');
-            html2pdf().from(el).save('Relatorio_Sanitario_MeuGado.pdf');
         }
 
         function switchView(id, nav) {
@@ -1620,7 +1482,6 @@
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
     </script>
 </body>
 </html>
