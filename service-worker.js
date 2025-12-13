@@ -1,12 +1,12 @@
-const CACHE_NAME = 'MeuGado';
+const CACHE_NAME = 'smartgado-v3-ai';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
+  './Verde.jpg',  // <--- MUDANÇA AQUI
   'https://cdn.jsdelivr.net/npm/chart.js',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdn-icons-png.flaticon.com/512/2395/2395796.png'
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css'
 ];
 
 // Instalação: Cacheia os arquivos estáticos
