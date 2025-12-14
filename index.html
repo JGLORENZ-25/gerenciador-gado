@@ -20,25 +20,73 @@
 
     <style>
         :root {
+            /* Cores Padrão (Modo Claro) */
             --primary: #059669;       /* Emerald 600 */
             --primary-dark: #047857;  /* Emerald 700 */
             --primary-light: #d1fae5; /* Emerald 100 */
             --secondary: #2563eb;     /* Blue 600 */
             --accent: #d97706;        /* Amber 600 */
             --danger: #dc2626;        /* Red 600 */
-            --dark: #1f2937;          /* Gray 800 */
-            --gray: #6b7280;          /* Gray 500 */
-            --light: #f3f4f6;         /* Gray 100 */
-            --white: #ffffff;
+            --dark: #1f2937;          /* Gray 800 (Texto Principal) */
+            --gray: #6b7280;          /* Gray 500 (Texto Secundário) */
+            --light: #f3f4f6;         /* Gray 100 (Fundo Geral) */
+            --white: #ffffff;         /* Fundo Cards */
+            --border: #f1f5f9;
+            --input-bg: #f8fafc;
+        }
+
+        /* --- MODO ESCURO (Overrides) --- */
+        body.dark-mode {
+            --primary: #10b981;       /* Emerald 500 (Mais brilhante para fundo escuro) */
+            --primary-dark: #059669;
+            --primary-light: #064e3b; /* Emerald 900 */
+            --secondary: #3b82f6;     /* Blue 500 */
+            --accent: #f59e0b;        /* Amber 500 */
+            --danger: #ef4444;        /* Red 500 */
+            --dark: #f3f4f6;          /* Texto vira Claro */
+            --gray: #9ca3af;          /* Texto Secundário mais claro */
+            --light: #0f172a;         /* Fundo Geral Escuro (Slate 900) */
+            --white: #1e293b;         /* Fundo Cards Escuro (Slate 800) */
+            --border: #334155;        /* Bordas mais escuras */
+            --input-bg: #0f172a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
 
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
-            background-color: #f8fafc;
+            background-color: var(--light);
             color: var(--dark);
             padding-bottom: 90px;
+            transition: background-color 0.3s, color 0.3s;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* --- MARCA D'ÁGUA (BACKGROUND) --- */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('Branco-removebg-preview.png');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50%; /* Tamanho da logo no fundo */
+            opacity: 0.05; /* Bem suave */
+            pointer-events: none;
+            z-index: 0;
+            transition: filter 0.3s;
+        }
+
+        /* Ajuste da marca d'água no modo claro (inverte o branco para cinza) */
+        body:not(.dark-mode)::before {
+            filter: invert(1); 
+        }
+
+        /* Ajuste para conteúdo ficar acima da marca d'água */
+        .app-container, .nav-bar, .modal {
+            position: relative;
+            z-index: 1;
         }
 
         /* --- Layout --- */
@@ -50,15 +98,16 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: rgba(255, 255, 255, 0.98);
+            background: var(--white); /* Mudado para variável */
             backdrop-filter: blur(10px);
             display: flex;
             justify-content: space-between;
             padding: 10px 10px;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
             z-index: 1000;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid var(--border);
             overflow-x: auto;
+            transition: background 0.3s;
         }
 
         .nav-item {
@@ -86,7 +135,8 @@
             padding: 20px;
             margin-bottom: 16px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #f1f5f9;
+            border: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
         }
 
         .card h3 { 
@@ -116,6 +166,9 @@
             border-left: 5px solid var(--primary);
             position: relative;
             overflow: hidden;
+            border-top: 1px solid var(--border);
+            border-right: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
         }
         
         .stat-card i {
@@ -136,11 +189,11 @@
             justify-content: space-between;
             align-items: center;
             padding: 16px;
-            border-bottom: 1px solid #f1f5f9;
+            border-bottom: 1px solid var(--border);
             cursor: pointer;
             transition: background 0.2s;
         }
-        .list-item:hover { background-color: #f8fafc; }
+        .list-item:hover { background-color: var(--border); }
         .list-item:last-child { border-bottom: none; }
 
         /* --- Badges --- */
@@ -151,11 +204,20 @@
             font-weight: 700;
             text-transform: uppercase;
         }
+        /* Ajuste de badges para modo escuro */
         .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
         .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
         .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
         .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
         .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
+
+        /* Em modo escuro, badges precisam ser um pouco mais escuros para não ofuscar */
+        body.dark-mode .badge-warning { background: #78350f; color: #fcd34d; border-color: #92400e; }
+        body.dark-mode .badge-danger { background: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
+        body.dark-mode .badge-success { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
+        body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; border-color: #1e40af; }
+        body.dark-mode .badge-purple { background: #581c87; color: #d8b4fe; border-color: #6b21a8; }
+
 
         /* --- Forms & Buttons --- */
         .btn {
@@ -192,16 +254,17 @@
         .form-input {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid var(--border);
             border-radius: 10px;
             font-size: 1rem;
             transition: border-color 0.2s;
-            background: #f8fafc;
+            background: var(--input-bg);
+            color: var(--dark);
         }
-        .form-input:focus { border-color: var(--primary); background: white; }
+        .form-input:focus { border-color: var(--primary); }
 
         /* --- Tabs --- */
-        .tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px; gap: 20px; overflow-x: auto; }
+        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 20px; overflow-x: auto; }
         .tab {
             padding: 10px 5px;
             cursor: pointer;
@@ -231,7 +294,8 @@
         .modal.active { display: flex; }
         
         .modal-content {
-            background: white;
+            background: var(--white);
+            color: var(--dark);
             width: 100%;
             max-width: 650px;
             border-radius: 24px 24px 0 0;
@@ -239,6 +303,7 @@
             max-height: 90vh;
             overflow-y: auto;
             animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
         }
         @media(min-width: 768px) { .modal-content { border-radius: 24px; } }
 
@@ -250,7 +315,7 @@
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         .gap-2 { gap: 8px; }
         .text-sm { font-size: 0.85rem; }
-        .text-xs { font-size: 0.75rem; } /* Adicionado */
+        .text-xs { font-size: 0.75rem; } 
         .text-gray { color: var(--gray); }
         .text-danger { color: var(--danger); }
         .text-success { color: #16a34a; }
@@ -258,27 +323,79 @@
         /* --- Specific Components --- */
         .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
         .paddock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .paddock-cell { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; }
+        .paddock-cell { 
+            background: var(--white); 
+            border: 2px solid var(--border); 
+            border-radius: 12px; 
+            padding: 12px; 
+            text-align: center; 
+            cursor: pointer; 
+        }
         .paddock-cell:hover { border-color: var(--primary); }
-        .paddock-cell.occupied { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
+        .paddock-cell.occupied { 
+            background: var(--primary-light); 
+            border-color: var(--primary); 
+            color: var(--primary-dark); 
+        }
+        /* Ajuste texto ocupado no dark mode */
+        body.dark-mode .paddock-cell.occupied { color: #a7f3d0; }
         
         .auth-toggle { margin-top: 15px; font-size: 0.9rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
 
         .financial-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .fin-box { background: white; padding: 15px; border-radius: 12px; text-align: center; border: 1px solid #e5e7eb; }
+        .fin-box { 
+            background: var(--white); 
+            padding: 15px; 
+            border-radius: 12px; 
+            text-align: center; 
+            border: 1px solid var(--border); 
+        }
         .fin-box div { font-size: 1.1rem; font-weight: bold; }
         
         .sim-result-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-top: 16px; }
+        body.dark-mode .sim-result-box { background: #064e3b; border-color: #065f46; color: white; }
+
         .stock-tag { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
+        body.dark-mode .stock-tag { background: #1e3a8a; color: #bae6fd; }
+
+        /* Estilo para botão de configurações */
+        .btn-icon-only {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Cores especificas de fundo de cards que estavam hardcoded */
+        .bg-card-rain { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe; }
+        body.dark-mode .bg-card-rain { background: linear-gradient(135deg, #1e3a8a, #172554); border-color: #1e40af; }
+
+        .bg-card-stock { background: #f0f9ff; border-color: #bae6fd; }
+        body.dark-mode .bg-card-stock { background: #0c4a6e; border-color: #075985; color: white; }
+
+        .bg-card-calc { background: #f8fafc; }
+        body.dark-mode .bg-card-calc { background: #1e293b; }
+
+        .bg-card-use { background: #eff6ff; border: 1px solid #bfdbfe; }
+        body.dark-mode .bg-card-use { background: #172554; border-color: #1e40af; }
+        
+        .bg-card-sim { border: 1px solid #fed7aa; background-color: #fffaf0; }
+        body.dark-mode .bg-card-sim { background-color: #451a03; border-color: #78350f; color: white;}
+        
+        .fin-box-neutral { background-color: #f8fafc; }
+        body.dark-mode .fin-box-neutral { background-color: #1e293b; }
+
+        /* Ajuste do ícone na tela de login */
+        .login-logo { font-size: 4rem; margin-bottom: 20px; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div id="authScreen" class="app-container" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
-            <div style="font-size: 4rem; margin-bottom: 20px; color: var(--primary);">☁️</div>
+            <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.3</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.4</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -306,8 +423,13 @@
         
         <div class="app-container" style="padding-bottom: 0;">
             <div class="header-user">
-                <div class="header-title"><h2 id="welcomeMsg">Olá, Produtor</h2><p id="dateDisplay"></p></div>
-                <button onclick="logout()" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                <div class="header-title"><h2 id="welcomeMsg">Olá, Produtor</h2><p id="dateDisplay" class="text-sm text-gray"></p></div>
+                <div class="btn-group-row">
+                    <button onclick="openModal('modalSettings')" class="btn btn-outline btn-sm btn-icon-only" title="Configurações">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button onclick="logout()" class="btn btn-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                </div>
             </div>
             <div id="alertArea"></div>
         </div>
@@ -347,7 +469,7 @@
                     <h3><i class="fas fa-map-marked-alt"></i> Mapa de Lotação</h3>
                     <div class="paddock-grid" id="pasturesGrid"></div>
                 </div>
-                <div class="card" style="background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe;">
+                <div class="card bg-card-rain">
                     <h3><i class="fas fa-cloud-rain"></i> Pluviômetro Digital</h3>
                     <div class="flex-between gap-2">
                         <input type="date" id="rainDate" class="form-input" style="flex:1;">
@@ -363,9 +485,9 @@
                     <button class="btn btn-sm btn-secondary" onclick="openModal('modalNewStockItem')"><i class="fas fa-box-open"></i> Novo Item</button>
                 </div>
                 
-                <div class="card" style="background: #f0f9ff; border-color: #bae6fd;">
+                <div class="card bg-card-stock">
                     <div class="flex-between">
-                        <div><h4>Valor em Estoque</h4><div class="text-sm text-gray">Produtos armazenados</div></div>
+                        <div><h4>Valor em Estoque</h4><div class="text-sm">Produtos armazenados</div></div>
                         <div style="font-size: 1.5rem; font-weight: 800; color: var(--secondary);" id="stockTotalValue">R$ 0,00</div>
                     </div>
                 </div>
@@ -395,7 +517,7 @@
                             <h4>Despesas</h4>
                             <div class="text-danger" id="finTotalExpense">R$ 0,00</div>
                         </div>
-                        <div class="fin-box" style="background-color: #f8fafc;">
+                        <div class="fin-box fin-box-neutral">
                             <h4>Saldo Líquido</h4>
                             <div id="finNetProfit">R$ 0,00</div>
                         </div>
@@ -427,6 +549,21 @@
             </div>
         </div>
 
+    </div>
+
+    <div id="modalSettings" class="modal">
+        <div class="modal-content">
+            <h3>Configurações</h3>
+            <p class="text-gray" style="margin-bottom: 20px;">Personalize a aparência do aplicativo.</p>
+            
+            <label style="display:block; margin-bottom:10px; font-weight:600;">Tema do Sistema</label>
+            <div class="btn-group-row">
+                <button class="btn btn-outline" onclick="toggleTheme('light')"><i class="fas fa-sun"></i> Claro</button>
+                <button class="btn btn-dark" style="background-color: #1e293b; color:white;" onclick="toggleTheme('dark')"><i class="fas fa-moon"></i> Escuro</button>
+            </div>
+
+            <button class="btn btn-outline" style="margin-top: 30px;" onclick="closeModal('modalSettings')">Fechar</button>
+        </div>
     </div>
 
     <div id="modalNewGroup" class="modal">
@@ -534,7 +671,7 @@
             </div>
 
             <div id="tabOverview" class="tab-content">
-                <div class="card" style="background: #f8fafc;">
+                <div class="card bg-card-calc">
                     <h4><i class="fas fa-calculator"></i> Custos & Desempenho</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                         <div>
@@ -554,7 +691,7 @@
             </div>
 
             <div id="tabStockUse" class="tab-content hidden">
-                <div class="card" style="background: #eff6ff; border: 1px solid #bfdbfe;">
+                <div class="card bg-card-use">
                     <label style="color:var(--secondary); font-weight:bold;">1. O que foi usado?</label>
                     <select id="useStockType" class="form-input" onchange="populateStockUsageSelect()" style="margin-bottom:10px;">
                         <option value="nutrition">Nutrição (Ração/Sal)</option>
@@ -632,12 +769,12 @@
             </div>
 
             <div id="tabSim" class="tab-content hidden">
-                <div class="card" style="border: 1px solid #fed7aa; background-color: #fffaf0;">
+                <div class="card bg-card-sim">
                     <h4><i class="fas fa-stopwatch"></i> Previsão de Abate</h4>
                     <div class="form-group"><label>Data Prevista</label><input type="date" id="simDate" class="form-input"></div>
                     <div class="form-group"><label>GMD Projetado (kg/dia)</label><input type="number" id="simGMD" class="form-input" step="0.01"></div>
                     <div class="form-group"><label>Preço Venda Arroba (R$)</label><input type="number" id="simPrice" class="form-input"></div>
-                    <button class="btn btn-accent" onclick="runSimulation()">Calcular</button>
+                    <button class="btn btn-accent" style="background-color: var(--accent); color: white;" onclick="runSimulation()">Calcular</button>
                     <div id="simResult" class="sim-result-box hidden">
                         <div class="flex-between"><span>Peso Proj:</span><strong id="resWeight">0</strong></div>
                         <div class="flex-between" style="color:var(--primary);"><span>Receita Total:</span><strong id="resRevenue">R$ 0,00</strong></div>
@@ -715,10 +852,28 @@
 
         // --- INIT ---
         window.onload = function() {
+            // Theme Init
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+
             document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
         };
+
+        // --- THEME LOGIC ---
+        function toggleTheme(mode) {
+            if (mode === 'dark') {
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light');
+            }
+            closeModal('modalSettings');
+        }
 
         // --- CLOUD SYNC ---
         async function loadData(userId) {
@@ -852,7 +1007,6 @@
             return ((last.weight - prev.weight) / diffDays).toFixed(3);
         }
 
-        // NOVO: Função para obter o peso médio atual (prefere individual)
         function getCurrentLotWeight(group) {
             if (group.animals && group.animals.length > 0) {
                 const animalsWithWeight = group.animals.filter(a => a.weight > 0);
@@ -861,7 +1015,6 @@
                     return { weight: (totalWeight / animalsWithWeight.length), source: 'INDIVIDUAL' };
                 }
             }
-            // Fallback para a última pesagem do lote
             if (group.weighings && group.weighings.length > 0) {
                 return { weight: group.weighings[group.weighings.length - 1].weight, source: 'LOTE' };
             }
@@ -882,7 +1035,6 @@
             let totalWeight = 0;
             appData.groups.forEach(g => {
                 if (g.currentPastureId == pastureId) {
-                    // Usa o peso médio atual, seja do lote ou individual
                     const currentWeight = getCurrentLotWeight(g).weight; 
                     const qtd = g.animals && g.animals.length > 0 ? g.animals.length : (g.quantity || 0);
                     totalWeight += (currentWeight * qtd);
@@ -912,7 +1064,6 @@
                 currentPastureId: null
             };
 
-            // Adiciona o custo inicial ao histórico
             if (initialCost > 0) {
                 newGroup.costHistory.push({
                     date: new Date().toISOString().split('T')[0],
@@ -924,7 +1075,6 @@
                     isInitialCost: true
                 });
                 
-                // === CORREÇÃO: Adicionar ao Financeiro (Despesa) ===
                 appData.financials.push({
                     id: Date.now() + 1,
                     type: 'expense',
@@ -933,14 +1083,12 @@
                     date: new Date().toISOString().split('T')[0],
                     isGroupPurchase: true
                 });
-                // ==============================================
             }
 
             appData.groups.push(newGroup);
             await saveData();
             closeModal('modalNewGroup');
             
-            // Limpa inputs
             document.getElementById('newGroupName').value = '';
             document.getElementById('newGroupInitialCost').value = ''; 
 
@@ -994,11 +1142,9 @@
 
             if(!name || !qty || !totalSpend) { alert("Preencha todos os campos."); return; }
 
-            // Verifica se já existe produto com mesmo nome E unidade
             let existingItem = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit);
             
             if(existingItem) {
-                // Média ponderada do custo
                 const totalValueOld = existingItem.currentQty * existingItem.avgPrice;
                 const totalValueNew = totalSpend;
                 const newQty = existingItem.currentQty + qty;
@@ -1054,17 +1200,14 @@
             document.getElementById('calcGMD').innerText = `${calculateGMD(group)} kg/dia`;
             document.getElementById('calcTotalCost').innerText = `R$ ${calculateGroupCost(group)}`;
 
-            // Reset Tab Estoque
             document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
             
-            // Popula o seletor de animal individual
             const animalSelect = document.getElementById('useAnimalId');
             animalSelect.innerHTML = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || 
                                      '<option value="">Nenhum animal cadastrado</option>';
 
-            // Reseta o escopo de uso e atualiza o estado dos inputs
-            document.getElementById('scopeLot').checked = true; // Default para uso no lote
-            toggleIndividualUsage(); // Chama para aplicar o estado inicial (Uso no Lote)
+            document.getElementById('scopeLot').checked = true; 
+            toggleIndividualUsage();
 
             renderGroupCostHistory(group);
             renderWeightList(group);
@@ -1077,7 +1220,6 @@
             openModal('modalGroupDetails');
         }
 
-        // Altera os labels e visibilidade com base no escopo de uso
         function toggleIndividualUsage() {
             const scope = document.querySelector('input[name="usageScope"]:checked').value;
             const individualSelect = document.getElementById('individualAnimalSelect');
@@ -1093,7 +1235,7 @@
                 healthDoseHint.innerText = 'O sistema multiplicará pela quantidade de animais.';
                 labelQtyTotal.innerText = 'Quantidade Total fornecida ao lote';
             }
-            populateStockUsageSelect(); // Para re-renderizar unidades se necessário
+            populateStockUsageSelect(); 
         }
 
 
@@ -1104,7 +1246,6 @@
             
             let filtered = [];
             
-            // Esconde/Mostra inputs baseados no tipo
             document.getElementById('usageBlockNutrition').classList.add('hidden');
             document.getElementById('usageBlockHealth').classList.add('hidden');
 
@@ -1122,7 +1263,6 @@
             select.innerHTML = '<option value="">Selecione...</option>' + 
                 filtered.map(i => `<option value="${i.id}" data-unit="${i.unit}">${i.name} (Disp: ${parseFloat(i.currentQty).toFixed(2)} ${i.unit})</option>`).join('');
 
-            // Atualiza labels de unidade
             select.onchange = function() {
                 const opt = select.options[select.selectedIndex];
                 const u = opt ? (opt.getAttribute('data-unit') || '--') : '--';
@@ -1142,7 +1282,6 @@
             if(!prodId || !date) { alert('Selecione um produto e a data.'); return; }
             if(scope === 'individual' && !animalId) { alert('Selecione o animal para uso individual.'); return; }
 
-            // BUSCA CORRIGIDA (numero vs string)
             const product = appData.inventory.find(i => i.id == prodId);
             
             if(!product) { alert('Erro: Produto não encontrado no estoque.'); return; }
@@ -1157,9 +1296,9 @@
                 if(!dose) { alert('Informe a dose por animal.'); return; }
                 
                 if (scope === 'individual') {
-                    qtyUsed = dose; // Apenas uma dose para um animal
+                    qtyUsed = dose; 
                 } else { 
-                    qtyUsed = dose * numAnimals; // Dose para todos os animais
+                    qtyUsed = dose * numAnimals; 
                 }
 
                 if(qtyUsed > product.currentQty) {
@@ -1179,7 +1318,7 @@
                         animalId: scope === 'individual' ? animalId : null 
                     });
                 }
-            } else { // nutrition or other
+            } else { 
                 qtyUsed = parseFloat(document.getElementById('useQtyTotal').value);
                 if(!qtyUsed) { alert('Informe a quantidade utilizada.'); return; }
 
@@ -1189,11 +1328,9 @@
                 }
             }
 
-            // Baixa no estoque
             product.currentQty -= qtyUsed;
             const cost = qtyUsed * product.avgPrice;
             
-            // Adiciona ao histórico de custo do lote
             group.costHistory.push({
                 date: date,
                 itemName: product.name,
@@ -1212,7 +1349,6 @@
             renderAll();
         }
 
-        // Adicionado badge para custo individual/inicial
         function renderGroupCostHistory(group) {
             const list = document.getElementById('groupCostList');
             if(!group.costHistory || group.costHistory.length === 0) {
@@ -1270,7 +1406,6 @@
             const id = document.getElementById('newAnimalId').value;
             if(!id) return;
             const group = appData.groups.find(g => g.id == activeGroupId);
-            // MODIFICADO: Adicionando 'weight: 0' como padrão
             group.animals.push({ id, entryDate: new Date().toISOString().split('T')[0], weight: 0 }); 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
@@ -1279,7 +1414,6 @@
             renderAll();
         }
 
-        // MODIFICADO: Agora exibe o peso individual
         function renderAnimalList(group) {
             const list = document.getElementById('animalList');
             list.innerHTML = group.animals.map((a, idx) => 
@@ -1301,7 +1435,6 @@
             const animal = group.animals[idx];
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
-            // NOVO: Preenche o campo de peso
             document.getElementById('editAnimalWeightInput').value = animal.weight || ''; 
             openModal('modalEditAnimal');
         }
@@ -1309,14 +1442,13 @@
         async function saveAnimalEdit() {
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
-            // NOVO: Lê o peso
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0; 
 
             if(!newId) return;
             
             const group = appData.groups.find(g => g.id == activeGroupId);
             group.animals[idx].id = newId;
-            group.animals[idx].weight = newWeight; // NOVO: Salva o peso
+            group.animals[idx].weight = newWeight; 
             
             await saveData();
             closeModal('modalEditAnimal');
@@ -1343,9 +1475,8 @@
 
             const group = appData.groups.find(g => g.id == activeGroupId);
             
-            // MODIFICADO: Usa a função que prioriza o peso individual
             const currentWeightInfo = getCurrentLotWeight(group);
-            const currentWeight = currentWeightInfo.weight; // será 0 se N/A
+            const currentWeight = currentWeightInfo.weight; 
             
             const qtd = group.animals.length || group.quantity;
 
@@ -1415,7 +1546,7 @@
             });
             document.getElementById('dashAvgGMD').innerText = countGmd ? (sumGmd/countGmd).toFixed(3) : '0.000';
 
-            // Lists (MODIFICADO para usar peso individual)
+            // Lists 
             document.getElementById('groupsList').innerHTML = appData.groups.map(g => {
                 const currentWeightInfo = getCurrentLotWeight(g);
                 const displayWeight = currentWeightInfo.weight > 0 ? currentWeightInfo.weight.toFixed(2) : '-';
