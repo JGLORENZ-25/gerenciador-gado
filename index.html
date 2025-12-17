@@ -278,6 +278,65 @@
         body.dark-mode .fin-box-neutral { background-color: #1e293b; }
 
         .login-logo { font-size: 4rem; margin-bottom: 20px; color: var(--primary); }
+
+        /* --- ESTILOS DE IMPRESSÃO PDF --- */
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: white;
+            padding: 20mm;
+            position: relative;
+            font-family: 'Helvetica', sans-serif;
+            color: #000;
+        }
+
+        .watermark-img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60%;
+            opacity: 0.08; /* Marca d'água bem suave */
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .pdf-header, .pdf-footer, #pdf-body {
+            position: relative;
+            z-index: 1; /* Fica acima da marca d'agua */
+        }
+
+        .pdf-footer {
+            position: absolute;
+            bottom: 10mm;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #999;
+        }
+
+        /* Tabelas para o PDF */
+        .pdf-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 0.85rem;
+        }
+        .pdf-table th {
+            background-color: #059669;
+            color: white;
+            padding: 8px;
+            text-align: left;
+        }
+        .pdf-table td {
+            border-bottom: 1px solid #ddd;
+            padding: 8px;
+        }
+        .pdf-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .text-right { text-align: right; }
     </style>
 </head>
 <body>
@@ -286,7 +345,7 @@
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5 - Multi-Fazenda</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.4</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -329,6 +388,10 @@
                         <i class="fas fa-user-shield"></i>
                     </button>
             
+                    <button onclick="openModal('modalReports')" class="btn btn-outline btn-sm btn-icon-only" title="Relatórios PDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+
                     <button onclick="openModal('modalSettings')" class="btn btn-outline btn-sm btn-icon-only" title="Configurações">
                         <i class="fas fa-cog"></i>
                     </button>
@@ -483,6 +546,61 @@
             </div>
 
             <button class="btn btn-outline" style="margin-top: 30px;" onclick="closeModal('modalSettings')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalReports" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-print"></i> Central de Relatórios</h3>
+            <p class="text-sm text-gray" style="margin-bottom: 20px;">Selecione o tipo de documento para gerar em PDF.</p>
+
+            <div class="form-group">
+                <label>Tipo de Relatório</label>
+                <select id="reportType" class="form-input" onchange="toggleReportOptions()">
+                    <option value="general_summary">Resumo Geral da Fazenda</option>
+                    <option value="financial">Relatório Financeiro (Completo)</option>
+                    <option value="rainfall">Relatório de Pluviometria</option>
+                    <option value="group_specific">Relatório Detalhado de Lote</option>
+                    <option value="sanitary_general">Controle Sanitário (Geral)</option>
+                </select>
+            </div>
+
+            <div id="reportGroupSelectDiv" class="form-group hidden">
+                <label>Selecione o Lote</label>
+                <select id="reportGroupTarget" class="form-input"></select>
+            </div>
+
+            <button class="btn" onclick="generatePDF()">Gerar PDF</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalReports')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="pdf-hidden-container" style="position: fixed; left: -9999px; top: 0;">
+        <div id="pdf-template" class="a4-page">
+            <img src="Branco-removebg-preview.png" class="watermark-img">
+            
+            <div class="pdf-header">
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <img src="Verde.jpg" style="height: 50px; border-radius:50%;">
+                    <div>
+                        <h1 style="margin:0; font-size:1.5rem; color:#059669;">MeuGado</h1>
+                        <div style="font-size:0.8rem; color:#555;" id="pdf-farm-name">Fazenda</div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:0.7rem; color:#777;">Gerado em:</div>
+                    <div style="font-weight:bold;" id="pdf-date-generation">--/--/----</div>
+                </div>
+            </div>
+            <hr style="border: 1px solid #eee; margin: 10px 0;">
+
+            <h2 id="pdf-title" style="text-align:center; margin-bottom:20px; color:#1f2937;">Título do Relatório</h2>
+            <div id="pdf-body">
+                </div>
+
+            <div class="pdf-footer">
+                <p>Documento gerado eletronicamente pelo sistema MeuGado.</p>
+            </div>
         </div>
     </div>
 
@@ -1615,6 +1733,206 @@
                 closeModal('modalAdminAssign');
                 renderAdminList();
             } catch (e) { alert('Erro: ' + e.message); }
+        }
+
+        // --- LÓGICA DE RELATÓRIOS PDF ---
+
+        function toggleReportOptions() {
+            const type = document.getElementById('reportType').value;
+            const groupDiv = document.getElementById('reportGroupSelectDiv');
+            const groupSelect = document.getElementById('reportGroupTarget');
+
+            if (type === 'group_specific') {
+                groupDiv.classList.remove('hidden');
+                groupSelect.innerHTML = appData.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+            } else {
+                groupDiv.classList.add('hidden');
+            }
+        }
+
+        async function generatePDF() {
+            const type = document.getElementById('reportType').value;
+            const titleEl = document.getElementById('pdf-title');
+            const bodyEl = document.getElementById('pdf-body');
+            const dateEl = document.getElementById('pdf-date-generation');
+            const farmEl = document.getElementById('pdf-farm-name');
+
+            // Configura Cabeçalho
+            dateEl.innerText = new Date().toLocaleString('pt-BR');
+            farmEl.innerText = currentUser ? `Produtor: ${currentUser.fullName}` : 'MeuGado';
+
+            let contentHtml = '';
+
+            // 1. Relatório Financeiro
+            if (type === 'financial') {
+                titleEl.innerText = 'Relatório Financeiro Completo';
+                let totalIncome = 0;
+                let totalExpense = 0;
+                
+                const rows = appData.financials.sort((a,b) => new Date(b.date) - new Date(a.date)).map(f => {
+                    if(f.type === 'income') totalIncome += f.amount;
+                    else totalExpense += f.amount;
+                    const color = f.type === 'income' ? 'green' : 'red';
+                    return `<tr>
+                        <td>${new Date(f.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${f.desc}</td>
+                        <td style="color:${color}; font-weight:bold;">${f.type === 'income' ? 'Receita' : 'Despesa'}</td>
+                        <td class="text-right">R$ ${f.amount.toFixed(2)}</td>
+                    </tr>`;
+                }).join('');
+
+                contentHtml = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:bold;">
+                        <div style="color:green;">Total Receitas: R$ ${totalIncome.toFixed(2)}</div>
+                        <div style="color:red;">Total Despesas: R$ ${totalExpense.toFixed(2)}</div>
+                        <div style="color:${(totalIncome - totalExpense) >= 0 ? 'black' : 'red'}">Saldo: R$ ${(totalIncome - totalExpense).toFixed(2)}</div>
+                    </div>
+                    <table class="pdf-table">
+                        <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th class="text-right">Valor</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>`;
+            }
+
+            // 2. Relatório de Lote Específico
+            else if (type === 'group_specific') {
+                const groupId = document.getElementById('reportGroupTarget').value;
+                const group = appData.groups.find(g => g.id == groupId);
+                
+                if (group) {
+                    titleEl.innerText = `Relatório do Lote: ${group.name}`;
+                    const currentWeight = getCurrentLotWeight(group).weight;
+                    
+                    // Tabela de Custos
+                    const costRows = (group.costHistory || []).map(c => `<tr>
+                        <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${c.itemName}</td>
+                        <td>${c.qty} ${c.unit}</td>
+                        <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
+                    </tr>`).join('');
+
+                    // Tabela de Animais
+                    const animalRows = (group.animals || []).map(a => `<tr>
+                        <td>${a.id}</td>
+                        <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
+                    </tr>`).join('');
+
+                    contentHtml = `
+                        <div style="background:#f3f4f6; padding:10px; border-radius:8px; margin-bottom:15px;">
+                            <strong>Categoria:</strong> ${group.category} <br>
+                            <strong>Qtd Animais:</strong> ${group.animals.length || group.quantity} <br>
+                            <strong>GMD Médio:</strong> ${calculateGMD(group)} kg/dia <br>
+                            <strong>Custo Total:</strong> R$ ${calculateGroupCost(group)}
+                        </div>
+                        
+                        <h3>Custos e Insumos</h3>
+                        <table class="pdf-table" style="margin-bottom:20px;">
+                            <thead><tr><th>Data</th><th>Item</th><th>Qtd</th><th class="text-right">Custo</th></tr></thead>
+                            <tbody>${costRows || '<tr><td colspan="4">Sem registros</td></tr>'}</tbody>
+                        </table>
+
+                        <h3>Animais do Lote</h3>
+                        <table class="pdf-table">
+                            <thead><tr><th>Identificação</th><th class="text-right">Peso Atual</th></tr></thead>
+                            <tbody>${animalRows || '<tr><td colspan="2">Sem animais cadastrados</td></tr>'}</tbody>
+                        </table>
+                    `;
+                }
+            }
+
+            // 3. Resumo Geral
+            else if (type === 'general_summary') {
+                titleEl.innerText = 'Resumo Geral da Fazenda';
+                
+                const rows = appData.groups.map(g => {
+                    const weightInfo = getCurrentLotWeight(g);
+                    return `<tr>
+                        <td>${g.name} ${g.sold ? '(Vendido)' : ''}</td>
+                        <td>${g.category}</td>
+                        <td>${g.animals.length || g.quantity}</td>
+                        <td>${weightInfo.weight.toFixed(2)} kg</td>
+                        <td class="text-right">R$ ${calculateGroupCost(g)}</td>
+                    </tr>`;
+                }).join('');
+
+                contentHtml = `
+                    <table class="pdf-table">
+                        <thead><tr><th>Lote</th><th>Categoria</th><th>Cab</th><th>Peso Médio</th><th class="text-right">Custo Total</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>`;
+            }
+
+            // 4. Pluviometria
+            else if (type === 'rainfall') {
+                titleEl.innerText = 'Relatório de Chuvas (Pluviometria)';
+                let totalMm = 0;
+                
+                const rows = appData.rainfall.map(r => {
+                    totalMm += r.mm;
+                    return `<tr>
+                        <td>${new Date(r.date).toLocaleDateString('pt-BR')}</td>
+                        <td class="text-right">${r.mm} mm</td>
+                    </tr>`;
+                }).join('');
+
+                contentHtml = `
+                    <div style="margin-bottom:15px;"><strong>Acumulado Total Registrado:</strong> ${totalMm} mm</div>
+                    <table class="pdf-table">
+                        <thead><tr><th>Data</th><th class="text-right">Milímetros (mm)</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>`;
+            }
+
+            // 5. Sanitário Geral
+            else if (type === 'sanitary_general') {
+                titleEl.innerText = 'Relatório Sanitário Geral';
+                let htmlBuilder = '';
+
+                appData.groups.forEach(g => {
+                    if(g.health && g.health.length > 0) {
+                        const healthRows = g.health.map(h => `<tr>
+                            <td>${new Date(h.date).toLocaleDateString('pt-BR')}</td>
+                            <td>${h.name}</td>
+                            <td>${h.withdrawDays > 0 ? new Date(h.withdrawEnd).toLocaleDateString('pt-BR') : '-'}</td>
+                            <td>${h.scope === 'individual' ? 'Individual (' + (h.animalId || '?') + ')' : 'Lote Todo'}</td>
+                        </tr>`).join('');
+
+                        htmlBuilder += `
+                            <h4 style="margin-top:15px; border-bottom:1px solid #ccc;">Lote: ${g.name}</h4>
+                            <table class="pdf-table">
+                                <thead><tr><th>Data Aplicação</th><th>Produto</th><th>Fim Carência</th><th>Escopo</th></tr></thead>
+                                <tbody>${healthRows}</tbody>
+                            </table>
+                        `;
+                    }
+                });
+
+                contentHtml = htmlBuilder || '<p>Nenhum registro sanitário encontrado nos lotes.</p>';
+            }
+
+            // Injeta conteúdo
+            bodyEl.innerHTML = contentHtml;
+
+            // Configurações do HTML2PDF
+            const element = document.getElementById('pdf-template');
+            const opt = {
+                margin:       0,
+                filename:     `Relatorio_MeuGado_${type}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Gera e Salva
+            // Fecha modal antes para não travar UI visualmente
+            closeModal('modalReports');
+            
+            // Pequeno delay para garantir renderização
+            setTimeout(() => {
+                html2pdf().set(opt).from(element).save().catch(err => {
+                    console.error(err);
+                    alert("Erro ao gerar PDF. Tente novamente.");
+                });
+            }, 500);
         }
 
         // --- RENDER ---
