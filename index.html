@@ -33,6 +33,7 @@
             --white: #ffffff;         /* Fundo Cards */
             --border: #f1f5f9;
             --input-bg: #f8fafc;
+            --pink: #db2777;          /* Pink 600 - Reprodução */
         }
 
         /* --- MODO ESCURO (Overrides) --- */
@@ -49,6 +50,7 @@
             --white: #1e293b;         /* Fundo Cards Escuro (Slate 800) */
             --border: #334155;        /* Bordas mais escuras */
             --input-bg: #0f172a;
+            --pink: #f472b6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -163,6 +165,7 @@
         .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
         .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
         .badge-gray { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
+        .badge-pink { background: #fce7f3; color: #be185d; border: 1px solid #f9a8d4; }
 
         body.dark-mode .badge-warning { background: #78350f; color: #fcd34d; border-color: #92400e; }
         body.dark-mode .badge-danger { background: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
@@ -170,6 +173,7 @@
         body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; border-color: #1e40af; }
         body.dark-mode .badge-purple { background: #581c87; color: #d8b4fe; border-color: #6b21a8; }
         body.dark-mode .badge-gray { background: #374151; color: #9ca3af; border-color: #4b5563; }
+        body.dark-mode .badge-pink { background: #831843; color: #fbcfe8; border-color: #be185d; }
 
         /* --- Forms & Buttons --- */
         .btn {
@@ -187,6 +191,7 @@
         .btn-danger { background: var(--danger); }
         .btn-success { background: #16a34a; }
         .btn-secondary { background: var(--secondary); }
+        .btn-pink { background: var(--pink); color: white; }
         .btn-dark { background: var(--dark); color: white; }
 
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
@@ -237,6 +242,7 @@
         .text-gray { color: var(--gray); }
         .text-danger { color: var(--danger); }
         .text-success { color: #16a34a; }
+        .text-pink { color: var(--pink); }
 
         /* --- Specific Components --- */
         .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
@@ -274,6 +280,9 @@
         body.dark-mode .bg-card-use { background: #172554; border-color: #1e40af; }
         .bg-card-sim { border: 1px solid #fed7aa; background-color: #fffaf0; }
         body.dark-mode .bg-card-sim { background-color: #451a03; border-color: #78350f; color: white;}
+        .bg-card-repro { border: 1px solid #f9a8d4; background-color: #fdf2f8; }
+        body.dark-mode .bg-card-repro { background-color: #831843; border-color: #be185d; color: white; }
+
         .fin-box-neutral { background-color: #f8fafc; }
         body.dark-mode .fin-box-neutral { background-color: #1e293b; }
 
@@ -345,7 +354,7 @@
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.4</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5 (Repro)</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -652,8 +661,8 @@
         <div class="modal-content">
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
             <div class="form-group">
-                <label>Nome do Produto</label>
-                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Ivermectina...">
+                <label>Nome do Produto / Touro</label>
+                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
             </div>
             <div class="form-group">
                 <label>Categoria</label>
@@ -662,6 +671,7 @@
                     <option value="Sal Mineral">Sal Mineral</option>
                     <option value="Vacina">Vacina</option>
                     <option value="Medicamento">Medicamento</option>
+                    <option value="Sêmen">Sêmen / Genética</option>
                     <option value="Outros">Outros Materiais</option>
                 </select>
             </div>
@@ -677,6 +687,23 @@
                     </div>
                 </div>
             </div>
+            <div id="stockSemenFields" class="hidden" style="background: var(--light); padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed var(--primary);">
+                <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-dna"></i> Dados do Reprodutor</h4>
+                <div class="form-group">
+                    <label>Raça</label>
+                    <input type="text" id="stockSemenBreed" class="form-input" placeholder="Ex: Nelore, Angus...">
+                </div>
+                <div class="flex-between gap-2">
+                    <div class="form-group" style="flex:1">
+                        <label>Registro (RGN)</label>
+                        <input type="text" id="stockSemenReg" class="form-input">
+                    </div>
+                    <div class="form-group" style="flex:1">
+                        <label>Central</label>
+                        <input type="text" id="stockSemenCenter" class="form-input" placeholder="Ex: Alta, ABS">
+                    </div>
+                </div>
+            </div>
             <div class="flex-between gap-2">
                 <div class="form-group" style="flex:1">
                     <label>Qtd Comprada</label>
@@ -686,9 +713,9 @@
                     <label>Unidade</label>
                     <select id="stockUnit" class="form-input">
                         <option value="kg">Kg (Quilos)</option>
+                        <option value="ds">Doses (Palhetas)</option>
                         <option value="ml">ml (Mililitros)</option>
                         <option value="lt">Lt (Litros)</option>
-                        <option value="ds">Doses</option>
                         <option value="un">Unid.</option>
                         <option value="sc">Sacos</option>
                         <option value="fr">Frascos</option>
@@ -722,7 +749,7 @@
                 <div class="tab active" onclick="switchTab('tabOverview', event)">Resumo</div>
                 <div class="tab" onclick="switchTab('tabStockUse', event)">Usar Estoque</div>
                 <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem</div>
-                <div class="tab" onclick="switchTab('tabAnimals', event)">Animais</div>
+                <div class="tab" onclick="switchTab('tabBreeding', event)" style="color:var(--pink);">Reprodução</div> <div class="tab" onclick="switchTab('tabAnimals', event)">Animais</div>
                 <div class="tab" onclick="switchTab('tabSim', event)">Simulador</div>
                 <div class="tab" onclick="switchTab('tabSale', event)">Venda</div> 
             </div>
@@ -747,6 +774,61 @@
                 </div>
             </div>
 
+            <div id="tabBreeding" class="tab-content hidden">
+                <div class="card bg-card-repro">
+                    <h4 style="color: #be185d;"><i class="fas fa-venus-mars"></i> Nova Inseminação (IA/IATF)</h4>
+                    <div class="form-group" style="margin-top:10px;">
+                        <label>Protocolo / Tipo</label>
+                        <div class="flex-between gap-2">
+                            <select id="breedingType" class="form-input">
+                                <option value="IATF">IATF (Tempo Fixo)</option>
+                                <option value="Natural">Cio Natural / Observado</option>
+                            </select>
+                            <input type="date" id="breedingDate" class="form-input">
+                        </div>
+                    </div>
+
+                    <div id="iatfPlanDiv" style="margin-bottom:10px;">
+                        <label class="text-sm text-pink">Data Início Protocolo (D0)</label>
+                        <input type="date" id="iatfStartDate" class="form-input" onchange="calcIatfDate()">
+                        <div class="text-xs text-gray" style="margin-top:5px;">O sistema sugere a IA para D10/D11 após início.</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Touro (Estoque de Sêmen)</label>
+                        <select id="breedingBullSelect" class="form-input"></select>
+                        <div id="breedingBullAlert" class="text-xs text-danger hidden" style="margin-top:2px;">Estoque baixo!</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Inseminador</label>
+                        <input type="text" id="breedingInseminator" class="form-input" placeholder="Nome do técnico">
+                    </div>
+                    
+                    <div class="form-group">
+                         <label>Matrizes (Vacas)</label>
+                         <div class="flex-between gap-2" style="margin-bottom:5px;">
+                            <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
+                                <input type="radio" name="breedingScope" value="all" checked onchange="toggleBreedingScope()"> Lote Inteiro
+                            </label>
+                            <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
+                                <input type="radio" name="breedingScope" value="individual" onchange="toggleBreedingScope()"> Individual
+                            </label>
+                        </div>
+                        <select id="breedingCowSelect" class="form-input hidden"></select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Escore Corporal (ECC Médio)</label>
+                        <input type="number" id="breedingECC" class="form-input" placeholder="1 a 5" step="0.1">
+                    </div>
+
+                    <button class="btn btn-pink" onclick="saveInsemination()">Registrar IA e Baixar Estoque</button>
+                </div>
+
+                <h4 style="margin-top:20px;">Histórico Reprodutivo</h4>
+                <div id="breedingList"></div>
+            </div>
             <div id="tabStockUse" class="tab-content hidden">
                 <div class="card bg-card-use">
                     <label style="color:var(--secondary); font-weight:bold;">1. O que foi usado?</label>
@@ -1229,7 +1311,8 @@
             
             const newGroup = {
                 id: Date.now(), name, category, quantity: 0, animals: [], weighings: [], 
-                health: [], costHistory: [], currentPastureId: null, sold: false, salePrice: 0, saleDate: null
+                health: [], costHistory: [], breedingEvents: [], // NOVO ARRAY DE REPRODUÇÃO
+                currentPastureId: null, sold: false, salePrice: 0, saleDate: null
             };
 
             if (initialCost > 0) {
@@ -1287,8 +1370,19 @@
 
         function toggleStockCategory(val) {
             const fields = document.getElementById('stockSanitaryFields');
+            const semenFields = document.getElementById('stockSemenFields'); // NOVO
+            
+            // Lógica Sanitario
             if(val === 'Vacina' || val === 'Medicamento') fields.classList.remove('hidden');
             else fields.classList.add('hidden');
+
+            // Lógica Sêmen
+            if(val === 'Sêmen') semenFields.classList.remove('hidden');
+            else semenFields.classList.add('hidden');
+
+            // Ajuste Unidade Padrão
+            const unitSel = document.getElementById('stockUnit');
+            if(val === 'Sêmen') unitSel.value = 'ds';
         }
 
         async function addStockItem() {
@@ -1298,11 +1392,19 @@
             const qty = parseFloat(document.getElementById('stockQty').value);
             const totalSpend = parseFloat(document.getElementById('stockTotalSpend').value);
             const autoLaunch = document.getElementById('autoLaunchFinance').checked;
+            
+            // Campos Opcionais
             const brand = document.getElementById('stockBrand').value;
             const batch = document.getElementById('stockBatch').value;
+            
+            // Campos Sêmen
+            const breed = document.getElementById('stockSemenBreed').value;
+            const reg = document.getElementById('stockSemenReg').value;
+            const center = document.getElementById('stockSemenCenter').value;
 
             if(!name || !qty || !totalSpend) { alert("Preencha todos os campos."); return; }
 
+            // Identificador único considerando lotes de sêmen diferentes (ex: mesmo touro, partida diferente não implementado, assume somatório simples ou novo item se nome for igual)
             let existingItem = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit);
             
             if(existingItem) {
@@ -1315,7 +1417,8 @@
             } else {
                 appData.inventory.push({
                     id: Date.now(), name, category, unit, avgPrice: totalSpend / qty,
-                    currentQty: qty, brand, batch
+                    currentQty: qty, brand, batch,
+                    breed, reg, center // Salva dados extras se houver
                 });
             }
 
@@ -1328,15 +1431,19 @@
 
             await saveData();
             closeModal('modalNewStockItem');
+            
+            // Limpa form
             document.getElementById('stockName').value = '';
             document.getElementById('stockQty').value = '';
             document.getElementById('stockTotalSpend').value = '';
             document.getElementById('stockBrand').value = '';
             document.getElementById('stockBatch').value = '';
+            document.getElementById('stockSemenBreed').value = ''; // Limpa campos semen
+            document.getElementById('stockSemenReg').value = '';
             renderAll();
         }
 
-        // --- USO DE ESTOQUE ---
+        // --- USO DE ESTOQUE E GESTÃO DE LOTE ---
         let activeGroupId = null;
 
         function openGroupDetails(id) {
@@ -1371,15 +1478,22 @@
             document.getElementById('calcGMD').innerText = `${calculateGMD(group)} kg/dia`;
             document.getElementById('calcTotalCost').innerText = `R$ ${calculateGroupCost(group)}`;
             document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('breedingDate').value = new Date().toISOString().split('T')[0]; // Data Inseminação Default
             
             const animalSelect = document.getElementById('useAnimalId');
-            animalSelect.innerHTML = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
+            const breedingAnimalSelect = document.getElementById('breedingCowSelect'); // Select da aba Repro
+            const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
+            
+            animalSelect.innerHTML = animalsHtml;
+            breedingAnimalSelect.innerHTML = animalsHtml;
 
             document.getElementById('scopeLot').checked = true; 
             toggleIndividualUsage();
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
+            renderBreedingList(group); // Renderiza histórico reprodutivo
+            populateBreedingStock(); // Preenche select de touros
             
             const pSelect = document.getElementById('movePastureSelect');
             if(group.sold) {
@@ -1412,6 +1526,7 @@
             alert("Venda realizada!");
         }
 
+        // --- LÓGICA DE USO DE ESTOQUE ---
         function toggleIndividualUsage() {
             const scope = document.querySelector('input[name="usageScope"]:checked').value;
             const individualSelect = document.getElementById('individualAnimalSelect');
@@ -1513,6 +1628,157 @@
             openGroupDetails(activeGroupId);
             renderAll();
         }
+
+        // --- LÓGICA DE REPRODUÇÃO (NOVA) ---
+        
+        function populateBreedingStock() {
+            const select = document.getElementById('breedingBullSelect');
+            const bulls = appData.inventory.filter(i => i.category === 'Sêmen' && i.currentQty > 0);
+            
+            select.innerHTML = '<option value="">Selecione Touro/Sêmen</option>' + 
+                bulls.map(b => `<option value="${b.id}" data-stock="${b.currentQty}">${b.name} (${b.currentQty} doses) - ${b.breed || ''}</option>`).join('');
+            
+            select.onchange = function() {
+                const opt = select.options[select.selectedIndex];
+                const stock = opt ? parseFloat(opt.getAttribute('data-stock')) : 0;
+                const alertEl = document.getElementById('breedingBullAlert');
+                if(stock <= 10 && stock > 0) {
+                    alertEl.innerText = `Atenção: Apenas ${stock} doses restantes!`;
+                    alertEl.classList.remove('hidden');
+                } else {
+                    alertEl.classList.add('hidden');
+                }
+            };
+        }
+
+        function calcIatfDate() {
+            const start = document.getElementById('iatfStartDate').value;
+            if(start) {
+                const d = new Date(start);
+                d.setDate(d.getDate() + 11); // Sugestão D11
+                document.getElementById('breedingDate').value = d.toISOString().split('T')[0];
+            }
+        }
+
+        function toggleBreedingScope() {
+            const scope = document.querySelector('input[name="breedingScope"]:checked').value;
+            const sel = document.getElementById('breedingCowSelect');
+            if(scope === 'individual') sel.classList.remove('hidden');
+            else sel.classList.add('hidden');
+        }
+
+        async function saveInsemination() {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const type = document.getElementById('breedingType').value;
+            const date = document.getElementById('breedingDate').value;
+            const bullId = document.getElementById('breedingBullSelect').value;
+            const inseminator = document.getElementById('breedingInseminator').value;
+            const scope = document.querySelector('input[name="breedingScope"]:checked').value;
+            const animalId = document.getElementById('breedingCowSelect').value;
+            const ecc = document.getElementById('breedingECC').value;
+
+            if(!date || !bullId) { alert("Data e Touro são obrigatórios."); return; }
+            if(scope === 'individual' && !animalId) { alert("Selecione a vaca."); return; }
+
+            // Baixa no Estoque
+            const bullItem = appData.inventory.find(i => i.id == bullId);
+            const dosesNeeded = (scope === 'individual') ? 1 : (group.animals.length || group.quantity); // 1 dose por vaca
+
+            if(bullItem.currentQty < dosesNeeded) {
+                alert(`Estoque insuficiente de sêmen. Necessário: ${dosesNeeded}, Disponível: ${bullItem.currentQty}`);
+                return;
+            }
+
+            // Confirmação
+            if(!confirm(`Confirmar IA em ${dosesNeeded} animais?\nIsso baixará ${dosesNeeded} doses do estoque.`)) return;
+
+            // Execução
+            bullItem.currentQty -= dosesNeeded;
+            const cost = dosesNeeded * bullItem.avgPrice;
+
+            // Registro Financeiro/Custo
+            group.costHistory.push({
+                date, itemName: `IA (${bullItem.name})`, category: "Reprodução", qty: dosesNeeded, unit: 'ds',
+                totalCost: cost, scope, animalId: scope === 'individual' ? animalId : null, brand: bullItem.brand, batch: bullItem.batch
+            });
+
+            // Registro do Evento Reprodutivo
+            // Data prevista de toque (diagnóstico): 30 dias depois (exemplo)
+            const diagDate = new Date(date);
+            diagDate.setDate(diagDate.getDate() + 30);
+
+            const eventData = {
+                id: Date.now(),
+                date, type, bullName: bullItem.name, inseminator, ecc,
+                scope, animalId: scope === 'individual' ? animalId : 'LOTE',
+                diagnosisDate: diagDate.toISOString().split('T')[0],
+                status: 'Aguardando Toque', // Aguardando Toque, Prenha, Vazia
+                cost: cost
+            };
+
+            if(!group.breedingEvents) group.breedingEvents = [];
+            group.breedingEvents.push(eventData);
+
+            await saveData();
+            
+            // UI Update
+            alert("Inseminação registrada com sucesso!");
+            populateBreedingStock(); // Atualiza qtd dropdown
+            renderBreedingList(group);
+            renderGroupCostHistory(group);
+            openGroupDetails(activeGroupId);
+        }
+
+        async function updatePregnancyStatus(eventId, newStatus) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const event = group.breedingEvents.find(e => e.id == eventId);
+            if(event) {
+                event.status = newStatus;
+                await saveData();
+                renderBreedingList(group);
+            }
+        }
+
+        function renderBreedingList(group) {
+            const list = document.getElementById('breedingList');
+            if(!group.breedingEvents || group.breedingEvents.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum registro.</p>';
+                return;
+            }
+
+            list.innerHTML = [...group.breedingEvents].sort((a,b) => new Date(b.date) - new Date(a.date)).map(evt => {
+                let statusColor = 'var(--gray)';
+                if(evt.status === 'Prenha') statusColor = 'var(--primary)';
+                if(evt.status === 'Vazia') statusColor = 'var(--danger)';
+                
+                // Botões de ação para diagnóstico
+                let actions = '';
+                if(evt.status === 'Aguardando Toque') {
+                    actions = `
+                    <div style="margin-top:8px; display:flex; gap:10px;">
+                        <button class="btn btn-sm btn-success" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Prenha')"><i class="fas fa-check"></i> Prenha</button>
+                        <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Vazia')"><i class="fas fa-times"></i> Vazia</button>
+                    </div>`;
+                }
+
+                return `
+                <div class="list-item" style="display:block;">
+                    <div class="flex-between">
+                        <div>
+                            <strong>${new Date(evt.date).toLocaleDateString('pt-BR')}</strong> <span class="badge badge-pink">${evt.type}</span>
+                            <div class="text-sm">Touro: ${evt.bullName}</div>
+                            <div class="text-xs text-gray">Escopo: ${evt.scope === 'individual' ? 'Vaca ' + evt.animalId : 'Lote Todo'}</div>
+                        </div>
+                        <div class="text-right">
+                            <div style="font-weight:bold; color:${statusColor};">${evt.status}</div>
+                            <div class="text-xs text-gray">Prev. Toque: ${new Date(evt.diagnosisDate).toLocaleDateString('pt-BR')}</div>
+                        </div>
+                    </div>
+                    ${actions}
+                </div>`;
+            }).join('');
+        }
+
 
         function renderGroupCostHistory(group) {
             const list = document.getElementById('groupCostList');
@@ -1977,7 +2243,11 @@
             if(appData.inventory.length === 0) inventoryList.innerHTML = '<p class="text-center text-gray" style="padding:20px;">Vazio.</p>';
             else inventoryList.innerHTML = appData.inventory.map(i => {
                 stockTotal += (i.currentQty * i.avgPrice);
-                let badgeClass = i.category === 'Vacina' ? 'badge-danger' : (i.category === 'Ração' ? 'badge-success' : 'badge-info');
+                // Badge diferente para Sêmen
+                let badgeClass = i.category === 'Vacina' ? 'badge-danger' : 
+                                 (i.category === 'Ração' ? 'badge-success' : 
+                                 (i.category === 'Sêmen' ? 'badge-pink' : 'badge-info'));
+                
                 return `<div class="list-item">
                     <div><div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div><div class="text-sm text-gray">Médio: R$ ${i.avgPrice.toFixed(2)}</div></div>
                     <div class="text-center"><strong style="font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</strong></div>
