@@ -346,6 +346,159 @@
             background-color: #f9fafb;
         }
         .text-right { text-align: right; }
+
+        /* --- DESKTOP / DASHBOARD MODE (Telas grandes) --- */
+        @media (min-width: 1024px) {
+
+            /* 1. Ajuste Geral do Layout */
+            body {
+                /* Removemos o padding do body para não afetar o Login */
+                padding-bottom: 0;
+                background-color: var(--input-bg); 
+            }
+
+            /* Aplicamos o espaço do menu APENAS na área do App Logado */
+            #appScreen {
+                padding-left: 260px;
+            }
+
+            .app-container {
+                max-width: 1600px; /* Permite que o conteúdo estique mais */
+                padding: 30px;
+            }
+
+            /* 2. Transformar Nav-Bar inferior em Sidebar Lateral */
+            .nav-bar {
+                top: 0;
+                left: 0;
+                bottom: auto;
+                width: 250px;
+                height: 100vh; /* Altura total */
+                flex-direction: column; /* Itens um embaixo do outro */
+                justify-content: flex-start;
+                padding: 20px;
+                border-top: none;
+                border-right: 1px solid var(--border);
+                background: var(--white);
+                box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+            }
+
+            /* Adicionar logo fictícia no topo do menu lateral via CSS */
+            .nav-bar::before {
+                content: "MeuGado";
+                font-size: 1.5rem;
+                font-weight: 800;
+                color: var(--primary);
+                margin-bottom: 30px;
+                padding-left: 15px;
+                display: block;
+            }
+
+            .nav-item {
+                flex: 0 0 auto;
+                width: 100%;
+                flex-direction: row; /* Ícone ao lado do texto */
+                gap: 15px;
+                padding: 12px 15px;
+                margin-bottom: 8px;
+                border-radius: 10px;
+                font-size: 0.95rem;
+                justify-content: flex-start; /* Alinha à esquerda */
+            }
+
+            .nav-item i {
+                font-size: 1.1rem;
+                margin-bottom: 0;
+                width: 24px;
+                text-align: center;
+            }
+            
+            .nav-item:hover {
+                background-color: var(--light);
+            }
+
+            .nav-item.active {
+                background-color: var(--primary-light);
+                color: var(--primary-dark);
+            }
+            .nav-item.active i {
+                transform: none; /* Remove a animação de "pulo" do mobile */
+            }
+
+            /* 3. Reorganizar o Dashboard (Grid) */
+            #viewDashboard {
+                display: grid;
+                grid-template-columns: 3fr 2fr; /* Coluna maior p/ stats, menor p/ gráfico */
+                gap: 24px;
+                align-items: start;
+            }
+
+            /* Cards de Estatística (Cabeças, GMD) lado a lado */
+            .dashboard-grid {
+                grid-column: 1 / -1; /* Ocupa largura total */
+                display: grid;
+                grid-template-columns: repeat(4, 1fr); /* 4 cards por linha */
+                gap: 20px;
+            }
+
+            .stat-card {
+                padding: 24px;
+                height: 100%;
+                transition: transform 0.2s;
+            }
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+            /* 4. Melhorar Visualização de Tabelas/Listas */
+            /* Faz os itens de lista parecerem uma tabela real */
+            .list-item {
+                padding: 15px 24px;
+                border: 1px solid var(--border);
+                margin-bottom: 8px;
+                border-radius: 8px;
+                display: grid;
+                grid-template-columns: 1fr auto; /* Força estrutura */
+                align-items: center;
+            }
+
+            /* Grid de Pastos */
+            .paddock-grid {
+                grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+                gap: 20px;
+            }
+
+            /* 5. Modais Estilo Desktop (Centralizados) */
+            .modal {
+                align-items: center; /* Centraliza verticalmente */
+                backdrop-filter: blur(8px); /* Blur mais forte no fundo */
+            }
+
+            .modal-content {
+                max-width: 500px;
+                border-radius: 16px; /* Arredondado completo */
+                box-shadow: 0 20px 50px -12px rgba(0,0,0,0.25);
+                border: 1px solid var(--border);
+                max-height: 85vh;
+            }
+
+            /* Ajuste específico para o modal de Relatórios ou Detalhes que são grandes */
+            #modalReports .modal-content, #modalGroupDetails .modal-content {
+                max-width: 800px; /* Mais largo no PC */
+            }
+
+            /* 6. Header do Usuário */
+            .header-user {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                border-bottom: 1px solid var(--border);
+            }
+            
+            /* Botões maiores e mais visíveis */
+            .btn {
+                padding: 12px 24px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -354,7 +507,7 @@
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5 (Repro)</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -415,7 +568,7 @@
             <div id="viewDashboard" class="view-section">
                 <div class="dashboard-grid">
                     <div class="stat-card" style="border-color: var(--primary);">
-                        <i class="fas fa-cow"></i><div class="stat-value" id="dashTotalAnimals">0</div><div class="stat-label">Total Cabeças</div>
+                        <i class="fas fa-paw"></i><div class="stat-value" id="dashTotalAnimals">0</div><div class="stat-label">Total Animais</div>
                     </div>
                     <div class="stat-card" style="border-color: var(--secondary);">
                         <i class="fas fa-weight-hanging"></i><div class="stat-value" id="dashAvgGMD">0.00</div><div class="stat-label">GMD Médio (kg/dia)</div>
@@ -631,10 +784,21 @@
         <div class="modal-content">
             <h3>Novo Lote de Animais</h3>
             <div class="form-group"><label>Nome do Lote</label><input type="text" id="newGroupName" class="form-input"></div>
+            
+            <div class="form-group">
+                <label>Tipo de Criação</label>
+                <select id="newGroupType" class="form-input" onchange="updateCategoryOptions()">
+                    <option value="Bovinos">Bovinos (Gado de Corte/Leite)</option>
+                    <option value="Ovinos">Ovinos (Ovelhas)</option>
+                    <option value="Caprinos">Caprinos (Cabras)</option>
+                    <option value="Aves">Aves (Galinhas/Frangos)</option>
+                    <option value="Suínos">Suínos (Porcos)</option>
+                </select>
+            </div>
+
             <div class="form-group"><label>Categoria</label>
                 <select id="newGroupCategory" class="form-input">
-                    <option>Bezerros</option><option>Garrotes</option><option>Novilhas</option><option>Vacas</option><option>Touros</option>
-                </select>
+                    </select>
             </div>
             <div class="form-group">
                 <label>Valor Total de Compra (R$)</label>
@@ -1007,8 +1171,8 @@
 
         // --- DATA STRUCTURE ---
         let currentUser = null; 
-        let activeFarmId = null; // NOVO: Controla qual fazenda está ativa na visualização
-        let allUsersCache = []; // Cache para admin
+        let activeFarmId = null; 
+        let allUsersCache = []; 
         let appData = {
             groups: [], 
             pastures: [], 
@@ -1017,6 +1181,32 @@
             inventory: [], 
             market: { price: 0 }
         };
+
+        // --- MULTI-SPECIES CONFIG ---
+        const speciesConfig = {
+            'Bovinos': ['Bezerros', 'Novilhas', 'Novilhos', 'Vacas', 'Touros', 'Bois'],
+            'Ovinos': ['Cordeiros', 'Borregos', 'Ovelhas', 'Capão', 'Carneiros', ],
+            'Caprinos': ['Cabritos', 'Cabras', 'Bodes'],
+            'Suínos': ['Leitões', 'Porcas', 'Cachaços'],
+            'Aves': ['Pintos', 'Frangos', 'Poedeiras', 'Galos']
+        };
+
+        function updateCategoryOptions() {
+            const type = document.getElementById('newGroupType').value;
+            const catSelect = document.getElementById('newGroupCategory');
+            const options = speciesConfig[type] || speciesConfig['Bovinos'];
+            
+            catSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        }
+
+        function getIconForType(type) {
+            // Retorna classes do FontAwesome
+            if(!type || type === 'Bovinos') return 'fas fa-cow';
+            if(type === 'Aves') return 'fas fa-feather'; // ou fa-dove
+            if(type === 'Suínos') return 'fas fa-piggy-bank'; // ou fa-bacon
+            if(type === 'Equinos') return 'fas fa-horse';
+            return 'fas fa-paw'; // Ovinos, Caprinos e genéricos
+        }
 
         // --- INIT ---
         window.onload = function() {
@@ -1029,6 +1219,9 @@
             document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
+
+            // Init Categories
+            updateCategoryOptions();
         };
 
         // --- THEME LOGIC ---
@@ -1046,10 +1239,7 @@
         // --- CLOUD SYNC & CONTEXT ---
         async function loadData(targetUserId) {
             activeFarmId = targetUserId;
-            
-            // Indicador visual de carregamento
             document.body.style.cursor = 'wait';
-
             try {
                 const doc = await db.collection('users').doc(activeFarmId).get();
                 if (doc.exists) {
@@ -1061,12 +1251,9 @@
                     appData.inventory = data.inventory || [];
                 } else {
                     appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
-                    // Se for a própria fazenda, cria o documento
                     if(activeFarmId === currentUser.id) await saveData(); 
                 }
                 renderAll();
-
-                // Feedback visual se estiver vendo fazenda de outro
                 const welcome = document.getElementById('welcomeMsg');
                 if(activeFarmId !== currentUser.id) {
                     welcome.style.color = 'var(--accent)';
@@ -1075,7 +1262,6 @@
                     welcome.style.color = 'var(--dark)';
                     welcome.innerText = `Olá, ${currentUser.fullName.split(' ')[0]}`;
                 }
-
             } catch (error) {
                 console.error("Erro ao carregar:", error);
                 alert("Erro ao acessar dados da fazenda.");
@@ -1087,7 +1273,6 @@
         async function saveData() {
             if (!activeFarmId) return;
             try {
-                // Salva na fazenda ATIVA
                 await db.collection('users').doc(activeFarmId).set(appData, { merge: true });
             } catch (error) {
                 console.error("Erro ao salvar:", error);
@@ -1128,12 +1313,11 @@
                 const authData = authDoc.data();
                 if (authData.passwordHash !== btoa(pass + userId)) throw new Error('Senha incorreta.');
 
-                // Define Usuário e Cargo (Role)
                 currentUser = { 
                     id: userId, 
                     name: authData.userName, 
                     fullName: authData.fullName,
-                    role: authData.role || 'basic', // basic, manager, admin
+                    role: authData.role || 'basic', 
                     managedFarms: authData.managedFarms || []
                 };
 
@@ -1174,8 +1358,8 @@
                     fullName: name, 
                     passwordHash: btoa(pass + userId), 
                     createdAt: new Date().toISOString(),
-                    role: 'basic',      // Padrão
-                    managedFarms: []    // Padrão
+                    role: 'basic',      
+                    managedFarms: []    
                 });
 
                 currentUser = { id: userId, name: user, fullName: name, role: 'basic', managedFarms: [] };
@@ -1197,7 +1381,6 @@
             if(confirm('Sair do sistema?')) { location.reload(); }
         }
 
-        // Configura UI baseada no cargo
         async function setupRoleBasedUI() {
             const selectorContainer = document.getElementById('contextSelectorContainer');
             const btnAdmin = document.getElementById('btnAdminPanel');
@@ -1207,20 +1390,16 @@
             btnAdmin.classList.add('hidden');
             selector.innerHTML = '';
 
-            // Se Admin
             if (currentUser.role === 'admin') {
                 btnAdmin.classList.remove('hidden');
-                loadAdminUserList(); // Cache da lista para admin
+                loadAdminUserList(); 
             }
 
-            // Se Gerente ou Admin
             if (currentUser.role === 'manager' || currentUser.role === 'admin') {
                 selectorContainer.classList.remove('hidden');
-                
                 let optionsHtml = `<option value="${currentUser.id}">Minha Fazenda (Padrão)</option>`;
 
                 if (currentUser.role === 'admin') {
-                    // Admin vê todos os usuários no seletor
                     const snapshot = await db.collection('auth').get();
                     snapshot.forEach(doc => {
                         if(doc.id !== currentUser.id) {
@@ -1229,7 +1408,6 @@
                         }
                     });
                 } else if (currentUser.role === 'manager' && currentUser.managedFarms.length > 0) {
-                    // Gerente vê as fazendas atribuídas
                     for (const farmId of currentUser.managedFarms) {
                         const farmDoc = await db.collection('auth').doc(farmId).get();
                         if(farmDoc.exists) {
@@ -1297,6 +1475,7 @@
                     totalWeight += (currentWeight * qtd);
                 }
             });
+            // UA (Unidade Animal) padrão = 450kg (serve como base para outros animais também para simplificação)
             const ua = totalWeight / 450; 
             return (ua / pasture.area).toFixed(2);
         }
@@ -1305,13 +1484,15 @@
         async function createGroup() {
             const name = document.getElementById('newGroupName').value;
             const category = document.getElementById('newGroupCategory').value;
+            const type = document.getElementById('newGroupType').value;
             const initialCost = parseFloat(document.getElementById('newGroupInitialCost').value) || 0;
             
             if(!name) return;
             
             const newGroup = {
-                id: Date.now(), name, category, quantity: 0, animals: [], weighings: [], 
-                health: [], costHistory: [], breedingEvents: [], // NOVO ARRAY DE REPRODUÇÃO
+                id: Date.now(), name, category, herdType: type, // Salva o tipo
+                quantity: 0, animals: [], weighings: [], 
+                health: [], costHistory: [], breedingEvents: [], 
                 currentPastureId: null, sold: false, salePrice: 0, saleDate: null
             };
 
@@ -1370,7 +1551,7 @@
 
         function toggleStockCategory(val) {
             const fields = document.getElementById('stockSanitaryFields');
-            const semenFields = document.getElementById('stockSemenFields'); // NOVO
+            const semenFields = document.getElementById('stockSemenFields'); 
             
             // Lógica Sanitario
             if(val === 'Vacina' || val === 'Medicamento') fields.classList.remove('hidden');
@@ -1393,18 +1574,15 @@
             const totalSpend = parseFloat(document.getElementById('stockTotalSpend').value);
             const autoLaunch = document.getElementById('autoLaunchFinance').checked;
             
-            // Campos Opcionais
             const brand = document.getElementById('stockBrand').value;
             const batch = document.getElementById('stockBatch').value;
             
-            // Campos Sêmen
             const breed = document.getElementById('stockSemenBreed').value;
             const reg = document.getElementById('stockSemenReg').value;
             const center = document.getElementById('stockSemenCenter').value;
 
             if(!name || !qty || !totalSpend) { alert("Preencha todos os campos."); return; }
 
-            // Identificador único considerando lotes de sêmen diferentes (ex: mesmo touro, partida diferente não implementado, assume somatório simples ou novo item se nome for igual)
             let existingItem = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit);
             
             if(existingItem) {
@@ -1418,7 +1596,7 @@
                 appData.inventory.push({
                     id: Date.now(), name, category, unit, avgPrice: totalSpend / qty,
                     currentQty: qty, brand, batch,
-                    breed, reg, center // Salva dados extras se houver
+                    breed, reg, center 
                 });
             }
 
@@ -1432,13 +1610,12 @@
             await saveData();
             closeModal('modalNewStockItem');
             
-            // Limpa form
             document.getElementById('stockName').value = '';
             document.getElementById('stockQty').value = '';
             document.getElementById('stockTotalSpend').value = '';
             document.getElementById('stockBrand').value = '';
             document.getElementById('stockBatch').value = '';
-            document.getElementById('stockSemenBreed').value = ''; // Limpa campos semen
+            document.getElementById('stockSemenBreed').value = ''; 
             document.getElementById('stockSemenReg').value = '';
             renderAll();
         }
@@ -1478,10 +1655,10 @@
             document.getElementById('calcGMD').innerText = `${calculateGMD(group)} kg/dia`;
             document.getElementById('calcTotalCost').innerText = `R$ ${calculateGroupCost(group)}`;
             document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('breedingDate').value = new Date().toISOString().split('T')[0]; // Data Inseminação Default
+            document.getElementById('breedingDate').value = new Date().toISOString().split('T')[0]; 
             
             const animalSelect = document.getElementById('useAnimalId');
-            const breedingAnimalSelect = document.getElementById('breedingCowSelect'); // Select da aba Repro
+            const breedingAnimalSelect = document.getElementById('breedingCowSelect'); 
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
             
             animalSelect.innerHTML = animalsHtml;
@@ -1492,8 +1669,8 @@
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
-            renderBreedingList(group); // Renderiza histórico reprodutivo
-            populateBreedingStock(); // Preenche select de touros
+            renderBreedingList(group); 
+            populateBreedingStock(); 
             
             const pSelect = document.getElementById('movePastureSelect');
             if(group.sold) {
@@ -1629,8 +1806,7 @@
             renderAll();
         }
 
-        // --- LÓGICA DE REPRODUÇÃO (NOVA) ---
-        
+        // --- LÓGICA DE REPRODUÇÃO ---
         function populateBreedingStock() {
             const select = document.getElementById('breedingBullSelect');
             const bulls = appData.inventory.filter(i => i.category === 'Sêmen' && i.currentQty > 0);
@@ -1655,7 +1831,7 @@
             const start = document.getElementById('iatfStartDate').value;
             if(start) {
                 const d = new Date(start);
-                d.setDate(d.getDate() + 11); // Sugestão D11
+                d.setDate(d.getDate() + 11); 
                 document.getElementById('breedingDate').value = d.toISOString().split('T')[0];
             }
         }
@@ -1680,30 +1856,24 @@
             if(!date || !bullId) { alert("Data e Touro são obrigatórios."); return; }
             if(scope === 'individual' && !animalId) { alert("Selecione a vaca."); return; }
 
-            // Baixa no Estoque
             const bullItem = appData.inventory.find(i => i.id == bullId);
-            const dosesNeeded = (scope === 'individual') ? 1 : (group.animals.length || group.quantity); // 1 dose por vaca
+            const dosesNeeded = (scope === 'individual') ? 1 : (group.animals.length || group.quantity); 
 
             if(bullItem.currentQty < dosesNeeded) {
                 alert(`Estoque insuficiente de sêmen. Necessário: ${dosesNeeded}, Disponível: ${bullItem.currentQty}`);
                 return;
             }
 
-            // Confirmação
             if(!confirm(`Confirmar IA em ${dosesNeeded} animais?\nIsso baixará ${dosesNeeded} doses do estoque.`)) return;
 
-            // Execução
             bullItem.currentQty -= dosesNeeded;
             const cost = dosesNeeded * bullItem.avgPrice;
 
-            // Registro Financeiro/Custo
             group.costHistory.push({
                 date, itemName: `IA (${bullItem.name})`, category: "Reprodução", qty: dosesNeeded, unit: 'ds',
                 totalCost: cost, scope, animalId: scope === 'individual' ? animalId : null, brand: bullItem.brand, batch: bullItem.batch
             });
 
-            // Registro do Evento Reprodutivo
-            // Data prevista de toque (diagnóstico): 30 dias depois (exemplo)
             const diagDate = new Date(date);
             diagDate.setDate(diagDate.getDate() + 30);
 
@@ -1712,7 +1882,7 @@
                 date, type, bullName: bullItem.name, inseminator, ecc,
                 scope, animalId: scope === 'individual' ? animalId : 'LOTE',
                 diagnosisDate: diagDate.toISOString().split('T')[0],
-                status: 'Aguardando Toque', // Aguardando Toque, Prenha, Vazia
+                status: 'Aguardando Toque', 
                 cost: cost
             };
 
@@ -1720,10 +1890,8 @@
             group.breedingEvents.push(eventData);
 
             await saveData();
-            
-            // UI Update
             alert("Inseminação registrada com sucesso!");
-            populateBreedingStock(); // Atualiza qtd dropdown
+            populateBreedingStock(); 
             renderBreedingList(group);
             renderGroupCostHistory(group);
             openGroupDetails(activeGroupId);
@@ -1751,7 +1919,6 @@
                 if(evt.status === 'Prenha') statusColor = 'var(--primary)';
                 if(evt.status === 'Vazia') statusColor = 'var(--danger)';
                 
-                // Botões de ação para diagnóstico
                 let actions = '';
                 if(evt.status === 'Aguardando Toque') {
                     actions = `
@@ -1778,7 +1945,6 @@
                 </div>`;
             }).join('');
         }
-
 
         function renderGroupCostHistory(group) {
             const list = document.getElementById('groupCostList');
@@ -2068,7 +2234,6 @@
                     titleEl.innerText = `Relatório do Lote: ${group.name}`;
                     const currentWeight = getCurrentLotWeight(group).weight;
                     
-                    // Tabela de Custos
                     const costRows = (group.costHistory || []).map(c => `<tr>
                         <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
                         <td>${c.itemName}</td>
@@ -2076,7 +2241,6 @@
                         <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
                     </tr>`).join('');
 
-                    // Tabela de Animais
                     const animalRows = (group.animals || []).map(a => `<tr>
                         <td>${a.id}</td>
                         <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
@@ -2189,7 +2353,6 @@
             };
 
             // Gera e Salva
-            // Fecha modal antes para não travar UI visualmente
             closeModal('modalReports');
             
             // Pequeno delay para garantir renderização
@@ -2221,8 +2384,20 @@
                 const displayWeight = currentWeightInfo.weight > 0 ? currentWeightInfo.weight.toFixed(2) : '-';
                 const opacity = g.sold ? 'opacity: 0.7;' : '';
                 const soldBadge = g.sold ? '<span class="badge badge-gray" style="margin-left:5px;">VENDIDO</span>' : '';
+                
+                // --- ÍCONE DINÂMICO ---
+                const iconClass = getIconForType(g.herdType);
+
                 return `<div class="card list-item" onclick="openGroupDetails(${g.id})" style="${opacity}">
-                    <div><div style="font-weight:bold; color:var(--dark);">${g.name} ${soldBadge}</div><div class="text-sm text-gray">${g.category} • ${g.animals.length || g.quantity} cab</div></div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div style="background:var(--primary-light); padding:10px; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--primary-dark);">
+                            <i class="${iconClass}"></i>
+                        </div>
+                        <div>
+                            <div style="font-weight:bold; color:var(--dark);">${g.name} ${soldBadge}</div>
+                            <div class="text-sm text-gray">${g.category} • ${g.animals.length || g.quantity} cab</div>
+                        </div>
+                    </div>
                     <div class="text-center"><div style="font-weight:bold; color:var(--primary);">${displayWeight} kg</div><div class="text-sm text-gray">Peso Médio</div></div>
                 </div>`;
             }).join('');
