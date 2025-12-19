@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MeuGado</title>
+    <title>MeuGado Multi</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
@@ -507,7 +507,7 @@
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
-            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5</p>
+            <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.6 (Multi-Espécie)</p>
             
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
@@ -793,6 +793,7 @@
                     <option value="Caprinos">Caprinos (Cabras)</option>
                     <option value="Aves">Aves (Galinhas/Frangos)</option>
                     <option value="Suínos">Suínos (Porcos)</option>
+                    <option value="Equinos">Equinos (Cavalos)</option>
                 </select>
             </div>
 
@@ -1184,11 +1185,12 @@
 
         // --- MULTI-SPECIES CONFIG ---
         const speciesConfig = {
-            'Bovinos': ['Bezerros', 'Novilhas', 'Novilhos', 'Vacas', 'Touros', 'Bois'],
-            'Ovinos': ['Cordeiros', 'Borregos', 'Ovelhas', 'Capão', 'Carneiros', ],
+            'Bovinos': ['Bezerros', 'Garrotes', 'Novilhas', 'Vacas', 'Touros', 'Bois'],
+            'Ovinos': ['Borregos', 'Ovelhas', 'Carneiros', 'Cordeiros'],
             'Caprinos': ['Cabritos', 'Cabras', 'Bodes'],
-            'Suínos': ['Leitões', 'Porcas', 'Cachaços'],
-            'Aves': ['Pintos', 'Frangos', 'Poedeiras', 'Galos']
+            'Suínos': ['Leitões', 'Porcas', 'Cachaços', 'Terminação'],
+            'Aves': ['Pintos', 'Frangos', 'Poedeiras', 'Galos'],
+            'Equinos': ['Potros', 'Éguas', 'Cavalos']
         };
 
         function updateCategoryOptions() {
@@ -2145,7 +2147,8 @@
             const potentialFarms = allUsersCache.filter(u => u.id !== managerId && u.role !== 'admin');
             list.innerHTML = potentialFarms.map(farm => {
                 const isChecked = manager.managedFarms && manager.managedFarms.includes(farm.id);
-                return `<label class="list-item" style="justify-content: flex-start; gap: 10px;">
+                // FIX: Adicionado display: flex explícito para sobrescrever regra de Grid do desktop e manter alinhamento à esquerda
+                return `<label class="list-item" style="display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
                     <input type="checkbox" value="${farm.id}" ${isChecked ? 'checked' : ''}>
                     <div><strong>${farm.fullName}</strong><div class="text-xs text-gray">Usuário: ${farm.userName}</div></div>
                 </label>`;
@@ -2234,6 +2237,7 @@
                     titleEl.innerText = `Relatório do Lote: ${group.name}`;
                     const currentWeight = getCurrentLotWeight(group).weight;
                     
+                    // Tabela de Custos
                     const costRows = (group.costHistory || []).map(c => `<tr>
                         <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
                         <td>${c.itemName}</td>
@@ -2241,6 +2245,7 @@
                         <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
                     </tr>`).join('');
 
+                    // Tabela de Animais
                     const animalRows = (group.animals || []).map(a => `<tr>
                         <td>${a.id}</td>
                         <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
