@@ -822,6 +822,22 @@
         </div>
     </div>
 
+    <div id="modalEditPasture" class="modal">
+        <div class="modal-content">
+            <h3>Editar Piquete</h3>
+            <input type="hidden" id="editPastureId">
+            <div class="form-group"><label>Identificação</label><input type="text" id="editPastureName" class="form-input"></div>
+            <div class="form-group"><label>Área (ha)</label><input type="number" id="editPastureArea" class="form-input"></div>
+            <div class="form-group"><label>Tipo de Forrageira</label><input type="text" id="editPastureGrass" class="form-input"></div>
+            
+            <div class="btn-group-row">
+                <button class="btn" onclick="updatePasture()">Salvar Alterações</button>
+                <button class="btn btn-danger" onclick="deletePasture()"><i class="fas fa-trash"></i> Excluir</button>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalEditPasture')">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modalNewStockItem" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
@@ -1525,6 +1541,46 @@
             appData.pastures.push({ id: Date.now(), name, area, grass });
             await saveData();
             closeModal('modalNewPasture');
+            renderAll();
+        }
+
+        // --- FUNÇÕES DE EDIÇÃO DE PASTO (NOVO) ---
+        function openEditPasture(id) {
+            const p = appData.pastures.find(x => x.id == id);
+            if(!p) return;
+            document.getElementById('editPastureId').value = p.id;
+            document.getElementById('editPastureName').value = p.name;
+            document.getElementById('editPastureArea').value = p.area;
+            document.getElementById('editPastureGrass').value = p.grass || '';
+            openModal('modalEditPasture');
+        }
+
+        async function updatePasture() {
+            const id = document.getElementById('editPastureId').value;
+            const p = appData.pastures.find(x => x.id == id);
+            if(p) {
+                p.name = document.getElementById('editPastureName').value;
+                p.area = parseFloat(document.getElementById('editPastureArea').value);
+                p.grass = document.getElementById('editPastureGrass').value;
+                await saveData();
+                closeModal('modalEditPasture');
+                renderAll();
+            }
+        }
+
+        async function deletePasture() {
+            const id = document.getElementById('editPastureId').value;
+            // Check for animals
+            const hasAnimals = appData.groups.some(g => g.currentPastureId == id && !g.sold);
+            if(hasAnimals) { 
+                alert('Não é possível excluir: Há animais vinculados a este pasto. Mova-os primeiro.'); 
+                return; 
+            }
+            if(!confirm('Tem certeza que deseja excluir este piquete?')) return;
+
+            appData.pastures = appData.pastures.filter(x => x.id != id);
+            await saveData();
+            closeModal('modalEditPasture');
             renderAll();
         }
 
@@ -2407,11 +2463,12 @@
                 </div>`;
             }).join('');
 
+            // --- RENDER PASTOS (COM ONCLICK PARA EDIÇÃO) ---
             document.getElementById('pasturesGrid').innerHTML = appData.pastures.map(p => {
                 const ua = getStockingRate(p.id);
                 const groups = appData.groups.filter(g => g.currentPastureId == p.id && !g.sold);
                 const isOccupied = groups.length > 0;
-                return `<div class="paddock-cell ${isOccupied ? 'occupied' : ''}">
+                return `<div class="paddock-cell ${isOccupied ? 'occupied' : ''}" onclick="openEditPasture(${p.id})">
                     <strong>${p.name}</strong><div class="text-sm">${p.area} ha</div>
                     <div style="font-size:0.75rem; margin-top:4px;">${ua} UA/ha</div>
                     ${isOccupied ? `<small style="color:var(--primary-dark); font-weight:bold;">${groups.length} Lotes</small>` : ''}
@@ -2493,4 +2550,3 @@
     </script>
 </body>
 </html>
-
