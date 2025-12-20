@@ -288,6 +288,15 @@
 
         .login-logo { font-size: 4rem; margin-bottom: 20px; color: var(--primary); }
 
+        /* Estilos Legais e Footer */
+        .legal-footer { margin-top: 30px; font-size: 0.75rem; color: var(--gray); text-align: center; border-top: 1px solid var(--border); padding-top: 15px; }
+        .legal-links { margin-top: 15px; display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; flex-wrap: wrap;}
+        .link-term { color: var(--gray); text-decoration: underline; cursor: pointer; }
+        .link-term:hover { color: var(--primary); }
+        .legal-content-box { font-size: 0.9rem; line-height: 1.5; color: var(--dark); text-align: left; }
+        .legal-content-box h4 { margin-top: 15px; margin-bottom: 5px; color: var(--primary); }
+        .legal-content-box ul { padding-left: 20px; margin-bottom: 10px; }
+
         /* --- ESTILOS DE IMPRESSÃO PDF --- */
         .a4-page {
             width: 210mm;
@@ -483,7 +492,7 @@
             }
 
             /* Ajuste específico para o modal de Relatórios ou Detalhes que são grandes */
-            #modalReports .modal-content, #modalGroupDetails .modal-content {
+            #modalReports .modal-content, #modalGroupDetails .modal-content, #modalLegal .modal-content {
                 max-width: 800px; /* Mais largo no PC */
             }
 
@@ -528,6 +537,15 @@
                 <div class="auth-toggle" onclick="toggleAuthMode('login')">Já tem conta? Fazer Login</div>
             </div>
             <p id="authMessage" style="margin-top:20px; color: var(--danger); font-size: 0.9rem;"></p>
+
+            <div class="legal-links">
+                <span class="link-term" onclick="openLegal('terms')">Termos de Uso</span>
+                <span class="link-term" onclick="openLegal('privacy')">Privacidade</span>
+                <span class="link-term" onclick="openLegal('eula')">EULA</span>
+            </div>
+            <div class="legal-footer">
+                <p>63.992.533 JOAO GUILHERME POZZEBON LORENZ</p>
+            </div>
         </div>
     </div>
 
@@ -707,7 +725,25 @@
                 <button class="btn btn-dark" onclick="toggleTheme('dark')"><i class="fas fa-moon"></i> Escuro</button>
             </div>
 
-            <button class="btn btn-outline" style="margin-top: 30px;" onclick="closeModal('modalSettings')">Fechar</button>
+            <h4 style="margin-top:25px; margin-bottom:10px;">Jurídico & Termos</h4>
+            <div class="btn-group-row">
+                <button class="btn btn-outline btn-sm" onclick="openLegal('terms')">Termos de Uso</button>
+                <button class="btn btn-outline btn-sm" onclick="openLegal('privacy')">Privacidade</button>
+                <button class="btn btn-outline btn-sm" onclick="openLegal('eula')">EULA</button>
+            </div>
+            <div class="legal-footer">
+                <p>63.992.533 JOAO GUILHERME POZZEBON LORENZ</p>
+            </div>
+
+            <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalSettings')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalLegal" class="modal">
+        <div class="modal-content">
+            <h3 id="legalTitle">Documento</h3>
+            <div id="legalBody" class="legal-content-box" style="margin-top:20px; max-height: 60vh; overflow-y:auto; padding-right:5px;"></div>
+            <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalLegal')">Fechar</button>
         </div>
     </div>
 
@@ -1207,6 +1243,64 @@
             inventory: [], 
             market: { price: 0 }
         };
+
+        // --- LEGAL TEXTS CONTENT ---
+        const legalTexts = {
+            terms: `
+                <h4>1. Definições</h4>
+                <p>O sistema MeuGado é uma plataforma digital para gerenciamento de informações zootécnicas. Usuário é quem utiliza; Empresa Gestora é quem contrata.</p>
+                <h4>2. Objeto</h4>
+                <p>O software apoia a gestão pecuária. Não presta consultoria técnica, veterinária ou zootécnica.</p>
+                <h4>3. Elegibilidade</h4>
+                <p>Empresas devem possuir CNPJ válido. O usuário declara possuir capacidade legal.</p>
+                <h4>4. Responsabilidade</h4>
+                <p>Todos os dados inseridos e decisões tomadas são de responsabilidade exclusiva do usuário.</p>
+                <h4>5. Disponibilidade</h4>
+                <p>O sistema é fornecido "como está". Podem ocorrer indisponibilidades por manutenção ou falhas técnicas.</p>
+                <h4>6. Planos e Cobrança</h4>
+                <p>Cobrança aplica-se a empresas gestoras. O não pagamento pode resultar em suspensão.</p>
+                <h4>7. Uso Indevido</h4>
+                <p>É proibido utilizar para fins ilegais, copiar, revender ou realizar engenharia reversa.</p>
+                <h4>8. Suspensão</h4>
+                <p>Contas que violem os termos podem ser suspensas sem aviso prévio.</p>
+            `,
+            privacy: `
+                <h4>1. Dados Coletados</h4>
+                <ul>
+                    <li>Identificação: nome, e-mail, login.</li>
+                    <li>Profissionais: empresa, propriedades.</li>
+                    <li>Produtivos: animais, manejo, custos.</li>
+                    <li>Técnicos: cookies, cache offline.</li>
+                </ul>
+                <h4>2. Finalidade</h4>
+                <p>Operação do sistema, relatórios, melhoria da plataforma e cumprimento legal.</p>
+                <h4>3. Armazenamento</h4>
+                <p>Nuvem e bancos de dados locais no dispositivo (para uso offline). Medidas de segurança são adotadas.</p>
+                <h4>4. Compartilhamento</h4>
+                <p>Dados não são vendidos. Compartilhados apenas entre usuários autorizados da mesma gestão.</p>
+                <h4>5. Direitos do Titular</h4>
+                <p>Acesso, correção, exclusão e portabilidade. Solicitações via e-mail.</p>
+                <h4>6. Exclusão</h4>
+                <p>A exclusão pode implicar perda definitiva das informações.</p>
+            `,
+            eula: `
+                <h4>1. Licença</h4>
+                <p>O MeuGado é licenciado, não vendido. Concessão de licença limitada, não exclusiva, intransferível e revogável.</p>
+                <h4>2. Propriedade Intelectual</h4>
+                <p>Todo o sistema, código e marca pertencem a <strong>63.992.533 JOAO GUILHERME POZZEBON LORENZ</strong>.</p>
+                <h4>3. Restrições</h4>
+                <p>É proibido copiar, modificar, criar produtos derivados ou comercializar sem autorização.</p>
+                <h4>4. Encerramento</h4>
+                <p>A licença encerra automaticamente em caso de violação dos termos.</p>
+            `
+        };
+
+        function openLegal(type) {
+            const titles = { 'terms': 'Termos de Uso', 'privacy': 'Política de Privacidade', 'eula': 'EULA - Licença' };
+            document.getElementById('legalTitle').innerText = titles[type];
+            document.getElementById('legalBody').innerHTML = legalTexts[type];
+            openModal('modalLegal');
+        }
 
         // --- MULTI-SPECIES CONFIG ---
         const speciesConfig = {
