@@ -1184,7 +1184,16 @@
         };
         
         firebase.initializeApp(firebaseConfig);
+        // MODIFICAÇÃO OFFLINE-FIRST: Ativar persistência
         const db = firebase.firestore();
+        db.enablePersistence()
+            .catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.log('Múltiplas abas abertas impedem a persistência offline.');
+                } else if (err.code == 'unimplemented') {
+                    console.log('O navegador atual não suporta persistência offline.');
+                }
+            });
 
         // --- DATA STRUCTURE ---
         let currentUser = null; 
@@ -1240,6 +1249,22 @@
 
             // Init Categories
             updateCategoryOptions();
+
+            // MODIFICAÇÃO OFFLINE-FIRST: Checar Login Salvo
+            const savedUser = localStorage.getItem('meugado_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('appScreen').classList.remove('hidden');
+                setupRoleBasedUI();
+                loadData(currentUser.id);
+            }
+            
+            // UI de Status Offline
+            const div = document.createElement('div');
+            div.id = 'connectionStatus';
+            document.body.appendChild(div);
+            updateOnlineStatus();
         };
 
         // --- THEME LOGIC ---
@@ -1282,7 +1307,7 @@
                 }
             } catch (error) {
                 console.error("Erro ao carregar:", error);
-                alert("Erro ao acessar dados da fazenda.");
+                // Em offline, talvez não carregue na primeira vez se não tiver cache, mas não deve travar
             } finally {
                 document.body.style.cursor = 'default';
             }
@@ -1294,7 +1319,7 @@
                 await db.collection('users').doc(activeFarmId).set(appData, { merge: true });
             } catch (error) {
                 console.error("Erro ao salvar:", error);
-                alert("Erro ao salvar dados.");
+                // Em offline, o erro pode ser suprimido pelo Firebase que salva localmente
             }
         }
 
@@ -1339,6 +1364,9 @@
                     managedFarms: authData.managedFarms || []
                 };
 
+                // MODIFICAÇÃO OFFLINE-FIRST: Salvar Sessão
+                localStorage.setItem('meugado_user', JSON.stringify(currentUser));
+
                 setupRoleBasedUI();
                 await loadData(userId);
 
@@ -1381,6 +1409,10 @@
                 });
 
                 currentUser = { id: userId, name: user, fullName: name, role: 'basic', managedFarms: [] };
+                
+                // MODIFICAÇÃO OFFLINE-FIRST: Salvar Sessão no Registro também
+                localStorage.setItem('meugado_user', JSON.stringify(currentUser));
+
                 appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
                 await saveData();
 
@@ -1396,7 +1428,11 @@
         }
 
         function logout() {
-            if(confirm('Sair do sistema?')) { location.reload(); }
+            if(confirm('Sair do sistema?')) { 
+                // MODIFICAÇÃO OFFLINE-FIRST: Limpar Sessão
+                localStorage.removeItem('meugado_user');
+                location.reload(); 
+            }
         }
 
         async function setupRoleBasedUI() {
@@ -2538,6 +2574,35 @@
         }
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // --- OFFLINE STATUS HELPER ---
+        // Monitorar status da conexão
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        function updateOnlineStatus() {
+            const statusDiv = document.getElementById('connectionStatus');
+            if (!statusDiv) return; // Se ainda não criou o elemento
+
+            if (navigator.onLine) {
+                statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online (Sincronizado)';
+                statusDiv.className = 'badge badge-success';
+                statusDiv.style.position = 'fixed';
+                statusDiv.style.bottom = '10px';
+                statusDiv.style.right = '10px';
+                
+                // Some depois de 3 segundos
+                setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+            } else {
+                statusDiv.style.display = 'block';
+                statusDiv.innerHTML = '<i class="fas fa-cloud-slash"></i> Offline (Salvando no dispositivo)';
+                statusDiv.className = 'badge badge-warning';
+                statusDiv.style.position = 'fixed';
+                statusDiv.style.bottom = '10px';
+                statusDiv.style.right = '10px';
+                statusDiv.style.zIndex = '9999';
+            }
+        }
     </script>
     <script>
         if ('serviceWorker' in navigator) {
