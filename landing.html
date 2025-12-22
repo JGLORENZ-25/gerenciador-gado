@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeuGado - Sistema de Gestão Zootécnica</title>
+    
+    <link rel="icon" type="image/jpeg" href="Verde.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            /* Mesmas variáveis do seu sistema */
+            --primary: #059669;       
+            --primary-dark: #047857;  
+            --primary-light: #d1fae5; 
+            --secondary: #2563eb;     
+            --accent: #d97706;        
+            --danger: #dc2626;        
+            --dark: #1f2937;          
+            --gray: #6b7280;          
+            --light: #f3f4f6;         
+            --white: #ffffff;         
+            --border: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--white);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Tipografia --- */
+        h1, h2, h3, h4 { font-weight: 800; color: var(--dark); line-height: 1.2; }
+        h1 { font-size: 2.5rem; }
+        h2 { font-size: 2rem; margin-bottom: 1rem; color: var(--primary-dark); }
+        p { color: var(--gray); margin-bottom: 1rem; }
+
+        /* --- Botões (Mesmo estilo do App) --- */
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 24px; border-radius: 10px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; 
+            align-items: center; justify-content: center; gap: 8px;
+            text-decoration: none; font-size: 1rem;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+        .btn-large { padding: 16px 32px; font-size: 1.1rem; }
+
+        /* --- Layout --- */
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        section { padding: 80px 0; }
+
+        /* --- Navbar --- */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            padding: 15px 0; z-index: 1000; border-bottom: 1px solid var(--border);
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .logo img { height: 40px; border-radius: 50%; }
+        .nav-links { display: none; gap: 20px; }
+        .nav-links a { text-decoration: none; color: var(--gray); font-weight: 600; transition: 0.2s; }
+        .nav-links a:hover { color: var(--primary); }
+        
+        @media(min-width: 768px) { .nav-links { display: flex; align-items: center; } }
+
+        /* --- Hero Section --- */
+        .hero {
+            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            padding-top: 140px; padding-bottom: 100px;
+            text-align: center; position: relative;
+        }
+        .hero::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('Branco-removebg-preview.png');
+            background-repeat: no-repeat; background-position: center; background-size: 60%;
+            opacity: 0.03; pointer-events: none;
+        }
+        .hero h1 span { color: var(--primary); }
+        .hero-tag { 
+            background: var(--primary-light); color: var(--primary-dark); 
+            padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; 
+            font-weight: 700; display: inline-block; margin-bottom: 20px;
+        }
+
+        /* --- Features Grid --- */
+        .features-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; margin-top: 40px;
+        }
+        .feature-card {
+            background: var(--white); padding: 30px; border-radius: 24px;
+            border: 1px solid var(--border); transition: 0.3s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .feature-card:hover { transform: translateY(-5px); border-color: var(--primary-light); }
+        .icon-box {
+            width: 60px; height: 60px; border-radius: 16px;
+            background: var(--primary-light); color: var(--primary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; margin-bottom: 20px;
+        }
+        .icon-box.blue { background: #eff6ff; color: var(--secondary); }
+        .icon-box.orange { background: #fff7ed; color: var(--accent); }
+
+        /* --- Highlight Section (Dark) --- */
+        .highlight-section { background: var(--dark); color: white; text-align: center; }
+        .highlight-section h2 { color: white; }
+        .highlight-section p { color: #9ca3af; max-width: 700px; margin: 0 auto 30px auto; }
+        
+        .tech-badges { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 30px; }
+        .tech-badge { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 30px; font-size: 0.9rem; }
+
+        /* --- Footer --- */
+        footer { background: #111827; color: #9ca3af; padding: 60px 0 20px 0; font-size: 0.9rem; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { color: white; margin-bottom: 20px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: #9ca3af; text-decoration: none; transition: 0.2s; cursor: pointer;}
+        .footer-col ul li a:hover { color: var(--primary); }
+        .copyright { text-align: center; border-top: 1px solid #374151; padding-top: 20px; }
+
+        /* --- Modals (Legal) --- */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 2000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 700px;
+            border-radius: 24px; padding: 30px; max-height: 85vh;
+            overflow-y: auto; border: 1px solid var(--border); position: relative;
+        }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--gray); }
+        .legal-text h4 { margin-top: 15px; color: var(--primary); }
+        .legal-text ul { padding-left: 20px; margin-bottom: 10px; color: var(--gray); }
+
+        /* Responsividade */
+        @media(max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .hero { padding-top: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <div class="logo">
+                <img src="Verde.jpg" alt="Logo MeuGado">
+                MeuGado
+            </div>
+            <div class="nav-links">
+                <a href="#features">Funcionalidades</a>
+                <a href="#tech">Tecnologia</a>
+                <a href="#legal">Legal</a>
+                <a href="index.html" class="btn btn-outline" style="padding: 8px 16px;">Entrar</a> <a href="index.html" class="btn" style="padding: 8px 16px;">Criar Conta</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <span class="hero-tag">Versão 1.5 Disponível</span>
+            <h1>Gestão Pecuária na <br><span>Palma da Sua Mão</span></h1>
+            <p style="max-width: 600px; margin: 20px auto; font-size: 1.1rem;">
+                O MeuGado é uma aplicação progressiva (PWA) projetada para centralizar dados zootécnicos, 
+                sanitários e financeiros. Gerencie sua fazenda online ou offline, do campo ao escritório.
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
+                <a href="index.html" class="btn btn-large">Acessar Sistema <i class="fas fa-arrow-right"></i></a>
+                <a href="#features" class="btn btn-outline btn-large">Saiba Mais</a>
+            </div>
+            
+            <div style="margin-top: 60px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.1); max-width: 900px; margin-left: auto; margin-right: auto; border: 1px solid var(--border);">
+                <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 250px; text-align: left;">
+                        <div style="display:flex; gap:10px; margin-bottom:15px;">
+                             <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:12px; flex:1;">
+                                <small style="color:#166534; font-weight:bold;">TOTAL ANIMAIS</small>
+                                <div style="font-size:1.5rem; font-weight:800; color:#14532d;">1.240</div>
+                             </div>
+                             <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:12px; flex:1;">
+                                <small style="color:#1e40af; font-weight:bold;">GMD MÉDIO</small>
+                                <div style="font-size:1.5rem; font-weight:800; color:#1e3a8a;">0.850</div>
+                             </div>
+                        </div>
+                        <p class="text-sm">Visualize indicadores chave de desempenho (KPIs) em tempo real, controle lotes e gerencie a evolução de peso do seu rebanho.</p>
+                    </div>
+                    <div style="flex: 1; min-width: 250px;">
+                        <div style="background: #f8fafc; height: 180px; border-radius: 12px; border: 1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                            <i class="fas fa-chart-line" style="font-size:3rem;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" style="background: white;">
+        <div class="container">
+            <div style="text-align: center; max-width: 700px; margin: 0 auto 50px auto;">
+                <h2>6 Pilares Operacionais</h2>
+                <p>O sistema foi desenhado para cobrir todas as necessidades do produtor rural e consultor técnico (DETEC).</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fas fa-chart-pie"></i></div>
+                    <h3>Dashboard & KPIs</h3>
+                    <p>Leitura rápida de indicadores. Correlação exclusiva Chuva x Peso para análise de eficiência estacional e GMD Global.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box blue"><i class="fas fa-layer-group"></i></div>
+                    <h3>Gestão de Lotes</h3>
+                    <p>Cadastro de lotes (Bovinos, Ovinos, etc), histórico de pesagem e simulador de abate preditivo para planejamento de caixa.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box orange"><i class="fas fa-map-marked-alt"></i></div>
+                    <h3>Pastagens e Clima</h3>
+                    <p>Mapa de lotação (UA/ha), status de ocupação dos piquetes e pluviômetro digital integrado ao histórico.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box"><i class="fas fa-syringe"></i></div>
+                    <h3>Controle Sanitário</h3>
+                    <p>Registro de vacinas e tratamentos. Sistema de alerta de carência inteligente que bloqueia visualmente animais inaptos para abate.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box blue"><i class="fas fa-wallet"></i></div>
+                    <h3>Gestão Financeira</h3>
+                    <p>Fluxo de caixa simplificado. Lançamento automático de custos de nutrição e cálculo de lucro líquido por lote.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon-box orange"><i class="fas fa-file-pdf"></i></div>
+                    <h3>Relatórios PDF</h3>
+                    <p>Geração instantânea de documentos sanitários, financeiros e de inventário para impressão ou envio via WhatsApp.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tech" class="highlight-section">
+        <div class="container">
+            <h2>Tecnologia que vai a Campo</h2>
+            <p>Não dependa de internet no curral. O MeuGado utiliza tecnologia PWA avançada.</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px; text-align: left; margin-top: 50px;">
+                <div>
+                    <h3 style="color:white; margin-bottom: 15px;"><i class="fas fa-wifi" style="color:var(--primary);"></i> Modo 100% Offline</h3>
+                    <p>Os dados são salvos localmente no seu dispositivo enquanto você trabalha no campo. Assim que houver conexão, o sistema sincroniza tudo com a nuvem automaticamente.</p>
+                </div>
+                <div>
+                    <h3 style="color:white; margin-bottom: 15px;"><i class="fas fa-users" style="color:var(--secondary);"></i> Arquitetura Multi-Tenant</h3>
+                    <p>Ideal para consultores e técnicos. Gerencie múltiplas fazendas com um único login. Mantenha os dados dos seus clientes organizados e seguros separadamente.</p>
+                </div>
+            </div>
+
+            <div class="tech-badges">
+                <div class="tech-badge"><i class="fab fa-google"></i> Firebase Cloud</div>
+                <div class="tech-badge"><i class="fas fa-mobile-alt"></i> PWA Mobile First</div>
+                <div class="tech-badge"><i class="fas fa-lock"></i> Dados Criptografados</div>
+                <div class="tech-badge"><i class="fas fa-chart-bar"></i> Chart.js</div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="legal">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 15px; color: white;">
+                        <img src="Verde.jpg" alt="Logo"> MeuGado
+                    </div>
+                    <p>Sistema de Gestão Zootécnica em Nuvem.<br>Cachoeira do Sul - RS</p>
+                    <p style="font-size: 0.8rem; margin-top: 10px;">CNPJ: 63.992.533 JOAO GUILHERME POZZEBON LORENZ</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Produto</h4>
+                    <ul>
+                        <li><a href="index.html">Entrar / Login</a></li>
+                        <li><a href="index.html">Criar Conta</a></li>
+                        <li><a href="#features">Funcionalidades</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Jurídico</h4>
+                    <ul>
+                        <li><a onclick="openModal('modalTerms')">Termos de Uso</a></li>
+                        <li><a onclick="openModal('modalPrivacy')">Política de Privacidade</a></li>
+                        <li><a onclick="openModal('modalEula')">EULA (Licença)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 MeuGado. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <div id="modalTerms" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalTerms')">&times;</span>
+            <h2>Termos de Uso</h2>
+            <div class="legal-text">
+                <h4>1. Definições</h4>
+                <p>O sistema MeuGado é uma plataforma digital para gerenciamento de informações zootécnicas. Usuário é quem utiliza; Empresa Gestora é quem contrata.</p>
+                <h4>2. Objeto</h4>
+                <p>O software apoia a gestão pecuária. Não presta consultoria técnica, veterinária ou zootécnica.</p>
+                <h4>3. Elegibilidade</h4>
+                <p>Empresas devem possuir CNPJ válido. O usuário declara possuir capacidade legal.</p>
+                <h4>4. Responsabilidade</h4>
+                <p>Todos os dados inseridos e decisões tomadas são de responsabilidade exclusiva do usuário.</p>
+                <h4>5. Disponibilidade</h4>
+                <p>O sistema é fornecido "como está". Podem ocorrer indisponibilidades por manutenção ou falhas técnicas.</p>
+                <h4>6. Uso Indevido</h4>
+                <p>É proibido utilizar para fins ilegais, copiar, revender ou realizar engenharia reversa.</p>
+                <h4>7. Suspensão</h4>
+                <p>Contas que violem os termos podem ser suspensas sem aviso prévio.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalTerms')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalPrivacy" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalPrivacy')">&times;</span>
+            <h2>Política de Privacidade</h2>
+            <div class="legal-text">
+                <h4>1. Dados Coletados</h4>
+                <ul>
+                    <li>Identificação: nome, e-mail, login.</li>
+                    <li>Profissionais: empresa, propriedades.</li>
+                    <li>Produtivos: animais, manejo, custos.</li>
+                    <li>Técnicos: cookies, cache offline.</li>
+                </ul>
+                <h4>2. Finalidade</h4>
+                <p>Operação do sistema, relatórios, melhoria da plataforma e cumprimento legal.</p>
+                <h4>3. Armazenamento</h4>
+                <p>Nuvem e bancos de dados locais no dispositivo (para uso offline). Medidas de segurança são adotadas.</p>
+                <h4>4. Compartilhamento</h4>
+                <p>Dados não são vendidos. Compartilhados apenas entre usuários autorizados da mesma gestão.</p>
+                <h4>5. Direitos do Titular</h4>
+                <p>Acesso, correção, exclusão e portabilidade. Solicitações via e-mail.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalPrivacy')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalEula" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalEula')">&times;</span>
+            <h2>EULA - Contrato de Licença</h2>
+            <div class="legal-text">
+                <h4>1. Licença</h4>
+                <p>O MeuGado é licenciado, não vendido. Concessão de licença limitada, não exclusiva, intransferível e revogável.</p>
+                <h4>2. Propriedade Intelectual</h4>
+                <p>Todo o sistema, código e marca pertencem a <strong>63.992.533 JOAO GUILHERME POZZEBON LORENZ</strong>.</p>
+                <h4>3. Restrições</h4>
+                <p>É proibido copiar, modificar, criar produtos derivados ou comercializar sem autorização.</p>
+                <h4>4. Encerramento</h4>
+                <p>A licença encerra automaticamente em caso de violação dos termos.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalEula')">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden'; // Evita scroll na página de fundo
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Fechar modal ao clicar fora
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>
