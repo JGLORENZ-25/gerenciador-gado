@@ -1,7 +1,8 @@
-const CACHE_NAME = 'meugado-v4-jpg';
+const CACHE_NAME = 'meugado-v5-landing';
 const ASSETS_TO_CACHE = [
   './',
-  './index.html',
+  './index.html',      // Landing Page (Capa)
+  './app.html',        // Sistema Principal
   './manifest.json',
   './Verde.jpg',
   'https://cdn.jsdelivr.net/npm/chart.js',
