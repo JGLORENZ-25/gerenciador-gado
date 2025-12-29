@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MeuGado</title>
     
     <link rel="manifest" href="manifest.json">
@@ -55,6 +55,13 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
 
+        /* CORREÇÃO DE OVERFLOW: Garante que nada saia da largura da tela */
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: var(--light);
@@ -85,7 +92,7 @@
         .app-container, .nav-bar, .modal { position: relative; z-index: 1; }
 
         /* --- Layout --- */
-        .app-container { max-width: 1280px; margin: 0 auto; padding: 16px; }
+        .app-container { max-width: 1280px; margin: 0 auto; padding: 16px; width: 100%; }
         
         /* --- Navigation --- */
         .nav-bar {
@@ -97,7 +104,7 @@
             box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
             z-index: 1000;
             border-top: 1px solid var(--border);
-            overflow-x: auto;
+            overflow-x: auto; /* Mantém rolagem apenas na barra se necessário */
             transition: background 0.3s;
         }
 
@@ -116,6 +123,7 @@
             background: var(--white); border-radius: 16px; padding: 20px;
             margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s;
+            max-width: 100%; /* Segurança extra */
         }
 
         .card h3 { 
@@ -125,7 +133,7 @@
 
         /* --- Dashboard Grid --- */
         .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Reduzi levemente o min para telas muito pequenas */
             gap: 16px; margin-bottom: 24px;
         }
 
@@ -134,7 +142,7 @@
             display: flex; flex-direction: column;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             border-left: 5px solid var(--primary);
-            position: relative; overflow: hidden;
+            position: relative; overflow: hidden; /* Importante para o ícone de fundo não vazar */
             border-top: 1px solid var(--border);
             border-right: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
@@ -153,12 +161,14 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 16px; border-bottom: 1px solid var(--border);
             cursor: pointer; transition: background 0.2s;
+            flex-wrap: wrap; /* CORREÇÃO: Permite que itens longos quebrem linha */
+            gap: 10px;
         }
         .list-item:hover { background-color: var(--border); }
         .list-item:last-child { border-bottom: none; }
 
         /* --- Badges --- */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
         .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
         .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
         .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
@@ -195,20 +205,23 @@
         .btn-dark { background: var(--dark); color: white; }
 
         .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
-        .btn-group-row { display: flex; gap: 8px; }
+        
+        /* CORREÇÃO: Adicionado flex-wrap para botões não estourarem a tela */
+        .btn-group-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .form-group { margin-bottom: 16px; }
+        .form-group { margin-bottom: 16px; width: 100%; }
         .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dark); font-size: 0.9rem; }
         .form-input {
             width: 100%; padding: 12px; border: 2px solid var(--border);
             border-radius: 10px; font-size: 1rem; transition: border-color 0.2s;
             background: var(--input-bg); color: var(--dark);
+            max-width: 100%; /* Segurança contra overflow */
         }
         .form-input:focus { border-color: var(--primary); }
         .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         /* --- Tabs --- */
-        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 20px; overflow-x: auto; }
+        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .tab { padding: 10px 5px; cursor: pointer; color: var(--gray); font-weight: 600; white-space: nowrap; position: relative; }
         .tab.active { color: var(--primary); }
         .tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--primary); }
@@ -218,6 +231,7 @@
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
             z-index: 2000; justify-content: center; align-items: flex-end;
+            overflow: hidden; /* Evita rolagem no fundo do modal */
         }
         @media(min-width: 768px) { .modal { align-items: center; } }
         
@@ -235,7 +249,16 @@
         /* --- Utilities --- */
         .hidden { display: none !important; }
         .text-center { text-align: center; }
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* CORREÇÃO: Adicionado flex-wrap para elementos flexíveis não vazarem */
+        .flex-between { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            width: 100%;
+        }
+        
         .gap-2 { gap: 8px; }
         .text-sm { font-size: 0.85rem; }
         .text-xs { font-size: 0.75rem; } 
@@ -244,8 +267,15 @@
         .text-success { color: #16a34a; }
         .text-pink { color: var(--pink); }
 
+        /* Utilitário para inputs lado a lado terem tamanho mínimo e não quebrarem layout */
+        .flex-between.gap-2 > .form-input, 
+        .flex-between.gap-2 > .form-group {
+            min-width: 120px; /* Garante que não fique esmagado */
+            flex: 1; /* Ocupa espaço disponível */
+        }
+
         /* --- Specific Components --- */
-        .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .paddock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         .paddock-cell { 
             background: var(--white); border: 2px solid var(--border); 
@@ -390,6 +420,7 @@
                 border-right: 1px solid var(--border);
                 background: var(--white);
                 box-shadow: 4px 0 24px rgba(0,0,0,0.02);
+                overflow-y: auto; /* Rolagem vertical no menu */
             }
 
             /* Adicionar logo fictícia no topo do menu lateral via CSS */
@@ -558,7 +589,7 @@
                     <p id="dateDisplay" class="text-sm text-gray"></p>
                 </div>
                 
-                <div id="contextSelectorContainer" class="hidden" style="flex: 1; margin: 0 15px;">
+                <div id="contextSelectorContainer" class="hidden" style="flex: 1; margin: 0 15px; min-width: 200px;">
                     <select id="farmContextSelector" class="form-input" style="padding: 8px; font-weight: bold; color: var(--primary-dark);" onchange="switchFarmContext(this.value)">
                         </select>
                 </div>
@@ -595,7 +626,9 @@
 
                 <div class="card">
                     <h3><i class="fas fa-cloud-showers-heavy"></i> Desempenho: Chuva x Peso</h3>
-                    <canvas id="rainWeightChart" height="200"></canvas>
+                    <div style="width: 100%; overflow-x: auto;">
+                        <canvas id="rainWeightChart" height="200"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -773,7 +806,7 @@
         </div>
     </div>
 
-    <div id="pdf-hidden-container" style="position: fixed; left: -9999px; top: 0;">
+    <div id="pdf-hidden-container" style="position: fixed; left: 0; top: 0; width: 0; height: 0; overflow: hidden; z-index: -1; visibility: hidden;">
         <div id="pdf-template" class="a4-page">
             <img src="Branco-removebg-preview.png" class="watermark-img">
             
