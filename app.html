@@ -591,7 +591,7 @@
 
         .financial-summary {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 10px;
             margin-bottom: 20px;
         }
@@ -897,6 +897,24 @@
             color: var(--primary-light);
         }
 
+        @media (max-width: 480px) {
+            .financial-summary {
+                grid-template-columns: 1fr;
+            }
+            
+            .fin-box {
+                padding: 12px;
+            }
+            
+            .fin-box h4 {
+                font-size: 0.9rem;
+            }
+            
+            .fin-box div {
+                font-size: 1rem;
+            }
+        }
+
         @media (min-width: 1024px) {
             body {
                 padding-bottom: 0;
@@ -1039,6 +1057,10 @@
 
             .date-filter-buttons {
                 grid-template-columns: repeat(6, 1fr);
+            }
+
+            .financial-summary {
+                grid-template-columns: repeat(3, 1fr);
             }
         }
     </style>
