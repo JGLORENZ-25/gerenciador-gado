@@ -2,64 +2,57 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeuGado</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#059669">
     <link rel="apple-touch-icon" href="Verde.jpg">
     <link rel="icon" type="image/jpeg" href="Verde.jpg">
-
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
-            --primary: #059669;       /* Emerald 600 */
-            --primary-dark: #047857;  /* Emerald 700 */
-            --primary-light: #d1fae5; /* Emerald 100 */
-            --secondary: #2563eb;     /* Blue 600 */
-            --accent: #d97706;        /* Amber 600 */
-            --danger: #dc2626;        /* Red 600 */
-            --dark: #1f2937;          /* Gray 800 (Texto Principal) */
-            --gray: #6b7280;          /* Gray 500 (Texto Secundário) */
-            --light: #f3f4f6;         /* Gray 100 (Fundo Geral) */
-            --white: #ffffff;         /* Fundo Cards */
+            --primary: #059669;
+            --primary-dark: #047857;
+            --primary-light: #d1fae5;
+            --secondary: #2563eb;
+            --accent: #d97706;
+            --danger: #dc2626;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
             --border: #f1f5f9;
             --input-bg: #f8fafc;
-            --pink: #db2777;          /* Pink 600 - Reprodução */
+            --pink: #db2777;
         }
 
-        /* --- MODO ESCURO (Overrides) --- */
         body.dark-mode {
-            --primary: #10b981;       /* Emerald 500 */
+            --primary: #10b981;
             --primary-dark: #059669;
-            --primary-light: #064e3b; /* Emerald 900 */
-            --secondary: #3b82f6;     /* Blue 500 */
-            --accent: #f59e0b;        /* Amber 500 */
-            --danger: #ef4444;        /* Red 500 */
-            --dark: #f3f4f6;          /* Texto vira Claro */
-            --gray: #9ca3af;          /* Texto Secundário mais claro */
-            --light: #0f172a;         /* Fundo Geral Escuro (Slate 900) */
-            --white: #1e293b;         /* Fundo Cards Escuro (Slate 800) */
-            --border: #334155;        /* Bordas mais escuras */
+            --primary-light: #064e3b;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #f3f4f6;
+            --gray: #9ca3af;
+            --light: #0f172a;
+            --white: #1e293b;
+            --border: #334155;
             --input-bg: #0f172a;
             --pink: #f472b6;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
-
-        /* CORREÇÃO DE OVERFLOW: Garante que nada saia da largura da tela */
-        html, body {
-            overflow-x: hidden;
-            width: 100%;
-            max-width: 100vw;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            outline: none;
         }
 
         body {
@@ -72,262 +65,706 @@
             min-height: 100vh;
         }
 
-        /* --- MARCA D'ÁGUA (BACKGROUND) --- */
         body::before {
             content: "";
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background-image: url('Branco-removebg-preview.png');
             background-repeat: no-repeat;
             background-position: center;
-            background-size: 50%; /* Tamanho da logo no fundo */
-            opacity: 0.05; /* Bem suave */
+            background-size: 50%;
+            opacity: 0.05;
             pointer-events: none;
             z-index: 0;
             transition: filter 0.3s;
         }
 
-        body:not(.dark-mode)::before { filter: invert(1); }
+        body:not(.dark-mode)::before {
+            filter: invert(1);
+        }
 
-        .app-container, .nav-bar, .modal { position: relative; z-index: 1; }
+        .app-container, .nav-bar, .modal {
+            position: relative;
+            z-index: 1;
+        }
 
-        /* --- Layout --- */
-        .app-container { max-width: 1280px; margin: 0 auto; padding: 16px; width: 100%; }
-        
-        /* --- Navigation --- */
+        .app-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
         .nav-bar {
-            position: fixed; bottom: 0; left: 0; width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background: var(--white);
             backdrop-filter: blur(10px);
-            display: flex; justify-content: space-between;
+            display: flex;
+            justify-content: space-between;
             padding: 10px 10px;
             box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
             z-index: 1000;
             border-top: 1px solid var(--border);
-            overflow-x: auto; /* Mantém rolagem apenas na barra se necessário */
+            overflow-x: auto;
             transition: background 0.3s;
         }
 
         .nav-item {
-            display: flex; flex-direction: column; align-items: center;
-            color: var(--gray); text-decoration: none; font-size: 0.7rem;
-            cursor: pointer; transition: 0.3s; flex: 1; min-width: 50px; padding: 4px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--gray);
+            text-decoration: none;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.3s;
+            flex: 1;
+            min-width: 50px;
+            padding: 4px 0;
         }
 
-        .nav-item i { font-size: 1.2rem; margin-bottom: 4px; transition: 0.3s; }
-        .nav-item.active { color: var(--primary); font-weight: 700; }
-        .nav-item.active i { transform: translateY(-3px); color: var(--primary); }
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-bottom: 4px;
+            transition: 0.3s;
+        }
 
-        /* --- Cards --- */
+        .nav-item.active {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .nav-item.active i {
+            transform: translateY(-3px);
+            color: var(--primary);
+        }
+
         .card {
-            background: var(--white); border-radius: 16px; padding: 20px;
-            margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border); transition: background 0.3s, border-color 0.3s;
-            max-width: 100%; /* Segurança extra */
+            background: var(--white);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
         }
 
-        .card h3 { 
-            font-size: 1.1rem; margin-bottom: 15px; color: var(--dark); 
-            display: flex; align-items: center; gap: 8px;
+        .card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* --- Dashboard Grid --- */
         .dashboard-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Reduzi levemente o min para telas muito pequenas */
-            gap: 16px; margin-bottom: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background: var(--white); padding: 20px; border-radius: 16px;
-            display: flex; flex-direction: column;
+            background: var(--white);
+            padding: 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
             border-left: 5px solid var(--primary);
-            position: relative; overflow: hidden; /* Importante para o ícone de fundo não vazar */
+            position: relative;
+            overflow: hidden;
             border-top: 1px solid var(--border);
             border-right: 1px solid var(--border);
             border-bottom: 1px solid var(--border);
         }
-        
+
         .stat-card i {
-            position: absolute; right: -10px; bottom: -10px;
-            font-size: 4rem; opacity: 0.05; color: var(--dark);
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            font-size: 4rem;
+            opacity: 0.05;
+            color: var(--dark);
         }
 
-        .stat-value { font-size: 1.75rem; font-weight: 800; color: var(--dark); margin: 5px 0; }
-        .stat-label { color: var(--gray); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--dark);
+            margin: 5px 0;
+        }
 
-        /* --- Lists --- */
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .list-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px; border-bottom: 1px solid var(--border);
-            cursor: pointer; transition: background 0.2s;
-            flex-wrap: wrap; /* CORREÇÃO: Permite que itens longos quebrem linha */
-            gap: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
         }
-        .list-item:hover { background-color: var(--border); }
-        .list-item:last-child { border-bottom: none; }
 
-        /* --- Badges --- */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; white-space: nowrap; }
-        .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
-        .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
-        .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #6ee7b7; }
-        .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #93c5fd; }
-        .badge-purple { background: #f3e8ff; color: #7e22ce; border: 1px solid #d8b4fe; }
-        .badge-gray { background: #f3f4f6; color: #4b5563; border: 1px solid #d1d5db; }
-        .badge-pink { background: #fce7f3; color: #be185d; border: 1px solid #f9a8d4; }
+        .list-item:hover {
+            background-color: var(--border);
+        }
 
-        body.dark-mode .badge-warning { background: #78350f; color: #fcd34d; border-color: #92400e; }
-        body.dark-mode .badge-danger { background: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
-        body.dark-mode .badge-success { background: #064e3b; color: #6ee7b7; border-color: #065f46; }
-        body.dark-mode .badge-info { background: #1e3a8a; color: #93c5fd; border-color: #1e40af; }
-        body.dark-mode .badge-purple { background: #581c87; color: #d8b4fe; border-color: #6b21a8; }
-        body.dark-mode .badge-gray { background: #374151; color: #9ca3af; border-color: #4b5563; }
-        body.dark-mode .badge-pink { background: #831843; color: #fbcfe8; border-color: #be185d; }
+        .list-item:last-child {
+            border-bottom: none;
+        }
 
-        /* --- Forms & Buttons --- */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-warning {
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fcd34d;
+        }
+
+        .badge-danger {
+            background: #fef2f2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: #047857;
+            border: 1px solid #6ee7b7;
+        }
+
+        .badge-info {
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #93c5fd;
+        }
+
+        .badge-purple {
+            background: #f3e8ff;
+            color: #7e22ce;
+            border: 1px solid #d8b4fe;
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+
+        .badge-pink {
+            background: #fce7f3;
+            color: #be185d;
+            border: 1px solid #f9a8d4;
+        }
+
+        body.dark-mode .badge-warning {
+            background: #78350f;
+            color: #fcd34d;
+            border-color: #92400e;
+        }
+
+        body.dark-mode .badge-danger {
+            background: #7f1d1d;
+            color: #fca5a5;
+            border-color: #991b1b;
+        }
+
+        body.dark-mode .badge-success {
+            background: #064e3b;
+            color: #6ee7b7;
+            border-color: #065f46;
+        }
+
+        body.dark-mode .badge-info {
+            background: #1e3a8a;
+            color: #93c5fd;
+            border-color: #1e40af;
+        }
+
+        body.dark-mode .badge-purple {
+            background: #581c87;
+            color: #d8b4fe;
+            border-color: #6b21a8;
+        }
+
+        body.dark-mode .badge-gray {
+            background: #374151;
+            color: #9ca3af;
+            border-color: #4b5563;
+        }
+
+        body.dark-mode .badge-pink {
+            background: #831843;
+            color: #fbcfe8;
+            border-color: #be185d;
+        }
+
         .btn {
-            background: var(--primary); color: white; border: none;
-            padding: 12px 20px; border-radius: 10px; font-weight: 600;
-            width: 100%; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .btn:hover { background: var(--primary-dark); transform: translateY(-1px); }
-        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
-        
-        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
-        .btn-outline:hover { background: var(--primary-light); }
-        
-        .btn-danger { background: var(--danger); }
-        .btn-success { background: #16a34a; }
-        .btn-secondary { background: var(--secondary); }
-        .btn-pink { background: var(--pink); color: white; }
-        .btn-dark { background: var(--dark); color: white; }
-
-        .btn-sm { padding: 8px 16px; font-size: 0.85rem; width: auto; }
-        
-        /* CORREÇÃO: Adicionado flex-wrap para botões não estourarem a tela */
-        .btn-group-row { display: flex; gap: 8px; flex-wrap: wrap; }
-
-        .form-group { margin-bottom: 16px; width: 100%; }
-        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: var(--dark); font-size: 0.9rem; }
-        .form-input {
-            width: 100%; padding: 12px; border: 2px solid var(--border);
-            border-radius: 10px; font-size: 1rem; transition: border-color 0.2s;
-            background: var(--input-bg); color: var(--dark);
-            max-width: 100%; /* Segurança contra overflow */
-        }
-        .form-input:focus { border-color: var(--primary); }
-        .form-input:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        /* --- Tabs --- */
-        .tabs { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 20px; gap: 20px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .tab { padding: 10px 5px; cursor: pointer; color: var(--gray); font-weight: 600; white-space: nowrap; position: relative; }
-        .tab.active { color: var(--primary); }
-        .tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 100%; height: 2px; background: var(--primary); }
-
-        /* --- Modal --- */
-        .modal {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-            z-index: 2000; justify-content: center; align-items: flex-end;
-            overflow: hidden; /* Evita rolagem no fundo do modal */
-        }
-        @media(min-width: 768px) { .modal { align-items: center; } }
-        
-        .modal.active { display: flex; }
-        
-        .modal-content {
-            background: var(--white); color: var(--dark); width: 100%; max-width: 650px;
-            border-radius: 24px 24px 0 0; padding: 24px; max-height: 90vh;
-            overflow-y: auto; animation: slideUp 0.3s ease; border: 1px solid var(--border);
-        }
-        @media(min-width: 768px) { .modal-content { border-radius: 24px; } }
-
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        /* --- Utilities --- */
-        .hidden { display: none !important; }
-        .text-center { text-align: center; }
-        
-        /* CORREÇÃO: Adicionado flex-wrap para elementos flexíveis não vazarem */
-        .flex-between { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            flex-wrap: wrap; 
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
             width: 100%;
-        }
-        
-        .gap-2 { gap: 8px; }
-        .text-sm { font-size: 0.85rem; }
-        .text-xs { font-size: 0.75rem; } 
-        .text-gray { color: var(--gray); }
-        .text-danger { color: var(--danger); }
-        .text-success { color: #16a34a; }
-        .text-pink { color: var(--pink); }
-
-        /* Utilitário para inputs lado a lado terem tamanho mínimo e não quebrarem layout */
-        .flex-between.gap-2 > .form-input, 
-        .flex-between.gap-2 > .form-group {
-            min-width: 120px; /* Garante que não fique esmagado */
-            flex: 1; /* Ocupa espaço disponível */
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        /* --- Specific Components --- */
-        .header-user { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
-        .paddock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
-        .paddock-cell { 
-            background: var(--white); border: 2px solid var(--border); 
-            border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; 
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
         }
-        .paddock-cell:hover { border-color: var(--primary); }
-        .paddock-cell.occupied { background: var(--primary-light); border-color: var(--primary); color: var(--primary-dark); }
-        body.dark-mode .paddock-cell.occupied { color: #a7f3d0; }
-        
-        .auth-toggle { margin-top: 15px; font-size: 0.9rem; color: var(--primary); cursor: pointer; text-decoration: underline; }
 
-        .financial-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .fin-box { background: var(--white); padding: 15px; border-radius: 12px; text-align: center; border: 1px solid var(--border); }
-        .fin-box div { font-size: 1.1rem; font-weight: bold; }
-        
-        .sim-result-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-top: 16px; }
-        body.dark-mode .sim-result-box { background: #064e3b; border-color: #065f46; color: white; }
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
 
-        .stock-tag { background: #e0f2fe; color: #0369a1; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-        body.dark-mode .stock-tag { background: #1e3a8a; color: #bae6fd; }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
 
-        .btn-icon-only { padding: 8px 12px; display: flex; align-items: center; justify-content: center; }
+        .btn-outline:hover {
+            background: var(--primary-light);
+        }
 
-        /* Cards coloridos */
-        .bg-card-rain { background: linear-gradient(135deg, #eff6ff, #dbeafe); border-color: #bfdbfe; }
-        body.dark-mode .bg-card-rain { background: linear-gradient(135deg, #1e3a8a, #172554); border-color: #1e40af; }
-        .bg-card-stock { background: #f0f9ff; border-color: #bae6fd; }
-        body.dark-mode .bg-card-stock { background: #0c4a6e; border-color: #075985; color: white; }
-        .bg-card-calc { background: #f8fafc; }
-        body.dark-mode .bg-card-calc { background: #1e293b; }
-        .bg-card-use { background: #eff6ff; border: 1px solid #bfdbfe; }
-        body.dark-mode .bg-card-use { background: #172554; border-color: #1e40af; }
-        .bg-card-sim { border: 1px solid #fed7aa; background-color: #fffaf0; }
-        body.dark-mode .bg-card-sim { background-color: #451a03; border-color: #78350f; color: white;}
-        .bg-card-repro { border: 1px solid #f9a8d4; background-color: #fdf2f8; }
-        body.dark-mode .bg-card-repro { background-color: #831843; border-color: #be185d; color: white; }
+        .btn-danger {
+            background: var(--danger);
+        }
 
-        .fin-box-neutral { background-color: #f8fafc; }
-        body.dark-mode .fin-box-neutral { background-color: #1e293b; }
+        .btn-success {
+            background: #16a34a;
+        }
 
-        .login-logo { font-size: 4rem; margin-bottom: 20px; color: var(--primary); }
+        .btn-secondary {
+            background: var(--secondary);
+        }
 
-        /* Estilos Legais e Footer */
-        .legal-footer { margin-top: 30px; font-size: 0.75rem; color: var(--gray); text-align: center; border-top: 1px solid var(--border); padding-top: 15px; }
-        .legal-links { margin-top: 15px; display: flex; justify-content: center; gap: 15px; font-size: 0.8rem; flex-wrap: wrap;}
-        .link-term { color: var(--gray); text-decoration: underline; cursor: pointer; }
-        .link-term:hover { color: var(--primary); }
-        .legal-content-box { font-size: 0.9rem; line-height: 1.5; color: var(--dark); text-align: left; }
-        .legal-content-box h4 { margin-top: 15px; margin-bottom: 5px; color: var(--primary); }
-        .legal-content-box ul { padding-left: 20px; margin-bottom: 10px; }
+        .btn-pink {
+            background: var(--pink);
+            color: white;
+        }
 
-        /* --- ESTILOS DE IMPRESSÃO PDF --- */
+        .btn-dark {
+            background: var(--dark);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            width: auto;
+        }
+
+        .btn-group-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background: var(--input-bg);
+            color: var(--dark);
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+        }
+
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 20px;
+            gap: 20px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 10px 5px;
+            cursor: pointer;
+            color: var(--gray);
+            font-weight: 600;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .tab.active {
+            color: var(--primary);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        @media(min-width: 768px) {
+            .modal {
+                align-items: center;
+            }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            color: var(--dark);
+            width: 100%;
+            max-width: 650px;
+            border-radius: 24px 24px 0 0;
+            padding: 24px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+        @media(min-width: 768px) {
+            .modal-content {
+                border-radius: 24px;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gap-2 {
+            gap: 8px;
+        }
+
+        .text-sm {
+            font-size: 0.85rem;
+        }
+
+        .text-xs {
+            font-size: 0.75rem;
+        }
+
+        .text-gray {
+            color: var(--gray);
+        }
+
+        .text-danger {
+            color: var(--danger);
+        }
+
+        .text-success {
+            color: #16a34a;
+        }
+
+        .text-pink {
+            color: var(--pink);
+        }
+
+        .header-user {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .paddock-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .paddock-cell {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .paddock-cell:hover {
+            border-color: var(--primary);
+        }
+
+        .paddock-cell.occupied {
+            background: var(--primary-light);
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        body.dark-mode .paddock-cell.occupied {
+            color: #a7f3d0;
+        }
+
+        .auth-toggle {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .financial-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .fin-box {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .fin-box div {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .sim-result-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        body.dark-mode .sim-result-box {
+            background: #064e3b;
+            border-color: #065f46;
+            color: white;
+        }
+
+        .stock-tag {
+            background: #e0f2fe;
+            color: #0369a1;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        body.dark-mode .stock-tag {
+            background: #1e3a8a;
+            color: #bae6fd;
+        }
+
+        .btn-icon-only {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bg-card-rain {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            border-color: #bfdbfe;
+        }
+
+        body.dark-mode .bg-card-rain {
+            background: linear-gradient(135deg, #1e3a8a, #172554);
+            border-color: #1e40af;
+        }
+
+        .bg-card-stock {
+            background: #f0f9ff;
+            border-color: #bae6fd;
+        }
+
+        body.dark-mode .bg-card-stock {
+            background: #0c4a6e;
+            border-color: #075985;
+            color: white;
+        }
+
+        .bg-card-calc {
+            background: #f8fafc;
+        }
+
+        body.dark-mode .bg-card-calc {
+            background: #1e293b;
+        }
+
+        .bg-card-use {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        body.dark-mode .bg-card-use {
+            background: #172554;
+            border-color: #1e40af;
+        }
+
+        .bg-card-sim {
+            border: 1px solid #fed7aa;
+            background-color: #fffaf0;
+        }
+
+        body.dark-mode .bg-card-sim {
+            background-color: #451a03;
+            border-color: #78350f;
+            color: white;
+        }
+
+        .bg-card-repro {
+            border: 1px solid #f9a8d4;
+            background-color: #fdf2f8;
+        }
+
+        body.dark-mode .bg-card-repro {
+            background-color: #831843;
+            border-color: #be185d;
+            color: white;
+        }
+
+        .fin-box-neutral {
+            background-color: #f8fafc;
+        }
+
+        body.dark-mode .fin-box-neutral {
+            background-color: #1e293b;
+        }
+
+        .login-logo {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .legal-footer {
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: var(--gray);
+            text-align: center;
+            border-top: 1px solid var(--border);
+            padding-top: 15px;
+        }
+
+        .legal-links {
+            margin-top: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .link-term {
+            color: var(--gray);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .link-term:hover {
+            color: var(--primary);
+        }
+
+        .legal-content-box {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--dark);
+            text-align: left;
+        }
+
+        .legal-content-box h4 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: var(--primary);
+        }
+
+        .legal-content-box ul {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
         .a4-page {
             width: 210mm;
             min-height: 297mm;
@@ -344,14 +781,14 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 60%;
-            opacity: 0.08; /* Marca d'água bem suave */
+            opacity: 0.08;
             z-index: 0;
             pointer-events: none;
         }
 
         .pdf-header, .pdf-footer, #pdf-body {
             position: relative;
-            z-index: 1; /* Fica acima da marca d'agua */
+            z-index: 1;
         }
 
         .pdf-footer {
@@ -364,66 +801,132 @@
             color: #999;
         }
 
-        /* Tabelas para o PDF */
         .pdf-table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
             font-size: 0.85rem;
         }
+
         .pdf-table th {
             background-color: #059669;
             color: white;
             padding: 8px;
             text-align: left;
         }
+
         .pdf-table td {
             border-bottom: 1px solid #ddd;
             padding: 8px;
         }
+
         .pdf-table tr:nth-child(even) {
             background-color: #f9fafb;
         }
-        .text-right { text-align: right; }
 
-        /* --- DESKTOP / DASHBOARD MODE (Telas grandes) --- */
+        .text-right {
+            text-align: right;
+        }
+
+        .growth-chart-container {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+        }
+
+        /* NOVO: Estilos para filtros de data */
+        .date-filter-container {
+            background: var(--light);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .date-filter-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .date-filter-btn {
+            padding: 8px 12px;
+            border: 2px solid var(--border);
+            background: var(--white);
+            color: var(--dark);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .date-filter-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .date-filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .custom-date-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .date-range-display {
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        body.dark-mode .date-range-display {
+            background: var(--primary-dark);
+            color: var(--primary-light);
+        }
+
         @media (min-width: 1024px) {
-
-            /* 1. Ajuste Geral do Layout */
             body {
-                /* Removemos o padding do body para não afetar o Login */
                 padding-bottom: 0;
-                background-color: var(--input-bg); 
+                background-color: var(--input-bg);
             }
 
-            /* Aplicamos o espaço do menu APENAS na área do App Logado */
             #appScreen {
                 padding-left: 260px;
             }
 
             .app-container {
-                max-width: 1600px; /* Permite que o conteúdo estique mais */
+                max-width: 1600px;
                 padding: 30px;
             }
 
-            /* 2. Transformar Nav-Bar inferior em Sidebar Lateral */
             .nav-bar {
                 top: 0;
                 left: 0;
                 bottom: auto;
                 width: 250px;
-                height: 100vh; /* Altura total */
-                flex-direction: column; /* Itens um embaixo do outro */
+                height: 100vh;
+                flex-direction: column;
                 justify-content: flex-start;
                 padding: 20px;
                 border-top: none;
                 border-right: 1px solid var(--border);
                 background: var(--white);
                 box-shadow: 4px 0 24px rgba(0,0,0,0.02);
-                overflow-y: auto; /* Rolagem vertical no menu */
             }
 
-            /* Adicionar logo fictícia no topo do menu lateral via CSS */
             .nav-bar::before {
                 content: "MeuGado";
                 font-size: 1.5rem;
@@ -437,13 +940,13 @@
             .nav-item {
                 flex: 0 0 auto;
                 width: 100%;
-                flex-direction: row; /* Ícone ao lado do texto */
+                flex-direction: row;
                 gap: 15px;
                 padding: 12px 15px;
                 margin-bottom: 8px;
                 border-radius: 10px;
                 font-size: 0.95rem;
-                justify-content: flex-start; /* Alinha à esquerda */
+                justify-content: flex-start;
             }
 
             .nav-item i {
@@ -452,7 +955,7 @@
                 width: 24px;
                 text-align: center;
             }
-            
+
             .nav-item:hover {
                 background-color: var(--light);
             }
@@ -461,23 +964,22 @@
                 background-color: var(--primary-light);
                 color: var(--primary-dark);
             }
+
             .nav-item.active i {
-                transform: none; /* Remove a animação de "pulo" do mobile */
+                transform: none;
             }
 
-            /* 3. Reorganizar o Dashboard (Grid) */
             #viewDashboard {
                 display: grid;
-                grid-template-columns: 3fr 2fr; /* Coluna maior p/ stats, menor p/ gráfico */
+                grid-template-columns: 3fr 2fr;
                 gap: 24px;
                 align-items: start;
             }
 
-            /* Cards de Estatística (Cabeças, GMD) lado a lado */
             .dashboard-grid {
-                grid-column: 1 / -1; /* Ocupa largura total */
+                grid-column: 1 / -1;
                 display: grid;
-                grid-template-columns: repeat(4, 1fr); /* 4 cards por linha */
+                grid-template-columns: repeat(4, 1fr);
                 gap: 20px;
             }
 
@@ -486,69 +988,67 @@
                 height: 100%;
                 transition: transform 0.2s;
             }
+
             .stat-card:hover {
                 transform: translateY(-5px);
             }
 
-            /* 4. Melhorar Visualização de Tabelas/Listas */
-            /* Faz os itens de lista parecerem uma tabela real */
             .list-item {
                 padding: 15px 24px;
                 border: 1px solid var(--border);
                 margin-bottom: 8px;
                 border-radius: 8px;
                 display: grid;
-                grid-template-columns: 1fr auto; /* Força estrutura */
+                grid-template-columns: 1fr auto;
                 align-items: center;
             }
 
-            /* Grid de Pastos */
             .paddock-grid {
                 grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
                 gap: 20px;
             }
 
-            /* 5. Modais Estilo Desktop (Centralizados) */
             .modal {
-                align-items: center; /* Centraliza verticalmente */
-                backdrop-filter: blur(8px); /* Blur mais forte no fundo */
+                align-items: center;
+                backdrop-filter: blur(8px);
             }
 
             .modal-content {
                 max-width: 500px;
-                border-radius: 16px; /* Arredondado completo */
+                border-radius: 16px;
                 box-shadow: 0 20px 50px -12px rgba(0,0,0,0.25);
                 border: 1px solid var(--border);
                 max-height: 85vh;
             }
 
-            /* Ajuste específico para o modal de Relatórios ou Detalhes que são grandes */
-            #modalReports .modal-content, #modalGroupDetails .modal-content, #modalLegal .modal-content {
-                max-width: 800px; /* Mais largo no PC */
+            #modalReports .modal-content,
+            #modalGroupDetails .modal-content,
+            #modalLegal .modal-content {
+                max-width: 800px;
             }
 
-            /* 6. Header do Usuário */
             .header-user {
                 margin-bottom: 30px;
                 padding-bottom: 20px;
                 border-bottom: 1px solid var(--border);
             }
-            
-            /* Botões maiores e mais visíveis */
+
             .btn {
                 padding: 12px 24px;
+            }
+
+            .date-filter-buttons {
+                grid-template-columns: repeat(6, 1fr);
             }
         }
     </style>
 </head>
 <body>
-
     <div id="authScreen" class="app-container" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
         <div class="card text-center" style="width: 100%; max-width: 400px; padding: 40px 20px;">
             <div class="login-logo">☁️</div>
             <h1 style="color: var(--dark); margin-bottom: 5px;">MeuGado</h1>
             <p style="color: var(--gray); margin-bottom: 30px;">Versão 1.5</p>
-            
             <div id="loginFormBlock">
                 <form onsubmit="handleLogin(event)">
                     <div class="form-group"><input type="text" id="loginUser" class="form-input" placeholder="Usuário (Login)" required autocomplete="username"></div>
@@ -557,7 +1057,6 @@
                 </form>
                 <div class="auth-toggle" onclick="toggleAuthMode('register')">Não tem conta? Registrar-se</div>
             </div>
-
             <div id="registerFormBlock" class="hidden">
                 <form onsubmit="handleRegister(event)">
                     <div class="form-group"><input type="text" id="regUser" class="form-input" placeholder="Novo Usuário (Login)" required></div>
@@ -568,7 +1067,6 @@
                 <div class="auth-toggle" onclick="toggleAuthMode('login')">Já tem conta? Fazer Login</div>
             </div>
             <p id="authMessage" style="margin-top:20px; color: var(--danger); font-size: 0.9rem;"></p>
-
             <div class="legal-links">
                 <span class="link-term" onclick="openLegal('terms')">Termos de Uso</span>
                 <span class="link-term" onclick="openLegal('privacy')">Privacidade</span>
@@ -581,28 +1079,23 @@
     </div>
 
     <div id="appScreen" class="hidden">
-        
         <div class="app-container" style="padding-bottom: 0;">
             <div class="header-user">
                 <div class="header-title">
                     <h2 id="welcomeMsg">Olá, Produtor</h2>
                     <p id="dateDisplay" class="text-sm text-gray"></p>
                 </div>
-                
-                <div id="contextSelectorContainer" class="hidden" style="flex: 1; margin: 0 15px; min-width: 200px;">
+                <div id="contextSelectorContainer" class="hidden" style="flex: 1; margin: 0 15px;">
                     <select id="farmContextSelector" class="form-input" style="padding: 8px; font-weight: bold; color: var(--primary-dark);" onchange="switchFarmContext(this.value)">
-                        </select>
+                    </select>
                 </div>
-            
                 <div class="btn-group-row">
                     <button id="btnAdminPanel" onclick="switchView('viewAdmin', this)" class="btn btn-sm btn-dark hidden" title="Painel Admin">
                         <i class="fas fa-user-shield"></i>
                     </button>
-            
                     <button onclick="openModal('modalReports')" class="btn btn-outline btn-sm btn-icon-only" title="Relatórios PDF">
                         <i class="fas fa-file-pdf"></i>
                     </button>
-
                     <button onclick="openModal('modalSettings')" class="btn btn-outline btn-sm btn-icon-only" title="Configurações">
                         <i class="fas fa-cog"></i>
                     </button>
@@ -613,7 +1106,6 @@
         </div>
 
         <div class="app-container" id="mainContent">
-            
             <div id="viewDashboard" class="view-section">
                 <div class="dashboard-grid">
                     <div class="stat-card" style="border-color: var(--primary);">
@@ -623,12 +1115,13 @@
                         <i class="fas fa-weight-hanging"></i><div class="stat-value" id="dashAvgGMD">0.00</div><div class="stat-label">GMD Médio (kg/dia)</div>
                     </div>
                 </div>
-
                 <div class="card">
                     <h3><i class="fas fa-cloud-showers-heavy"></i> Desempenho: Chuva x Peso</h3>
-                    <div style="width: 100%; overflow-x: auto;">
-                        <canvas id="rainWeightChart" height="200"></canvas>
-                    </div>
+                    <canvas id="rainWeightChart" height="200"></canvas>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Análise de Perdas</h3>
+                    <canvas id="lossAnalysisChart" height="200"></canvas>
                 </div>
             </div>
 
@@ -664,14 +1157,12 @@
                     <h2>Controle de Estoque</h2>
                     <button class="btn btn-sm btn-secondary" onclick="openModal('modalNewStockItem')"><i class="fas fa-box-open"></i> Novo Item</button>
                 </div>
-                
                 <div class="card bg-card-stock">
                     <div class="flex-between">
                         <div><h4>Valor em Estoque</h4><div class="text-sm">Produtos armazenados</div></div>
                         <div style="font-size: 1.5rem; font-weight: 800; color: var(--secondary);" id="stockTotalValue">R$ 0,00</div>
                     </div>
                 </div>
-
                 <div class="card">
                     <h3><i class="fas fa-cubes"></i> Meus Produtos</h3>
                     <div id="inventoryList"></div>
@@ -686,7 +1177,6 @@
                         <button class="btn btn-sm btn-danger" onclick="openTransactionModal('expense')"><i class="fas fa-minus"></i> Despesa</button>
                     </div>
                 </div>
-
                 <div class="card">
                     <div class="financial-summary">
                         <div class="fin-box">
@@ -703,7 +1193,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="card">
                     <h3><i class="fas fa-list"></i> Histórico</h3>
                     <div id="financialList"></div>
@@ -715,7 +1204,6 @@
                     <h2>Gestão de Acessos</h2>
                     <span class="badge badge-purple">ADMINISTRADOR</span>
                 </div>
-
                 <div class="card">
                     <h3><i class="fas fa-users-cog"></i> Usuários do Sistema</h3>
                     <p class="text-sm text-gray" style="margin-bottom: 15px;">Defina cargos e atribua fazendas aos gerentes.</p>
@@ -724,7 +1212,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div class="nav-bar">
@@ -744,20 +1231,18 @@
                 <i class="fas fa-wallet"></i> Caixa
             </div>
         </div>
-
     </div>
 
+    <!-- MODALS -->
     <div id="modalSettings" class="modal">
         <div class="modal-content">
             <h3>Configurações</h3>
             <p class="text-gray" style="margin-bottom: 20px;">Personalize a aparência do aplicativo.</p>
-            
             <label style="display:block; margin-bottom:10px; font-weight:600;">Tema do Sistema</label>
             <div class="btn-group-row">
                 <button class="btn btn-outline" onclick="toggleTheme('light')"><i class="fas fa-sun"></i> Claro</button>
                 <button class="btn btn-dark" onclick="toggleTheme('dark')"><i class="fas fa-moon"></i> Escuro</button>
             </div>
-
             <h4 style="margin-top:25px; margin-bottom:10px;">Jurídico & Termos</h4>
             <div class="btn-group-row">
                 <button class="btn btn-outline btn-sm" onclick="openLegal('terms')">Termos de Uso</button>
@@ -767,7 +1252,6 @@
             <div class="legal-footer">
                 <p>63.992.533 JOAO GUILHERME POZZEBON LORENZ</p>
             </div>
-
             <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalSettings')">Fechar</button>
         </div>
     </div>
@@ -780,11 +1264,12 @@
         </div>
     </div>
 
+    <!-- MODAL DE RELATÓRIOS COM FILTROS DE DATA -->
     <div id="modalReports" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-print"></i> Central de Relatórios</h3>
-            <p class="text-sm text-gray" style="margin-bottom: 20px;">Selecione o tipo de documento para gerar em PDF.</p>
-
+            <p class="text-sm text-gray" style="margin-bottom: 20px;">Selecione o tipo de documento e o período para gerar em PDF.</p>
+            
             <div class="form-group">
                 <label>Tipo de Relatório</label>
                 <select id="reportType" class="form-input" onchange="toggleReportOptions()">
@@ -793,6 +1278,7 @@
                     <option value="rainfall">Relatório de Pluviometria</option>
                     <option value="group_specific">Relatório Detalhado de Lote</option>
                     <option value="sanitary_general">Controle Sanitário (Geral)</option>
+                    <option value="loss_analysis">Análise de Perdas e Mortes</option>
                 </select>
             </div>
 
@@ -801,15 +1287,60 @@
                 <select id="reportGroupTarget" class="form-input"></select>
             </div>
 
-            <button class="btn" onclick="generatePDF()">Gerar PDF</button>
+            <!-- NOVO: Filtros de Data -->
+            <div class="date-filter-container">
+                <label style="font-weight: 600; margin-bottom: 10px; display: block;">
+                    <i class="fas fa-calendar-alt"></i> Período do Relatório
+                </label>
+                
+                <div class="date-filter-buttons">
+                    <button class="date-filter-btn active" onclick="setDateFilter('week')">
+                        <i class="fas fa-calendar-week"></i> Semanal
+                    </button>
+                    <button class="date-filter-btn" onclick="setDateFilter('month')">
+                        <i class="fas fa-calendar"></i> Mensal
+                    </button>
+                    <button class="date-filter-btn" onclick="setDateFilter('quarter')">
+                        <i class="fas fa-calendar-alt"></i> Trimestral
+                    </button>
+                    <button class="date-filter-btn" onclick="setDateFilter('semester')">
+                        <i class="fas fa-calendar-check"></i> Semestral
+                    </button>
+                    <button class="date-filter-btn" onclick="setDateFilter('year')">
+                        <i class="fas fa-calendar-day"></i> Anual
+                    </button>
+                    <button class="date-filter-btn" onclick="setDateFilter('custom')">
+                        <i class="fas fa-calendar-plus"></i> Personalizado
+                    </button>
+                </div>
+
+                <div id="customDateInputs" class="custom-date-inputs hidden">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="text-xs">Data Inicial</label>
+                        <input type="date" id="reportStartDate" class="form-input" onchange="updateDateRangeDisplay()">
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="text-xs">Data Final</label>
+                        <input type="date" id="reportEndDate" class="form-input" onchange="updateDateRangeDisplay()">
+                    </div>
+                </div>
+
+                <div id="dateRangeDisplay" class="date-range-display">
+                    <i class="fas fa-info-circle"></i> Últimos 7 dias
+                </div>
+            </div>
+
+            <button class="btn" onclick="generatePDF()">
+                <i class="fas fa-file-pdf"></i> Gerar PDF
+            </button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalReports')">Fechar</button>
         </div>
     </div>
 
-    <div id="pdf-hidden-container" style="position: fixed; left: 0; top: 0; width: 0; height: 0; overflow: hidden; z-index: -1; visibility: hidden;">
+    <!-- Container oculto para geração de PDF -->
+    <div id="pdf-hidden-container" style="position: fixed; left: -9999px; top: 0;">
         <div id="pdf-template" class="a4-page">
             <img src="Branco-removebg-preview.png" class="watermark-img">
-            
             <div class="pdf-header">
                 <div style="display:flex; align-items:center; gap:15px;">
                     <img src="Verde.jpg" style="height: 50px; border-radius:50%;">
@@ -821,14 +1352,13 @@
                 <div style="text-align:right;">
                     <div style="font-size:0.7rem; color:#777;">Gerado em:</div>
                     <div style="font-weight:bold;" id="pdf-date-generation">--/--/----</div>
+                    <div style="font-size:0.7rem; color:#777; margin-top:5px;">Período:</div>
+                    <div style="font-weight:bold; font-size:0.8rem;" id="pdf-date-range">--/--/---- a --/--/----</div>
                 </div>
             </div>
             <hr style="border: 1px solid #eee; margin: 10px 0;">
-
             <h2 id="pdf-title" style="text-align:center; margin-bottom:20px; color:#1f2937;">Título do Relatório</h2>
-            <div id="pdf-body">
-                </div>
-
+            <div id="pdf-body"></div>
             <div class="pdf-footer">
                 <p>Documento gerado eletronicamente pelo sistema MeuGado.</p>
             </div>
@@ -839,10 +1369,8 @@
         <div class="modal-content">
             <h3>Atribuir Fazendas</h3>
             <p class="text-sm text-gray">Selecione quais fazendas o gerente <strong id="assignManagerName"></strong> pode acessar.</p>
-            
             <div id="assignFarmList" style="max-height: 300px; overflow-y: auto; margin: 15px 0; border: 1px solid var(--border); border-radius: 8px; padding: 10px;">
-                </div>
-
+            </div>
             <input type="hidden" id="targetManagerId">
             <button class="btn" onclick="saveManagerAssignments()">Salvar Permissões</button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalAdminAssign')">Fechar</button>
@@ -853,7 +1381,6 @@
         <div class="modal-content">
             <h3>Novo Lote de Animais</h3>
             <div class="form-group"><label>Nome do Lote</label><input type="text" id="newGroupName" class="form-input"></div>
-            
             <div class="form-group">
                 <label>Tipo de Criação</label>
                 <select id="newGroupType" class="form-input" onchange="updateCategoryOptions()">
@@ -865,10 +1392,9 @@
                     <option value="Equinos">Equinos (Cavalos)</option>
                 </select>
             </div>
-
             <div class="form-group"><label>Categoria</label>
                 <select id="newGroupCategory" class="form-input">
-                    </select>
+                </select>
             </div>
             <div class="form-group">
                 <label>Valor Total de Compra (R$)</label>
@@ -898,7 +1424,6 @@
             <div class="form-group"><label>Identificação</label><input type="text" id="editPastureName" class="form-input"></div>
             <div class="form-group"><label>Área (ha)</label><input type="number" id="editPastureArea" class="form-input"></div>
             <div class="form-group"><label>Tipo de Forrageira</label><input type="text" id="editPastureGrass" class="form-input"></div>
-            
             <div class="btn-group-row">
                 <button class="btn" onclick="updatePasture()">Salvar Alterações</button>
                 <button class="btn btn-danger" onclick="deletePasture()"><i class="fas fa-trash"></i> Excluir</button>
@@ -979,7 +1504,7 @@
             </div>
             <div class="form-group">
                 <label style="display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" id="autoLaunchFinance" checked> 
+                    <input type="checkbox" id="autoLaunchFinance" checked>
                     Lançar Despesa no Financeiro automaticamente?
                 </label>
             </div>
@@ -999,9 +1524,10 @@
                 <div class="tab active" onclick="switchTab('tabOverview', event)">Resumo</div>
                 <div class="tab" onclick="switchTab('tabStockUse', event)">Usar Estoque</div>
                 <div class="tab" onclick="switchTab('tabWeights', event)">Pesagem</div>
-                <div class="tab" onclick="switchTab('tabBreeding', event)" style="color:var(--pink);">Reprodução</div> <div class="tab" onclick="switchTab('tabAnimals', event)">Animais</div>
+                <div class="tab" onclick="switchTab('tabBreeding', event)" style="color:var(--pink);">Reprodução</div>
+                <div class="tab" onclick="switchTab('tabAnimals', event)">Animais</div>
                 <div class="tab" onclick="switchTab('tabSim', event)">Simulador</div>
-                <div class="tab" onclick="switchTab('tabSale', event)">Venda</div> 
+                <div class="tab" onclick="switchTab('tabSale', event)">Venda</div>
             </div>
 
             <div id="tabOverview" class="tab-content">
@@ -1037,48 +1563,44 @@
                             <input type="date" id="breedingDate" class="form-input">
                         </div>
                     </div>
-
                     <div id="iatfPlanDiv" style="margin-bottom:10px;">
                         <label class="text-sm text-pink">Data Início Protocolo (D0)</label>
                         <input type="date" id="iatfStartDate" class="form-input" onchange="calcIatfDate()">
                         <div class="text-xs text-gray" style="margin-top:5px;">O sistema sugere a IA para D10/D11 após início.</div>
                     </div>
-
                     <div class="form-group">
                         <label>Touro (Estoque de Sêmen)</label>
                         <select id="breedingBullSelect" class="form-input"></select>
                         <div id="breedingBullAlert" class="text-xs text-danger hidden" style="margin-top:2px;">Estoque baixo!</div>
                     </div>
-
                     <div class="form-group">
                         <label>Inseminador</label>
                         <input type="text" id="breedingInseminator" class="form-input" placeholder="Nome do técnico">
                     </div>
-                    
                     <div class="form-group">
-                         <label>Matrizes (Vacas)</label>
-                         <div class="flex-between gap-2" style="margin-bottom:5px;">
+                        <label>Matrizes (Vacas)</label>
+                        <div class="flex-between gap-2" style="margin-bottom:5px;">
                             <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
-                                <input type="radio" name="breedingScope" value="all" checked onchange="toggleBreedingScope()"> Lote Inteiro
+                                <input type="radio" name="breedingScope" value="all" checked onchange="toggleBreedingScope()">
+                                Lote Inteiro
                             </label>
                             <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
-                                <input type="radio" name="breedingScope" value="individual" onchange="toggleBreedingScope()"> Individual
+                                <input type="radio" name="breedingScope" value="individual" onchange="toggleBreedingScope()">
+                                Individual
                             </label>
                         </div>
                         <select id="breedingCowSelect" class="form-input hidden"></select>
                     </div>
-
                     <div class="form-group">
                         <label>Escore Corporal (ECC Médio)</label>
                         <input type="number" id="breedingECC" class="form-input" placeholder="1 a 5" step="0.1">
                     </div>
-
                     <button class="btn btn-pink" onclick="saveInsemination()">Registrar IA e Baixar Estoque</button>
                 </div>
-
                 <h4 style="margin-top:20px;">Histórico Reprodutivo</h4>
                 <div id="breedingList"></div>
             </div>
+
             <div id="tabStockUse" class="tab-content hidden">
                 <div class="card bg-card-use">
                     <label style="color:var(--secondary); font-weight:bold;">1. O que foi usado?</label>
@@ -1090,10 +1612,12 @@
                     <label style="color:var(--secondary); font-weight:bold; margin-top:15px;">2. Tipo de Uso</label>
                     <div class="flex-between gap-2" style="margin-bottom: 15px;">
                         <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="radio" name="usageScope" value="lot" id="scopeLot" checked onchange="toggleIndividualUsage()"> Uso no Lote
+                            <input type="radio" name="usageScope" value="lot" id="scopeLot" checked onchange="toggleIndividualUsage()">
+                            Uso no Lote
                         </label>
                         <label style="flex:1; display:flex; align-items:center; gap:5px; font-weight:normal;">
-                            <input type="radio" name="usageScope" value="individual" id="scopeIndividual" onchange="toggleIndividualUsage()"> Uso Individual
+                            <input type="radio" name="usageScope" value="individual" id="scopeIndividual" onchange="toggleIndividualUsage()">
+                            Uso Individual
                         </label>
                     </div>
                     <div id="individualAnimalSelect" class="form-group hidden">
@@ -1102,7 +1626,7 @@
                     </div>
                     <label class="text-sm">Selecione o Produto do Estoque</label>
                     <select id="useStockProduct" class="form-input" style="margin-bottom:10px;"></select>
-                    <div id="usageBlockNutrition"> 
+                    <div id="usageBlockNutrition">
                         <label class="text-sm" id="labelQtyTotal">Quantidade Total fornecida ao lote</label>
                         <div class="flex-between gap-2">
                             <input type="number" id="useQtyTotal" class="form-input" placeholder="Ex: 40">
@@ -1219,6 +1743,78 @@
         </div>
     </div>
 
+    <div id="modalRemoveAnimal" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-exclamation-triangle"></i> Baixa de Animal</h3>
+            <p class="text-sm text-gray" style="margin-bottom: 20px;">Informe o motivo da saída do animal <strong id="removeAnimalName"></strong> do lote.</p>
+            <div class="form-group">
+                <label>Motivo da Baixa</label>
+                <select id="removeReason" class="form-input" onchange="toggleDeathCause()">
+                    <option value="">Selecione...</option>
+                    <option value="Venda">Venda</option>
+                    <option value="Morte">Morte</option>
+                    <option value="Roubo">Roubo</option>
+                    <option value="Consumo Próprio">Consumo Próprio</option>
+                    <option value="Transferência">Transferência para outro lote</option>
+                </select>
+            </div>
+            <div id="deathCauseBlock" class="form-group hidden">
+                <label>Causa da Morte</label>
+                <select id="deathCause" class="form-input">
+                    <option value="">Selecione...</option>
+                    <option value="Picada de Cobra">Picada de Cobra</option>
+                    <option value="Doença Respiratória">Doença Respiratória</option>
+                    <option value="Doença Digestiva">Doença Digestiva</option>
+                    <option value="Acidente">Acidente</option>
+                    <option value="Parto">Complicação no Parto</option>
+                    <option value="Predador">Ataque de Predador</option>
+                    <option value="Intoxicação">Intoxicação Alimentar</option>
+                    <option value="Desconhecida">Causa Desconhecida</option>
+                    <option value="Outra">Outra</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Data da Ocorrência</label>
+                <input type="date" id="removeDate" class="form-input">
+            </div>
+            <div class="form-group">
+                <label>Observações (Opcional)</label>
+                <textarea id="removeNotes" class="form-input" rows="3" placeholder="Detalhes adicionais..."></textarea>
+            </div>
+            <input type="hidden" id="removeAnimalIndex">
+            <button class="btn btn-danger" onclick="confirmRemoveAnimal()">Confirmar Baixa</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalRemoveAnimal')">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalAnimalDetails" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-tag"></i> Detalhes do Animal</h3>
+            <div style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <div class="flex-between" style="margin-bottom: 10px;">
+                    <span class="text-gray">Identificação:</span>
+                    <strong id="animalDetailId">-</strong>
+                </div>
+                <div class="flex-between" style="margin-bottom: 10px;">
+                    <span class="text-gray">Peso Atual:</span>
+                    <strong id="animalDetailWeight">-</strong>
+                </div>
+                <div class="flex-between">
+                    <span class="text-gray">Entrada no Lote:</span>
+                    <strong id="animalDetailEntry">-</strong>
+                </div>
+            </div>
+            <div class="growth-chart-container">
+                <h4 style="margin-bottom: 15px;"><i class="fas fa-chart-line"></i> Curva de Crescimento</h4>
+                <canvas id="animalGrowthChart" height="200"></canvas>
+                <div class="text-xs text-gray text-center" style="margin-top: 10px;">
+                    Linha azul: Peso do animal | Linha verde: Média do lote
+                </div>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 20px;" onclick="closeModal('modalAnimalDetails')">Fechar</button>
+        </div>
+    </div>
+
     <div id="modalTransaction" class="modal">
         <div class="modal-content">
             <h3 id="transTitle">Nova Transação</h3>
@@ -1251,9 +1847,8 @@
             appId: "1:913921456792:web:5f1ccdbf20d423ee822eed",
             measurementId: "G-MYK82JG8E2"
         };
-        
         firebase.initializeApp(firebaseConfig);
-        // MODIFICAÇÃO OFFLINE-FIRST: Ativar persistência
+
         const db = firebase.firestore();
         db.enablePersistence()
             .catch((err) => {
@@ -1265,16 +1860,24 @@
             });
 
         // --- DATA STRUCTURE ---
-        let currentUser = null; 
-        let activeFarmId = null; 
-        let allUsersCache = []; 
+        let currentUser = null;
+        let activeFarmId = null;
+        let allUsersCache = [];
         let appData = {
-            groups: [], 
-            pastures: [], 
+            groups: [],
+            pastures: [],
             rainfall: [],
             financials: [],
-            inventory: [], 
-            market: { price: 0 }
+            inventory: [],
+            market: { price: 0 },
+            animalLosses: []
+        };
+
+        // NOVO: Variáveis para controle de filtro de data
+        let reportDateFilter = {
+            type: 'week', // week, month, quarter, semester, year, custom
+            startDate: null,
+            endDate: null
         };
 
         // --- LEGAL TEXTS CONTENT ---
@@ -1329,7 +1932,11 @@
         };
 
         function openLegal(type) {
-            const titles = { 'terms': 'Termos de Uso', 'privacy': 'Política de Privacidade', 'eula': 'EULA - Licença' };
+            const titles = {
+                'terms': 'Termos de Uso',
+                'privacy': 'Política de Privacidade',
+                'eula': 'EULA - Licença'
+            };
             document.getElementById('legalTitle').innerText = titles[type];
             document.getElementById('legalBody').innerHTML = legalTexts[type];
             openModal('modalLegal');
@@ -1349,35 +1956,28 @@
             const type = document.getElementById('newGroupType').value;
             const catSelect = document.getElementById('newGroupCategory');
             const options = speciesConfig[type] || speciesConfig['Bovinos'];
-            
             catSelect.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
         }
 
         function getIconForType(type) {
-            // Retorna classes do FontAwesome
             if(!type || type === 'Bovinos') return 'fas fa-cow';
-            if(type === 'Aves') return 'fas fa-feather'; // ou fa-dove
-            if(type === 'Suínos') return 'fas fa-piggy-bank'; // ou fa-bacon
+            if(type === 'Aves') return 'fas fa-feather';
+            if(type === 'Suínos') return 'fas fa-piggy-bank';
             if(type === 'Equinos') return 'fas fa-horse';
-            return 'fas fa-paw'; // Ovinos, Caprinos e genéricos
+            return 'fas fa-paw';
         }
 
         // --- INIT ---
         window.onload = function() {
-            // Theme Init
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme === 'dark') {
                 document.body.classList.add('dark-mode');
             }
-
             document.getElementById('dateDisplay').innerText = new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'long'});
             const today = new Date().toISOString().split('T')[0];
             document.querySelectorAll('input[type="date"]').forEach(el => el.value = today);
-
-            // Init Categories
             updateCategoryOptions();
 
-            // MODIFICAÇÃO OFFLINE-FIRST: Checar Login Salvo
             const savedUser = localStorage.getItem('meugado_user');
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -1386,12 +1986,14 @@
                 setupRoleBasedUI();
                 loadData(currentUser.id);
             }
-            
-            // UI de Status Offline
+
             const div = document.createElement('div');
             div.id = 'connectionStatus';
             document.body.appendChild(div);
             updateOnlineStatus();
+
+            // Inicializar filtro de data padrão (última semana)
+            setDateFilter('week');
         };
 
         // --- THEME LOGIC ---
@@ -1419,9 +2021,17 @@
                     appData.rainfall = data.rainfall || [];
                     appData.financials = data.financials || [];
                     appData.inventory = data.inventory || [];
+                    appData.animalLosses = data.animalLosses || [];
                 } else {
-                    appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
-                    if(activeFarmId === currentUser.id) await saveData(); 
+                    appData = {
+                        groups: [],
+                        pastures: [],
+                        rainfall: [],
+                        financials: [],
+                        inventory: [],
+                        animalLosses: []
+                    };
+                    if(activeFarmId === currentUser.id) await saveData();
                 }
                 renderAll();
                 const welcome = document.getElementById('welcomeMsg');
@@ -1434,7 +2044,6 @@
                 }
             } catch (error) {
                 console.error("Erro ao carregar:", error);
-                // Em offline, talvez não carregue na primeira vez se não tiver cache, mas não deve travar
             } finally {
                 document.body.style.cursor = 'default';
             }
@@ -1446,7 +2055,6 @@
                 await db.collection('users').doc(activeFarmId).set(appData, { merge: true });
             } catch (error) {
                 console.error("Erro ao salvar:", error);
-                // Em offline, o erro pode ser suprimido pelo Firebase que salva localmente
             }
         }
 
@@ -1468,38 +2076,28 @@
             const pass = document.getElementById('loginPass').value;
             const btn = document.getElementById('btnLogin');
             const msg = document.getElementById('authMessage');
-
             if(!user || !pass) return;
-
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verificando...';
             msg.innerText = '';
-
             const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
-
             try {
                 const authDoc = await db.collection('auth').doc(userId).get();
                 if (!authDoc.exists) throw new Error('Usuário não encontrado.');
                 const authData = authDoc.data();
                 if (authData.passwordHash !== btoa(pass + userId)) throw new Error('Senha incorreta.');
-
-                currentUser = { 
-                    id: userId, 
-                    name: authData.userName, 
+                currentUser = {
+                    id: userId,
+                    name: authData.userName,
                     fullName: authData.fullName,
-                    role: authData.role || 'basic', 
+                    role: authData.role || 'basic',
                     managedFarms: authData.managedFarms || []
                 };
-
-                // MODIFICAÇÃO OFFLINE-FIRST: Salvar Sessão
                 localStorage.setItem('meugado_user', JSON.stringify(currentUser));
-
                 setupRoleBasedUI();
                 await loadData(userId);
-
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
-
             } catch (error) {
                 msg.innerText = error.message;
                 btn.disabled = false;
@@ -1514,39 +2112,44 @@
             const pass = document.getElementById('regPass').value;
             const btn = document.getElementById('btnRegister');
             const msg = document.getElementById('authMessage');
-
-            if(user.length < 3) { msg.innerText = "Usuário muito curto."; return; }
-
+            if(user.length < 3) {
+                msg.innerText = "Usuário muito curto.";
+                return;
+            }
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Criando...';
-
             const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
-
             try {
                 const authDoc = await db.collection('auth').doc(userId).get();
                 if (authDoc.exists) throw new Error('Este usuário já existe.');
-
                 await db.collection('auth').doc(userId).set({
-                    userName: user, 
-                    fullName: name, 
-                    passwordHash: btoa(pass + userId), 
+                    userName: user,
+                    fullName: name,
+                    passwordHash: btoa(pass + userId),
                     createdAt: new Date().toISOString(),
-                    role: 'basic',      
-                    managedFarms: []    
+                    role: 'basic',
+                    managedFarms: []
                 });
-
-                currentUser = { id: userId, name: user, fullName: name, role: 'basic', managedFarms: [] };
-                
-                // MODIFICAÇÃO OFFLINE-FIRST: Salvar Sessão no Registro também
+                currentUser = {
+                    id: userId,
+                    name: user,
+                    fullName: name,
+                    role: 'basic',
+                    managedFarms: []
+                };
                 localStorage.setItem('meugado_user', JSON.stringify(currentUser));
-
-                appData = { groups: [], pastures: [], rainfall: [], financials: [], inventory: [] };
+                appData = {
+                    groups: [],
+                    pastures: [],
+                    rainfall: [],
+                    financials: [],
+                    inventory: [],
+                    animalLosses: []
+                };
                 await saveData();
-
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appScreen').classList.remove('hidden');
                 document.getElementById('welcomeMsg').innerText = `Olá, ${name.split(' ')[0]}`;
-
             } catch (error) {
                 msg.innerText = error.message;
                 btn.disabled = false;
@@ -1555,10 +2158,9 @@
         }
 
         function logout() {
-            if(confirm('Sair do sistema?')) { 
-                // MODIFICAÇÃO OFFLINE-FIRST: Limpar Sessão
+            if(confirm('Sair do sistema?')) {
                 localStorage.removeItem('meugado_user');
-                location.reload(); 
+                location.reload();
             }
         }
 
@@ -1566,20 +2168,16 @@
             const selectorContainer = document.getElementById('contextSelectorContainer');
             const btnAdmin = document.getElementById('btnAdminPanel');
             const selector = document.getElementById('farmContextSelector');
-
             selectorContainer.classList.add('hidden');
             btnAdmin.classList.add('hidden');
             selector.innerHTML = '';
-
             if (currentUser.role === 'admin') {
                 btnAdmin.classList.remove('hidden');
-                loadAdminUserList(); 
+                loadAdminUserList();
             }
-
             if (currentUser.role === 'manager' || currentUser.role === 'admin') {
                 selectorContainer.classList.remove('hidden');
                 let optionsHtml = `<option value="${currentUser.id}">Minha Fazenda (Padrão)</option>`;
-
                 if (currentUser.role === 'admin') {
                     const snapshot = await db.collection('auth').get();
                     snapshot.forEach(doc => {
@@ -1623,11 +2221,17 @@
                 const animalsWithWeight = group.animals.filter(a => a.weight > 0);
                 if (animalsWithWeight.length > 0) {
                     const totalWeight = animalsWithWeight.reduce((sum, a) => sum + a.weight, 0);
-                    return { weight: (totalWeight / animalsWithWeight.length), source: 'INDIVIDUAL' };
+                    return {
+                        weight: (totalWeight / animalsWithWeight.length),
+                        source: 'INDIVIDUAL'
+                    };
                 }
             }
             if (group.weighings && group.weighings.length > 0) {
-                return { weight: group.weighings[group.weighings.length - 1].weight, source: 'LOTE' };
+                return {
+                    weight: group.weighings[group.weighings.length - 1].weight,
+                    source: 'LOTE'
+                };
             }
             return { weight: 0, source: 'N/A' };
         }
@@ -1651,14 +2255,107 @@
             let totalWeight = 0;
             appData.groups.forEach(g => {
                 if (g.currentPastureId == pastureId) {
-                    const currentWeight = getCurrentLotWeight(g).weight; 
+                    const currentWeight = getCurrentLotWeight(g).weight;
                     const qtd = g.animals && g.animals.length > 0 ? g.animals.length : (g.quantity || 0);
                     totalWeight += (currentWeight * qtd);
                 }
             });
-            // UA (Unidade Animal) padrão = 450kg (serve como base para outros animais também para simplificação)
-            const ua = totalWeight / 450; 
+            const ua = totalWeight / 450;
             return (ua / pasture.area).toFixed(2);
+        }
+
+        // --- NOVO: FUNÇÕES DE FILTRO DE DATA ---
+        function setDateFilter(type) {
+            reportDateFilter.type = type;
+            const today = new Date();
+            let startDate = new Date();
+            let endDate = new Date();
+
+            // Remover classe active de todos os botões
+            document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            // Adicionar classe active ao botão clicado
+            event.target.classList.add('active');
+
+            const customInputs = document.getElementById('customDateInputs');
+
+            if (type === 'custom') {
+                customInputs.classList.remove('hidden');
+                // Definir datas padrão para o mês atual
+                startDate.setDate(1);
+                document.getElementById('reportStartDate').value = startDate.toISOString().split('T')[0];
+                document.getElementById('reportEndDate').value = today.toISOString().split('T')[0];
+                updateDateRangeDisplay();
+                return;
+            } else {
+                customInputs.classList.add('hidden');
+            }
+
+            // Calcular datas baseado no tipo
+            switch(type) {
+                case 'week':
+                    startDate.setDate(today.getDate() - 7);
+                    break;
+                case 'month':
+                    startDate.setMonth(today.getMonth() - 1);
+                    break;
+                case 'quarter':
+                    startDate.setMonth(today.getMonth() - 3);
+                    break;
+                case 'semester':
+                    startDate.setMonth(today.getMonth() - 6);
+                    break;
+                case 'year':
+                    startDate.setFullYear(today.getFullYear() - 1);
+                    break;
+            }
+
+            reportDateFilter.startDate = startDate.toISOString().split('T')[0];
+            reportDateFilter.endDate = endDate.toISOString().split('T')[0];
+
+            updateDateRangeDisplay();
+        }
+
+        function updateDateRangeDisplay() {
+            const display = document.getElementById('dateRangeDisplay');
+            
+            if (reportDateFilter.type === 'custom') {
+                const start = document.getElementById('reportStartDate').value;
+                const end = document.getElementById('reportEndDate').value;
+                
+                if (start && end) {
+                    reportDateFilter.startDate = start;
+                    reportDateFilter.endDate = end;
+                    
+                    const startFormatted = new Date(start).toLocaleDateString('pt-BR');
+                    const endFormatted = new Date(end).toLocaleDateString('pt-BR');
+                    display.innerHTML = `<i class="fas fa-calendar-check"></i> ${startFormatted} até ${endFormatted}`;
+                } else {
+                    display.innerHTML = `<i class="fas fa-info-circle"></i> Selecione as datas`;
+                }
+            } else {
+                const labels = {
+                    'week': 'Últimos 7 dias',
+                    'month': 'Último mês',
+                    'quarter': 'Últimos 3 meses',
+                    'semester': 'Últimos 6 meses',
+                    'year': 'Último ano'
+                };
+                
+                const startFormatted = new Date(reportDateFilter.startDate).toLocaleDateString('pt-BR');
+                const endFormatted = new Date(reportDateFilter.endDate).toLocaleDateString('pt-BR');
+                
+                display.innerHTML = `<i class="fas fa-info-circle"></i> ${labels[reportDateFilter.type]}<br>
+                    <span style="font-size: 0.85rem;">${startFormatted} até ${endFormatted}</span>`;
+            }
+        }
+
+        function isDateInRange(dateStr) {
+            if (!reportDateFilter.startDate || !reportDateFilter.endDate) return true;
+            const date = new Date(dateStr);
+            const start = new Date(reportDateFilter.startDate);
+            const end = new Date(reportDateFilter.endDate);
+            return date >= start && date <= end;
         }
 
         // --- ACTIONS: GROUP & PASTURE ---
@@ -1667,32 +2364,47 @@
             const category = document.getElementById('newGroupCategory').value;
             const type = document.getElementById('newGroupType').value;
             const initialCost = parseFloat(document.getElementById('newGroupInitialCost').value) || 0;
-            
             if(!name) return;
-            
             const newGroup = {
-                id: Date.now(), name, category, herdType: type, // Salva o tipo
-                quantity: 0, animals: [], weighings: [], 
-                health: [], costHistory: [], breedingEvents: [], 
-                currentPastureId: null, sold: false, salePrice: 0, saleDate: null
+                id: Date.now(),
+                name,
+                category,
+                herdType: type,
+                quantity: 0,
+                animals: [],
+                weighings: [],
+                health: [],
+                costHistory: [],
+                breedingEvents: [],
+                currentPastureId: null,
+                sold: false,
+                salePrice: 0,
+                saleDate: null
             };
-
             if (initialCost > 0) {
                 newGroup.costHistory.push({
-                    date: new Date().toISOString().split('T')[0], itemName: "Compra Inicial do Lote",
-                    category: "Custo Fixo", qty: 1, unit: 'un', totalCost: initialCost, isInitialCost: true
+                    date: new Date().toISOString().split('T')[0],
+                    itemName: "Compra Inicial do Lote",
+                    category: "Custo Fixo",
+                    qty: 1,
+                    unit: 'un',
+                    totalCost: initialCost,
+                    isInitialCost: true
                 });
                 appData.financials.push({
-                    id: Date.now() + 1, type: 'expense', desc: `Compra Lote: ${name}`, amount: initialCost,
-                    date: new Date().toISOString().split('T')[0], isGroupPurchase: true
+                    id: Date.now() + 1,
+                    type: 'expense',
+                    desc: `Compra Lote: ${name}`,
+                    amount: initialCost,
+                    date: new Date().toISOString().split('T')[0],
+                    isGroupPurchase: true
                 });
             }
-
             appData.groups.push(newGroup);
             await saveData();
             closeModal('modalNewGroup');
             document.getElementById('newGroupName').value = '';
-            document.getElementById('newGroupInitialCost').value = ''; 
+            document.getElementById('newGroupInitialCost').value = '';
             renderAll();
         }
 
@@ -1701,13 +2413,17 @@
             const area = parseFloat(document.getElementById('newPastureArea').value);
             const grass = document.getElementById('newPastureGrass').value;
             if(!name || !area) return;
-            appData.pastures.push({ id: Date.now(), name, area, grass });
+            appData.pastures.push({
+                id: Date.now(),
+                name,
+                area,
+                grass
+            });
             await saveData();
             closeModal('modalNewPasture');
             renderAll();
         }
 
-        // --- FUNÇÕES DE EDIÇÃO DE PASTO (NOVO) ---
         function openEditPasture(id) {
             const p = appData.pastures.find(x => x.id == id);
             if(!p) return;
@@ -1733,14 +2449,12 @@
 
         async function deletePasture() {
             const id = document.getElementById('editPastureId').value;
-            // Check for animals
             const hasAnimals = appData.groups.some(g => g.currentPastureId == id && !g.sold);
-            if(hasAnimals) { 
-                alert('Não é possível excluir: Há animais vinculados a este pasto. Mova-os primeiro.'); 
-                return; 
+            if(hasAnimals) {
+                alert('Não é possível excluir: Há animais vinculados a este pasto. Mova-os primeiro.');
+                return;
             }
             if(!confirm('Tem certeza que deseja excluir este piquete?')) return;
-
             appData.pastures = appData.pastures.filter(x => x.id != id);
             await saveData();
             closeModal('modalEditPasture');
@@ -1772,17 +2486,11 @@
 
         function toggleStockCategory(val) {
             const fields = document.getElementById('stockSanitaryFields');
-            const semenFields = document.getElementById('stockSemenFields'); 
-            
-            // Lógica Sanitario
+            const semenFields = document.getElementById('stockSemenFields');
             if(val === 'Vacina' || val === 'Medicamento') fields.classList.remove('hidden');
             else fields.classList.add('hidden');
-
-            // Lógica Sêmen
             if(val === 'Sêmen') semenFields.classList.remove('hidden');
             else semenFields.classList.add('hidden');
-
-            // Ajuste Unidade Padrão
             const unitSel = document.getElementById('stockUnit');
             if(val === 'Sêmen') unitSel.value = 'ds';
         }
@@ -1794,18 +2502,16 @@
             const qty = parseFloat(document.getElementById('stockQty').value);
             const totalSpend = parseFloat(document.getElementById('stockTotalSpend').value);
             const autoLaunch = document.getElementById('autoLaunchFinance').checked;
-            
             const brand = document.getElementById('stockBrand').value;
             const batch = document.getElementById('stockBatch').value;
-            
             const breed = document.getElementById('stockSemenBreed').value;
             const reg = document.getElementById('stockSemenReg').value;
             const center = document.getElementById('stockSemenCenter').value;
-
-            if(!name || !qty || !totalSpend) { alert("Preencha todos os campos."); return; }
-
+            if(!name || !qty || !totalSpend) {
+                alert("Preencha todos os campos.");
+                return;
+            }
             let existingItem = appData.inventory.find(i => i.name.toLowerCase() === name.toLowerCase() && i.unit === unit);
-            
             if(existingItem) {
                 const totalValueOld = existingItem.currentQty * existingItem.avgPrice;
                 const newQty = existingItem.currentQty + qty;
@@ -1815,28 +2521,37 @@
                 if(batch) existingItem.batch = batch;
             } else {
                 appData.inventory.push({
-                    id: Date.now(), name, category, unit, avgPrice: totalSpend / qty,
-                    currentQty: qty, brand, batch,
-                    breed, reg, center 
+                    id: Date.now(),
+                    name,
+                    category,
+                    unit,
+                    avgPrice: totalSpend / qty,
+                    currentQty: qty,
+                    brand,
+                    batch,
+                    breed,
+                    reg,
+                    center
                 });
             }
-
             if(autoLaunch) {
                 appData.financials.push({
-                    id: Date.now(), type: 'expense', desc: `Compra Estoque: ${name}`, amount: totalSpend,
-                    date: new Date().toISOString().split('T')[0], isStock: true
+                    id: Date.now(),
+                    type: 'expense',
+                    desc: `Compra Estoque: ${name}`,
+                    amount: totalSpend,
+                    date: new Date().toISOString().split('T')[0],
+                    isStock: true
                 });
             }
-
             await saveData();
             closeModal('modalNewStockItem');
-            
             document.getElementById('stockName').value = '';
             document.getElementById('stockQty').value = '';
             document.getElementById('stockTotalSpend').value = '';
             document.getElementById('stockBrand').value = '';
             document.getElementById('stockBatch').value = '';
-            document.getElementById('stockSemenBreed').value = ''; 
+            document.getElementById('stockSemenBreed').value = '';
             document.getElementById('stockSemenReg').value = '';
             renderAll();
         }
@@ -1847,13 +2562,12 @@
         function openGroupDetails(id) {
             activeGroupId = id;
             const group = appData.groups.find(g => g.id == id);
-            
             document.getElementById('detailGroupTitle').innerText = group.name;
             document.getElementById('detailGroupSubtitle').innerText = `${group.category} • ${group.animals.length || group.quantity} animais`;
-
             const statusBadge = document.getElementById('detailGroupStatus');
             if(group.sold) {
-                statusBadge.className = 'badge badge-gray'; statusBadge.innerText = 'VENDIDO';
+                statusBadge.className = 'badge badge-gray';
+                statusBadge.innerText = 'VENDIDO';
                 document.getElementById('saleFormBlock').classList.add('hidden');
                 document.getElementById('saleResultBlock').classList.remove('hidden');
                 const totalCost = getGroupTotalCostNumber(group);
@@ -1872,34 +2586,29 @@
                 document.getElementById('saleDate').value = new Date().toISOString().split('T')[0];
                 document.getElementById('saleTotalValue').value = '';
             }
-
             document.getElementById('calcGMD').innerText = `${calculateGMD(group)} kg/dia`;
             document.getElementById('calcTotalCost').innerText = `R$ ${calculateGroupCost(group)}`;
             document.getElementById('useDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('breedingDate').value = new Date().toISOString().split('T')[0]; 
-            
+            document.getElementById('breedingDate').value = new Date().toISOString().split('T')[0];
             const animalSelect = document.getElementById('useAnimalId');
-            const breedingAnimalSelect = document.getElementById('breedingCowSelect'); 
+            const breedingAnimalSelect = document.getElementById('breedingCowSelect');
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
-            
             animalSelect.innerHTML = animalsHtml;
             breedingAnimalSelect.innerHTML = animalsHtml;
-
-            document.getElementById('scopeLot').checked = true; 
+            document.getElementById('scopeLot').checked = true;
             toggleIndividualUsage();
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
-            renderBreedingList(group); 
-            populateBreedingStock(); 
-            
+            renderBreedingList(group);
+            populateBreedingStock();
             const pSelect = document.getElementById('movePastureSelect');
             if(group.sold) {
-                pSelect.disabled = true; pSelect.innerHTML = '<option>Lote vendido</option>';
+                pSelect.disabled = true;
+                pSelect.innerHTML = '<option>Lote vendido</option>';
             } else {
                 pSelect.disabled = false;
-                pSelect.innerHTML = '<option value="">Sem pasto definido</option>' + 
-                    appData.pastures.map(p => `<option value="${p.id}" ${group.currentPastureId == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
+                pSelect.innerHTML = '<option value="">Sem pasto definido</option>' + appData.pastures.map(p => `<option value="${p.id}" ${group.currentPastureId == p.id ? 'selected' : ''}>${p.name}</option>`).join('');
             }
             openModal('modalGroupDetails');
         }
@@ -1907,30 +2616,36 @@
         async function processGroupSale() {
             const saleValue = parseFloat(document.getElementById('saleTotalValue').value);
             const saleDate = document.getElementById('saleDate').value;
-            if (!saleValue || !saleDate) { alert("Informe valor e data."); return; }
+            if (!saleValue || !saleDate) {
+                alert("Informe valor e data.");
+                return;
+            }
             if (!confirm(`Confirmar a venda por R$ ${saleValue.toFixed(2)}?`)) return;
-
             const group = appData.groups.find(g => g.id == activeGroupId);
-            group.sold = true; group.salePrice = saleValue; group.saleDate = saleDate; group.currentPastureId = null;
-
+            group.sold = true;
+            group.salePrice = saleValue;
+            group.saleDate = saleDate;
+            group.currentPastureId = null;
             appData.financials.push({
-                id: Date.now(), type: 'income', desc: `Venda Lote: ${group.name}`,
-                amount: saleValue, date: saleDate, isGroupSale: true, groupId: group.id
+                id: Date.now(),
+                type: 'income',
+                desc: `Venda Lote: ${group.name}`,
+                amount: saleValue,
+                date: saleDate,
+                isGroupSale: true,
+                groupId: group.id
             });
-
             await saveData();
             openGroupDetails(activeGroupId);
             renderAll();
             alert("Venda realizada!");
         }
 
-        // --- LÓGICA DE USO DE ESTOQUE ---
         function toggleIndividualUsage() {
             const scope = document.querySelector('input[name="usageScope"]:checked').value;
             const individualSelect = document.getElementById('individualAnimalSelect');
             const healthDoseHint = document.getElementById('healthDoseHint');
             const labelQtyTotal = document.getElementById('labelQtyTotal');
-
             if (scope === 'individual') {
                 individualSelect.classList.remove('hidden');
                 healthDoseHint.innerText = 'Quantidade utilizada é a dose única (Ex: 5ml).';
@@ -1940,7 +2655,7 @@
                 healthDoseHint.innerText = 'O sistema multiplicará pela quantidade de animais.';
                 labelQtyTotal.innerText = 'Quantidade Total fornecida ao lote';
             }
-            populateStockUsageSelect(); 
+            populateStockUsageSelect();
         }
 
         function populateStockUsageSelect() {
@@ -1948,10 +2663,8 @@
             const select = document.getElementById('useStockProduct');
             const list = appData.inventory || [];
             let filtered = [];
-            
             document.getElementById('usageBlockNutrition').classList.add('hidden');
             document.getElementById('usageBlockHealth').classList.add('hidden');
-
             if(type === 'nutrition') {
                 filtered = list.filter(i => (i.category === 'Ração' || i.category === 'Sal Mineral') && i.currentQty > 0);
                 document.getElementById('usageBlockNutrition').classList.remove('hidden');
@@ -1962,10 +2675,7 @@
                 filtered = list.filter(i => i.category === 'Outros' && i.currentQty > 0);
                 document.getElementById('usageBlockNutrition').classList.remove('hidden');
             }
-
-            select.innerHTML = '<option value="">Selecione...</option>' + 
-                filtered.map(i => `<option value="${i.id}" data-unit="${i.unit}">${i.name} (Disp: ${parseFloat(i.currentQty).toFixed(2)} ${i.unit})</option>`).join('');
-
+            select.innerHTML = '<option value="">Selecione...</option>' + filtered.map(i => `<option value="${i.id}" data-unit="${i.unit}">${i.name} (Disp: ${parseFloat(i.currentQty).toFixed(2)} ${i.unit})</option>`).join('');
             select.onchange = function() {
                 const opt = select.options[select.selectedIndex];
                 const u = opt ? (opt.getAttribute('data-unit') || '--') : '--';
@@ -1976,52 +2686,72 @@
 
         async function confirmStockUsage() {
             const group = appData.groups.find(g => g.id == activeGroupId);
-            if(group.sold) { alert('Lote vendido.'); return; }
-
+            if(group.sold) {
+                alert('Lote vendido.');
+                return;
+            }
             const usageType = document.getElementById('useStockType').value;
             const prodId = document.getElementById('useStockProduct').value;
             const date = document.getElementById('useDate').value;
             const scope = document.querySelector('input[name="usageScope"]:checked').value;
             const animalId = document.getElementById('useAnimalId').value;
-            
-            if(!prodId || !date) { alert('Selecione produto e data.'); return; }
-            if(scope === 'individual' && !animalId) { alert('Selecione o animal.'); return; }
-
+            if(!prodId || !date) {
+                alert('Selecione produto e data.');
+                return;
+            }
+            if(scope === 'individual' && !animalId) {
+                alert('Selecione o animal.');
+                return;
+            }
             const product = appData.inventory.find(i => i.id == prodId);
             if(!product) return;
-
             let qtyUsed = 0;
             const numAnimals = group.animals.length || group.quantity || 1;
-
             if(usageType === 'health') {
                 const dose = parseFloat(document.getElementById('useDosePerAnimal').value);
                 const withdrawal = parseInt(document.getElementById('useWithdrawal').value) || 0;
                 if(!dose) return;
                 qtyUsed = scope === 'individual' ? dose : dose * numAnimals;
-
-                if(qtyUsed > product.currentQty) { alert(`Estoque insuficiente.`); return; }
-
+                if(qtyUsed > product.currentQty) {
+                    alert(`Estoque insuficiente.`);
+                    return;
+                }
                 if(withdrawal > 0) {
                     const endDate = new Date(date);
                     endDate.setDate(endDate.getDate() + withdrawal);
                     group.health.push({
-                        name: product.name, date, withdrawDays: withdrawal, withdrawEnd: endDate.toISOString().split('T')[0],
-                        scope, animalId: scope === 'individual' ? animalId : null, brand: product.brand, batch: product.batch
+                        name: product.name,
+                        date,
+                        withdrawDays: withdrawal,
+                        withdrawEnd: endDate.toISOString().split('T')[0],
+                        scope,
+                        animalId: scope === 'individual' ? animalId : null,
+                        brand: product.brand,
+                        batch: product.batch
                     });
                 }
-            } else { 
+            } else {
                 qtyUsed = parseFloat(document.getElementById('useQtyTotal').value);
                 if(!qtyUsed) return;
-                if(qtyUsed > product.currentQty) { alert(`Estoque insuficiente.`); return; }
+                if(qtyUsed > product.currentQty) {
+                    alert(`Estoque insuficiente.`);
+                    return;
+                }
             }
-
             product.currentQty -= qtyUsed;
             const cost = qtyUsed * product.avgPrice;
             group.costHistory.push({
-                date, itemName: product.name, category: product.category, qty: qtyUsed, unit: product.unit,
-                totalCost: cost, scope, animalId: scope === 'individual' ? animalId : null, brand: product.brand, batch: product.batch
+                date,
+                itemName: product.name,
+                category: product.category,
+                qty: qtyUsed,
+                unit: product.unit,
+                totalCost: cost,
+                scope,
+                animalId: scope === 'individual' ? animalId : null,
+                brand: product.brand,
+                batch: product.batch
             });
-
             await saveData();
             openGroupDetails(activeGroupId);
             renderAll();
@@ -2031,10 +2761,7 @@
         function populateBreedingStock() {
             const select = document.getElementById('breedingBullSelect');
             const bulls = appData.inventory.filter(i => i.category === 'Sêmen' && i.currentQty > 0);
-            
-            select.innerHTML = '<option value="">Selecione Touro/Sêmen</option>' + 
-                bulls.map(b => `<option value="${b.id}" data-stock="${b.currentQty}">${b.name} (${b.currentQty} doses) - ${b.breed || ''}</option>`).join('');
-            
+            select.innerHTML = '<option value="">Selecione Touro/Sêmen</option>' + bulls.map(b => `<option value="${b.id}" data-stock="${b.currentQty}">${b.name} (${b.currentQty} doses) - ${b.breed || ''}</option>`).join('');
             select.onchange = function() {
                 const opt = select.options[select.selectedIndex];
                 const stock = opt ? parseFloat(opt.getAttribute('data-stock')) : 0;
@@ -2052,7 +2779,7 @@
             const start = document.getElementById('iatfStartDate').value;
             if(start) {
                 const d = new Date(start);
-                d.setDate(d.getDate() + 11); 
+                d.setDate(d.getDate() + 11);
                 document.getElementById('breedingDate').value = d.toISOString().split('T')[0];
             }
         }
@@ -2073,46 +2800,55 @@
             const scope = document.querySelector('input[name="breedingScope"]:checked').value;
             const animalId = document.getElementById('breedingCowSelect').value;
             const ecc = document.getElementById('breedingECC').value;
-
-            if(!date || !bullId) { alert("Data e Touro são obrigatórios."); return; }
-            if(scope === 'individual' && !animalId) { alert("Selecione a vaca."); return; }
-
+            if(!date || !bullId) {
+                alert("Data e Touro são obrigatórios.");
+                return;
+            }
+            if(scope === 'individual' && !animalId) {
+                alert("Selecione a vaca.");
+                return;
+            }
             const bullItem = appData.inventory.find(i => i.id == bullId);
-            const dosesNeeded = (scope === 'individual') ? 1 : (group.animals.length || group.quantity); 
-
+            const dosesNeeded = (scope === 'individual') ? 1 : (group.animals.length || group.quantity);
             if(bullItem.currentQty < dosesNeeded) {
                 alert(`Estoque insuficiente de sêmen. Necessário: ${dosesNeeded}, Disponível: ${bullItem.currentQty}`);
                 return;
             }
-
             if(!confirm(`Confirmar IA em ${dosesNeeded} animais?\nIsso baixará ${dosesNeeded} doses do estoque.`)) return;
-
             bullItem.currentQty -= dosesNeeded;
             const cost = dosesNeeded * bullItem.avgPrice;
-
             group.costHistory.push({
-                date, itemName: `IA (${bullItem.name})`, category: "Reprodução", qty: dosesNeeded, unit: 'ds',
-                totalCost: cost, scope, animalId: scope === 'individual' ? animalId : null, brand: bullItem.brand, batch: bullItem.batch
+                date,
+                itemName: `IA (${bullItem.name})`,
+                category: "Reprodução",
+                qty: dosesNeeded,
+                unit: 'ds',
+                totalCost: cost,
+                scope,
+                animalId: scope === 'individual' ? animalId : null,
+                brand: bullItem.brand,
+                batch: bullItem.batch
             });
-
             const diagDate = new Date(date);
             diagDate.setDate(diagDate.getDate() + 30);
-
             const eventData = {
                 id: Date.now(),
-                date, type, bullName: bullItem.name, inseminator, ecc,
-                scope, animalId: scope === 'individual' ? animalId : 'LOTE',
+                date,
+                type,
+                bullName: bullItem.name,
+                inseminator,
+                ecc,
+                scope,
+                animalId: scope === 'individual' ? animalId : 'LOTE',
                 diagnosisDate: diagDate.toISOString().split('T')[0],
-                status: 'Aguardando Toque', 
+                status: 'Aguardando Toque',
                 cost: cost
             };
-
             if(!group.breedingEvents) group.breedingEvents = [];
             group.breedingEvents.push(eventData);
-
             await saveData();
             alert("Inseminação registrada com sucesso!");
-            populateBreedingStock(); 
+            populateBreedingStock();
             renderBreedingList(group);
             renderGroupCostHistory(group);
             openGroupDetails(activeGroupId);
@@ -2134,54 +2870,53 @@
                 list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum registro.</p>';
                 return;
             }
-
             list.innerHTML = [...group.breedingEvents].sort((a,b) => new Date(b.date) - new Date(a.date)).map(evt => {
                 let statusColor = 'var(--gray)';
                 if(evt.status === 'Prenha') statusColor = 'var(--primary)';
                 if(evt.status === 'Vazia') statusColor = 'var(--danger)';
-                
                 let actions = '';
                 if(evt.status === 'Aguardando Toque') {
                     actions = `
-                    <div style="margin-top:8px; display:flex; gap:10px;">
-                        <button class="btn btn-sm btn-success" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Prenha')"><i class="fas fa-check"></i> Prenha</button>
-                        <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Vazia')"><i class="fas fa-times"></i> Vazia</button>
-                    </div>`;
+                        <div style="margin-top:8px; display:flex; gap:10px;">
+                            <button class="btn btn-sm btn-success" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Prenha')"><i class="fas fa-check"></i> Prenha</button>
+                            <button class="btn btn-sm btn-danger" style="padding:4px 8px; font-size:0.7rem;" onclick="updatePregnancyStatus(${evt.id}, 'Vazia')"><i class="fas fa-times"></i> Vazia</button>
+                        </div>`;
                 }
-
                 return `
-                <div class="list-item" style="display:block;">
-                    <div class="flex-between">
-                        <div>
-                            <strong>${new Date(evt.date).toLocaleDateString('pt-BR')}</strong> <span class="badge badge-pink">${evt.type}</span>
-                            <div class="text-sm">Touro: ${evt.bullName}</div>
-                            <div class="text-xs text-gray">Escopo: ${evt.scope === 'individual' ? 'Vaca ' + evt.animalId : 'Lote Todo'}</div>
+                    <div class="list-item" style="display:block;">
+                        <div class="flex-between">
+                            <div>
+                                <strong>${new Date(evt.date).toLocaleDateString('pt-BR')}</strong>
+                                <span class="badge badge-pink">${evt.type}</span>
+                                <div class="text-sm">Touro: ${evt.bullName}</div>
+                                <div class="text-xs text-gray">Escopo: ${evt.scope === 'individual' ? 'Vaca ' + evt.animalId : 'Lote Todo'}</div>
+                            </div>
+                            <div class="text-right">
+                                <div style="font-weight:bold; color:${statusColor};">${evt.status}</div>
+                                <div class="text-xs text-gray">Prev. Toque: ${new Date(evt.diagnosisDate).toLocaleDateString('pt-BR')}</div>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <div style="font-weight:bold; color:${statusColor};">${evt.status}</div>
-                            <div class="text-xs text-gray">Prev. Toque: ${new Date(evt.diagnosisDate).toLocaleDateString('pt-BR')}</div>
-                        </div>
-                    </div>
-                    ${actions}
-                </div>`;
+                        ${actions}
+                    </div>`;
             }).join('');
         }
 
         function renderGroupCostHistory(group) {
             const list = document.getElementById('groupCostList');
             if(!group.costHistory || group.costHistory.length === 0) {
-                list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum custo registrado.</p>'; return;
+                list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum custo registrado.</p>';
+                return;
             }
             list.innerHTML = [...group.costHistory].sort((a,b) => new Date(b.date) - new Date(a.date)).map(c => {
                 let scopeInfo = (c.scope === 'individual' && c.animalId) ? ` <span class="badge badge-warning">Animal: ${c.animalId}</span>` : '';
                 if (c.isInitialCost) scopeInfo = ' <span class="badge badge-purple">CUSTO INICIAL</span>';
                 let batchInfo = (c.batch || c.brand) ? `<div class="text-xs text-gray">Marca: ${c.brand || '-'} | Lote: ${c.batch || '-'}</div>` : '';
                 return `
-                <div class="list-item text-sm">
-                    <div><strong>${c.itemName}</strong>${scopeInfo} <span class="text-gray">(${c.qty.toFixed(1)} ${c.unit})</span>
-                    ${batchInfo}<div style="font-size:0.75rem;">${new Date(c.date).toLocaleDateString('pt-BR')}</div></div>
-                    <div class="text-danger font-bold">- R$ ${c.totalCost.toFixed(2)}</div>
-                </div>`;
+                    <div class="list-item text-sm">
+                        <div><strong>${c.itemName}</strong>${scopeInfo} <span class="text-gray">(${c.qty.toFixed(1)} ${c.unit})</span>
+                        ${batchInfo}<div style="font-size:0.75rem;">${new Date(c.date).toLocaleDateString('pt-BR')}</div></div>
+                        <div class="text-danger font-bold">- R$ ${c.totalCost.toFixed(2)}</div>
+                    </div>`;
             }).join('');
         }
 
@@ -2208,8 +2943,7 @@
 
         function renderWeightList(group) {
             const list = document.getElementById('weightHistoryList');
-            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w => 
-                `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
+            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w => `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
             ).join('');
         }
 
@@ -2218,7 +2952,11 @@
             if(!id) return;
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
-            group.animals.push({ id, entryDate: new Date().toISOString().split('T')[0], weight: 0 }); 
+            group.animals.push({
+                id,
+                entryDate: new Date().toISOString().split('T')[0],
+                weight: 0
+            });
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
             await saveData();
@@ -2228,14 +2966,16 @@
 
         function renderAnimalList(group) {
             const list = document.getElementById('animalList');
-            list.innerHTML = group.animals.map((a, idx) => 
-                `<div class="list-item text-sm">
-                    <div><span><i class="fas fa-tag"></i> <strong>${a.id}</strong></span><div class="text-xs text-gray">Peso: ${a.weight ? a.weight.toFixed(2) + ' kg' : 'N/A'}</div></div>
-                    <div class="btn-group-row">
-                        <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})"><i class="fas fa-pencil-alt"></i></button>
-                        <button class="btn btn-danger btn-sm" onclick="removeAnimal(${idx})"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`
+            list.innerHTML = group.animals.map((a, idx) => `<div class="list-item text-sm">
+                <div onclick="openAnimalDetails(${idx})" style="cursor:pointer; flex:1;">
+                    <span><i class="fas fa-tag"></i> <strong>${a.id}</strong></span>
+                    <div class="text-xs text-gray">Peso: ${a.weight ? a.weight.toFixed(2) + ' kg' : 'N/A'}</div>
+                </div>
+                <div class="btn-group-row">
+                    <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})"><i class="fas fa-pencil-alt"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="openRemoveAnimalModal(${idx})"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>`
             ).join('');
         }
 
@@ -2245,30 +2985,178 @@
             const animal = group.animals[idx];
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
-            document.getElementById('editAnimalWeightInput').value = animal.weight || ''; 
+            document.getElementById('editAnimalWeightInput').value = animal.weight || '';
             openModal('modalEditAnimal');
         }
 
         async function saveAnimalEdit() {
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
-            const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0; 
+            const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
             if(!newId) return;
             const group = appData.groups.find(g => g.id == activeGroupId);
-            group.animals[idx].id = newId; group.animals[idx].weight = newWeight; 
+            group.animals[idx].id = newId;
+            group.animals[idx].weight = newWeight;
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
             renderAll();
         }
 
-        async function removeAnimal(idx) {
+        function openRemoveAnimalModal(idx) {
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
-            group.animals.splice(idx, 1); group.quantity = group.animals.length;
+            const animal = group.animals[idx];
+            document.getElementById('removeAnimalIndex').value = idx;
+            document.getElementById('removeAnimalName').innerText = animal.id;
+            document.getElementById('removeReason').value = '';
+            document.getElementById('deathCause').value = '';
+            document.getElementById('removeDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('removeNotes').value = '';
+            document.getElementById('deathCauseBlock').classList.add('hidden');
+            openModal('modalRemoveAnimal');
+        }
+
+        function toggleDeathCause() {
+            const reason = document.getElementById('removeReason').value;
+            const deathBlock = document.getElementById('deathCauseBlock');
+            if(reason === 'Morte') {
+                deathBlock.classList.remove('hidden');
+            } else {
+                deathBlock.classList.add('hidden');
+            }
+        }
+
+        async function confirmRemoveAnimal() {
+            const idx = document.getElementById('removeAnimalIndex').value;
+            const reason = document.getElementById('removeReason').value;
+            const deathCause = document.getElementById('deathCause').value;
+            const date = document.getElementById('removeDate').value;
+            const notes = document.getElementById('removeNotes').value;
+            if(!reason || !date) {
+                alert('Preencha o motivo e a data.');
+                return;
+            }
+            if(reason === 'Morte' && !deathCause) {
+                alert('Selecione a causa da morte.');
+                return;
+            }
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const animal = group.animals[idx];
+            if(!appData.animalLosses) appData.animalLosses = [];
+            appData.animalLosses.push({
+                id: Date.now(),
+                animalId: animal.id,
+                groupName: group.name,
+                groupId: group.id,
+                reason: reason,
+                deathCause: reason === 'Morte' ? deathCause : null,
+                date: date,
+                notes: notes,
+                weight: animal.weight || 0
+            });
+            group.animals.splice(idx, 1);
+            group.quantity = group.animals.length;
             await saveData();
+            closeModal('modalRemoveAnimal');
             renderAnimalList(group);
             renderAll();
+            alert(`Animal ${animal.id} removido do lote. Motivo: ${reason}`);
+        }
+
+        let animalGrowthChartInstance = null;
+
+        function openAnimalDetails(idx) {
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            const animal = group.animals[idx];
+            document.getElementById('animalDetailId').innerText = animal.id;
+            document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
+            document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
+            renderAnimalGrowthChart(group, animal);
+            openModal('modalAnimalDetails');
+        }
+
+        function renderAnimalGrowthChart(group, animal) {
+            const ctx = document.getElementById('animalGrowthChart').getContext('2d');
+            if(animalGrowthChartInstance) {
+                animalGrowthChartInstance.destroy();
+            }
+            const weighings = group.weighings || [];
+            const labels = weighings.map(w => new Date(w.date).toLocaleDateString('pt-BR', {month: 'short', day: 'numeric'}));
+            const animalWeights = [];
+            const avgWeights = [];
+            if(weighings.length > 0) {
+                const currentWeight = animal.weight || weighings[weighings.length - 1].weight;
+                const gmd = parseFloat(calculateGMD(group)) || 0.5;
+                for(let i = 0; i < weighings.length; i++) {
+                    const daysBack = weighings.length - i - 1;
+                    animalWeights.push(currentWeight - (gmd * daysBack * 30));
+                    avgWeights.push(weighings[i].weight);
+                }
+            } else {
+                labels.push('Atual');
+                animalWeights.push(animal.weight || 0);
+                avgWeights.push(getCurrentLotWeight(group).weight);
+            }
+            animalGrowthChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: `${animal.id} (Individual)`,
+                            data: animalWeights,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Média do Lote',
+                            data: avgWeights,
+                            borderColor: '#059669',
+                            backgroundColor: 'rgba(5, 150, 105, 0.1)',
+                            tension: 0.4,
+                            fill: true,
+                            borderDash: [5, 5]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + ' kg';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Peso (kg)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Período'
+                            }
+                        }
+                    }
+                }
+            });
         }
 
         function runSimulation() {
@@ -2306,7 +3194,13 @@
             const amount = parseFloat(document.getElementById('transAmount').value);
             const date = document.getElementById('transDate').value;
             if(!desc || !amount || !date) return;
-            appData.financials.push({ id: Date.now(), type, desc, amount, date });
+            appData.financials.push({
+                id: Date.now(),
+                type,
+                desc,
+                amount,
+                date
+            });
             await saveData();
             closeModal('modalTransaction');
             renderAll();
@@ -2322,21 +3216,26 @@
                 allUsersCache = [];
                 snapshot.forEach(doc => allUsersCache.push({ id: doc.id, ...doc.data() }));
                 renderAdminList();
-            } catch (e) { listContainer.innerHTML = '<p class="text-danger">Erro ao listar usuários.</p>'; }
+            } catch (e) {
+                listContainer.innerHTML = '<p class="text-danger">Erro ao listar usuários.</p>';
+            }
         }
 
         function renderAdminList() {
             const listContainer = document.getElementById('adminUserList');
-            if(allUsersCache.length === 0) { listContainer.innerHTML = '<p>Nenhum usuário.</p>'; return; }
+            if(allUsersCache.length === 0) {
+                listContainer.innerHTML = '<p>Nenhum usuário.</p>';
+                return;
+            }
             listContainer.innerHTML = allUsersCache.map(u => {
                 const isMe = u.id === currentUser.id;
                 let roleBadge = u.role === 'admin' ? '<span class="badge badge-purple">Admin</span>' : (u.role === 'manager' ? '<span class="badge badge-info">Gerente</span>' : '<span class="badge badge-gray">Produtor</span>');
                 const manageBtn = (u.role === 'manager') ? `<button class="btn btn-sm btn-secondary" onclick="openAssignModal('${u.id}')" style="margin-top:5px;"><i class="fas fa-network-wired"></i> Atribuir Fazendas</button>` : '';
                 const roleSelector = !isMe ? `<select class="form-input text-sm" style="width:auto; padding:5px;" onchange="changeUserRole('${u.id}', this.value)">
-                        <option value="basic" ${u.role === 'basic' ? 'selected' : ''}>Produtor</option>
-                        <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>Gerente</option>
-                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
-                    </select>` : '<span class="text-xs text-gray">Você</span>';
+                    <option value="basic" ${u.role === 'basic' ? 'selected' : ''}>Produtor</option>
+                    <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>Gerente</option>
+                    <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+                </select>` : '<span class="text-xs text-gray">Você</span>';
                 return `<div class="card" style="display:flex; flex-direction:column; gap:10px; border-left: 4px solid var(--primary);">
                     <div class="flex-between">
                         <div><strong>${u.fullName}</strong> <small class="text-gray">(${u.userName})</small><div style="margin-top:4px;">${roleBadge}</div></div>
@@ -2348,13 +3247,18 @@
         }
 
         async function changeUserRole(targetId, newRole) {
-            if(!confirm(`Alterar para ${newRole.toUpperCase()}?`)) { loadAdminUserList(); return; }
+            if(!confirm(`Alterar para ${newRole.toUpperCase()}?`)) {
+                loadAdminUserList();
+                return;
+            }
             try {
                 await db.collection('auth').doc(targetId).update({ role: newRole });
                 const user = allUsersCache.find(u => u.id === targetId);
                 if(user) user.role = newRole;
                 renderAdminList();
-            } catch (e) { alert('Erro ao atualizar permissão.'); }
+            } catch (e) {
+                alert('Erro ao atualizar permissão.');
+            }
         }
 
         function openAssignModal(managerId) {
@@ -2366,7 +3270,6 @@
             const potentialFarms = allUsersCache.filter(u => u.id !== managerId && u.role !== 'admin');
             list.innerHTML = potentialFarms.map(farm => {
                 const isChecked = manager.managedFarms && manager.managedFarms.includes(farm.id);
-                // FIX: Adicionado display: flex explícito para sobrescrever regra de Grid do desktop e manter alinhamento à esquerda
                 return `<label class="list-item" style="display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
                     <input type="checkbox" value="${farm.id}" ${isChecked ? 'checked' : ''}>
                     <div><strong>${farm.fullName}</strong><div class="text-xs text-gray">Usuário: ${farm.userName}</div></div>
@@ -2386,16 +3289,16 @@
                 alert('Atribuições salvas!');
                 closeModal('modalAdminAssign');
                 renderAdminList();
-            } catch (e) { alert('Erro: ' + e.message); }
+            } catch (e) {
+                alert('Erro: ' + e.message);
+            }
         }
 
-        // --- LÓGICA DE RELATÓRIOS PDF ---
-
+        // --- LÓGICA DE RELATÓRIOS PDF COM FILTROS ---
         function toggleReportOptions() {
             const type = document.getElementById('reportType').value;
             const groupDiv = document.getElementById('reportGroupSelectDiv');
             const groupSelect = document.getElementById('reportGroupTarget');
-
             if (type === 'group_specific') {
                 groupDiv.classList.remove('hidden');
                 groupSelect.innerHTML = appData.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
@@ -2410,10 +3313,26 @@
             const bodyEl = document.getElementById('pdf-body');
             const dateEl = document.getElementById('pdf-date-generation');
             const farmEl = document.getElementById('pdf-farm-name');
+            const dateRangeEl = document.getElementById('pdf-date-range');
 
-            // Configura Cabeçalho
+            // Validar datas personalizadas
+            if (reportDateFilter.type === 'custom') {
+                if (!reportDateFilter.startDate || !reportDateFilter.endDate) {
+                    alert('Por favor, selecione as datas inicial e final.');
+                    return;
+                }
+                if (new Date(reportDateFilter.startDate) > new Date(reportDateFilter.endDate)) {
+                    alert('A data inicial não pode ser posterior à data final.');
+                    return;
+                }
+            }
+
             dateEl.innerText = new Date().toLocaleString('pt-BR');
             farmEl.innerText = currentUser ? `Produtor: ${currentUser.fullName}` : 'MeuGado';
+            
+            const startFormatted = new Date(reportDateFilter.startDate).toLocaleDateString('pt-BR');
+            const endFormatted = new Date(reportDateFilter.endDate).toLocaleDateString('pt-BR');
+            dateRangeEl.innerText = `${startFormatted} a ${endFormatted}`;
 
             let contentHtml = '';
 
@@ -2423,7 +3342,9 @@
                 let totalIncome = 0;
                 let totalExpense = 0;
                 
-                const rows = appData.financials.sort((a,b) => new Date(b.date) - new Date(a.date)).map(f => {
+                const filteredFinancials = appData.financials.filter(f => isDateInRange(f.date));
+                
+                const rows = filteredFinancials.sort((a,b) => new Date(b.date) - new Date(a.date)).map(f => {
                     if(f.type === 'income') totalIncome += f.amount;
                     else totalExpense += f.amount;
                     const color = f.type === 'income' ? 'green' : 'red';
@@ -2434,7 +3355,7 @@
                         <td class="text-right">R$ ${f.amount.toFixed(2)}</td>
                     </tr>`;
                 }).join('');
-
+                
                 contentHtml = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:bold;">
                         <div style="color:green;">Total Receitas: R$ ${totalIncome.toFixed(2)}</div>
@@ -2443,47 +3364,44 @@
                     </div>
                     <table class="pdf-table">
                         <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th class="text-right">Valor</th></tr></thead>
-                        <tbody>${rows}</tbody>
+                        <tbody>${rows || '<tr><td colspan="4">Nenhuma transação no período</td></tr>'}</tbody>
                     </table>`;
             }
-
             // 2. Relatório de Lote Específico
             else if (type === 'group_specific') {
                 const groupId = document.getElementById('reportGroupTarget').value;
                 const group = appData.groups.find(g => g.id == groupId);
-                
                 if (group) {
                     titleEl.innerText = `Relatório do Lote: ${group.name}`;
-                    const currentWeight = getCurrentLotWeight(group).weight;
                     
-                    // Tabela de Custos
-                    const costRows = (group.costHistory || []).map(c => `<tr>
+                    const filteredCosts = (group.costHistory || []).filter(c => isDateInRange(c.date));
+                    
+                    const costRows = filteredCosts.map(c => `<tr>
                         <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
                         <td>${c.itemName}</td>
                         <td>${c.qty} ${c.unit}</td>
                         <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
                     </tr>`).join('');
-
-                    // Tabela de Animais
+                    
                     const animalRows = (group.animals || []).map(a => `<tr>
                         <td>${a.id}</td>
                         <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
                     </tr>`).join('');
-
+                    
+                    const totalCostInPeriod = filteredCosts.reduce((sum, c) => sum + c.totalCost, 0);
+                    
                     contentHtml = `
                         <div style="background:#f3f4f6; padding:10px; border-radius:8px; margin-bottom:15px;">
                             <strong>Categoria:</strong> ${group.category} <br>
                             <strong>Qtd Animais:</strong> ${group.animals.length || group.quantity} <br>
                             <strong>GMD Médio:</strong> ${calculateGMD(group)} kg/dia <br>
-                            <strong>Custo Total:</strong> R$ ${calculateGroupCost(group)}
+                            <strong>Custo no Período:</strong> R$ ${totalCostInPeriod.toFixed(2)}
                         </div>
-                        
-                        <h3>Custos e Insumos</h3>
+                        <h3>Custos e Insumos (Período Selecionado)</h3>
                         <table class="pdf-table" style="margin-bottom:20px;">
                             <thead><tr><th>Data</th><th>Item</th><th>Qtd</th><th class="text-right">Custo</th></tr></thead>
-                            <tbody>${costRows || '<tr><td colspan="4">Sem registros</td></tr>'}</tbody>
+                            <tbody>${costRows || '<tr><td colspan="4">Sem registros no período</td></tr>'}</tbody>
                         </table>
-
                         <h3>Animais do Lote</h3>
                         <table class="pdf-table">
                             <thead><tr><th>Identificação</th><th class="text-right">Peso Atual</th></tr></thead>
@@ -2492,11 +3410,9 @@
                     `;
                 }
             }
-
             // 3. Resumo Geral
             else if (type === 'general_summary') {
                 titleEl.innerText = 'Resumo Geral da Fazenda';
-                
                 const rows = appData.groups.map(g => {
                     const weightInfo = getCurrentLotWeight(g);
                     return `<tr>
@@ -2507,111 +3423,158 @@
                         <td class="text-right">R$ ${calculateGroupCost(g)}</td>
                     </tr>`;
                 }).join('');
-
                 contentHtml = `
                     <table class="pdf-table">
                         <thead><tr><th>Lote</th><th>Categoria</th><th>Cab</th><th>Peso Médio</th><th class="text-right">Custo Total</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>`;
             }
-
             // 4. Pluviometria
             else if (type === 'rainfall') {
                 titleEl.innerText = 'Relatório de Chuvas (Pluviometria)';
                 let totalMm = 0;
                 
-                const rows = appData.rainfall.map(r => {
+                const filteredRainfall = appData.rainfall.filter(r => isDateInRange(r.date));
+                
+                const rows = filteredRainfall.map(r => {
                     totalMm += r.mm;
                     return `<tr>
                         <td>${new Date(r.date).toLocaleDateString('pt-BR')}</td>
                         <td class="text-right">${r.mm} mm</td>
                     </tr>`;
                 }).join('');
-
+                
                 contentHtml = `
-                    <div style="margin-bottom:15px;"><strong>Acumulado Total Registrado:</strong> ${totalMm} mm</div>
+                    <div style="margin-bottom:15px;"><strong>Acumulado no Período:</strong> ${totalMm} mm</div>
                     <table class="pdf-table">
                         <thead><tr><th>Data</th><th class="text-right">Milímetros (mm)</th></tr></thead>
-                        <tbody>${rows}</tbody>
+                        <tbody>${rows || '<tr><td colspan="2">Nenhum registro no período</td></tr>'}</tbody>
                     </table>`;
             }
-
             // 5. Sanitário Geral
             else if (type === 'sanitary_general') {
                 titleEl.innerText = 'Relatório Sanitário Geral';
                 let htmlBuilder = '';
-
                 appData.groups.forEach(g => {
                     if(g.health && g.health.length > 0) {
-                        const healthRows = g.health.map(h => `<tr>
-                            <td>${new Date(h.date).toLocaleDateString('pt-BR')}</td>
-                            <td>${h.name}</td>
-                            <td>${h.withdrawDays > 0 ? new Date(h.withdrawEnd).toLocaleDateString('pt-BR') : '-'}</td>
-                            <td>${h.scope === 'individual' ? 'Individual (' + (h.animalId || '?') + ')' : 'Lote Todo'}</td>
-                        </tr>`).join('');
-
-                        htmlBuilder += `
-                            <h4 style="margin-top:15px; border-bottom:1px solid #ccc;">Lote: ${g.name}</h4>
-                            <table class="pdf-table">
-                                <thead><tr><th>Data Aplicação</th><th>Produto</th><th>Fim Carência</th><th>Escopo</th></tr></thead>
-                                <tbody>${healthRows}</tbody>
-                            </table>
-                        `;
+                        const filteredHealth = g.health.filter(h => isDateInRange(h.date));
+                        
+                        if(filteredHealth.length > 0) {
+                            const healthRows = filteredHealth.map(h => `<tr>
+                                <td>${new Date(h.date).toLocaleDateString('pt-BR')}</td>
+                                <td>${h.name}</td>
+                                <td>${h.withdrawDays > 0 ? new Date(h.withdrawEnd).toLocaleDateString('pt-BR') : '-'}</td>
+                                <td>${h.scope === 'individual' ? 'Individual (' + (h.animalId || '?') + ')' : 'Lote Todo'}</td>
+                            </tr>`).join('');
+                            
+                            htmlBuilder += `
+                                <h4 style="margin-top:15px; border-bottom:1px solid #ccc;">Lote: ${g.name}</h4>
+                                <table class="pdf-table">
+                                    <thead><tr><th>Data Aplicação</th><th>Produto</th><th>Fim Carência</th><th>Escopo</th></tr></thead>
+                                    <tbody>${healthRows}</tbody>
+                                </table>
+                            `;
+                        }
                     }
                 });
-
-                contentHtml = htmlBuilder || '<p>Nenhum registro sanitário encontrado nos lotes.</p>';
+                contentHtml = htmlBuilder || '<p>Nenhum registro sanitário encontrado no período selecionado.</p>';
+            }
+            // 6. Análise de Perdas
+            else if (type === 'loss_analysis') {
+                titleEl.innerText = 'Análise de Perdas e Mortes';
+                
+                const filteredLosses = (appData.animalLosses || []).filter(loss => isDateInRange(loss.date));
+                
+                if(filteredLosses.length === 0) {
+                    contentHtml = '<p>Nenhuma perda registrada no período selecionado.</p>';
+                } else {
+                    const lossStats = {};
+                    filteredLosses.forEach(loss => {
+                        const key = loss.reason === 'Morte' ? `Morte - ${loss.deathCause}` : loss.reason;
+                        if(!lossStats[key]) lossStats[key] = 0;
+                        lossStats[key]++;
+                    });
+                    
+                    const statsRows = Object.entries(lossStats).map(([reason, count]) => `<tr>
+                        <td>${reason}</td>
+                        <td class="text-right">${count}</td>
+                    </tr>`).join('');
+                    
+                    const detailRows = filteredLosses.sort((a,b) => new Date(b.date) - new Date(a.date)).map(loss => `<tr>
+                        <td>${new Date(loss.date).toLocaleDateString('pt-BR')}</td>
+                        <td>${loss.animalId}</td>
+                        <td>${loss.groupName}</td>
+                        <td>${loss.reason}</td>
+                        <td>${loss.deathCause || '-'}</td>
+                        <td>${loss.notes || '-'}</td>
+                    </tr>`).join('');
+                    
+                    contentHtml = `
+                        <h3>Resumo por Motivo (Período Selecionado)</h3>
+                        <table class="pdf-table" style="margin-bottom:30px;">
+                            <thead><tr><th>Motivo</th><th class="text-right">Quantidade</th></tr></thead>
+                            <tbody>${statsRows}</tbody>
+                        </table>
+                        <h3>Detalhamento Completo</h3>
+                        <table class="pdf-table">
+                            <thead><tr><th>Data</th><th>Animal</th><th>Lote</th><th>Motivo</th><th>Causa</th><th>Obs</th></tr></thead>
+                            <tbody>${detailRows}</tbody>
+                        </table>
+                    `;
+                }
             }
 
-            // Injeta conteúdo
             bodyEl.innerHTML = contentHtml;
 
-            // Configurações do HTML2PDF
             const element = document.getElementById('pdf-template');
             const opt = {
-                margin:       0,
-                filename:     `Relatorio_MeuGado_${type}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: 0,
+                filename: `Relatorio_MeuGado_${type}_${reportDateFilter.startDate}_${reportDateFilter.endDate}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // Gera e Salva
             closeModal('modalReports');
             
-            // Pequeno delay para garantir renderização
             setTimeout(() => {
-                html2pdf().set(opt).from(element).save().catch(err => {
+                html2pdf().set(opt).from(element).save().then(() => {
+                    alert('PDF gerado com sucesso!');
+                }).catch(err => {
                     console.error(err);
-                    alert("Erro ao gerar PDF. Tente novamente.");
+                    alert("Erro ao gerar PDF. Verifique o console para mais detalhes.");
                 });
             }, 500);
         }
 
         // --- RENDER ---
         let chartInstance = null;
-        function renderAll() {
-            // Stats
-            let totalAnimals = 0;
-            appData.groups.forEach(g => { if(!g.sold) totalAnimals += (g.animals.length || g.quantity); });
-            document.getElementById('dashTotalAnimals').innerText = totalAnimals;
+        let lossChartInstance = null;
 
+        function renderAll() {
+            let totalAnimals = 0;
+            appData.groups.forEach(g => {
+                if(!g.sold) totalAnimals += (g.animals.length || g.quantity);
+            });
+            document.getElementById('dashTotalAnimals').innerText = totalAnimals;
             let sumGmd = 0, countGmd = 0;
             appData.groups.forEach(g => {
-                if(!g.sold) { const val = parseFloat(calculateGMD(g)); if(val > 0) { sumGmd += val; countGmd++; } }
+                if(!g.sold) {
+                    const val = parseFloat(calculateGMD(g));
+                    if(val > 0) {
+                        sumGmd += val;
+                        countGmd++;
+                    }
+                }
             });
             document.getElementById('dashAvgGMD').innerText = countGmd ? (sumGmd/countGmd).toFixed(3) : '0.000';
 
-            // Lists
             document.getElementById('groupsList').innerHTML = appData.groups.map(g => {
                 const currentWeightInfo = getCurrentLotWeight(g);
                 const displayWeight = currentWeightInfo.weight > 0 ? currentWeightInfo.weight.toFixed(2) : '-';
                 const opacity = g.sold ? 'opacity: 0.7;' : '';
                 const soldBadge = g.sold ? '<span class="badge badge-gray" style="margin-left:5px;">VENDIDO</span>' : '';
-                
-                // --- ÍCONE DINÂMICO ---
                 const iconClass = getIconForType(g.herdType);
-
                 return `<div class="card list-item" onclick="openGroupDetails(${g.id})" style="${opacity}">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div style="background:var(--primary-light); padding:10px; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--primary-dark);">
@@ -2626,7 +3589,6 @@
                 </div>`;
             }).join('');
 
-            // --- RENDER PASTOS (COM ONCLICK PARA EDIÇÃO) ---
             document.getElementById('pasturesGrid').innerHTML = appData.pastures.map(p => {
                 const ua = getStockingRate(p.id);
                 const groups = appData.groups.filter(g => g.currentPastureId == p.id && !g.sold);
@@ -2643,11 +3605,7 @@
             if(appData.inventory.length === 0) inventoryList.innerHTML = '<p class="text-center text-gray" style="padding:20px;">Vazio.</p>';
             else inventoryList.innerHTML = appData.inventory.map(i => {
                 stockTotal += (i.currentQty * i.avgPrice);
-                // Badge diferente para Sêmen
-                let badgeClass = i.category === 'Vacina' ? 'badge-danger' : 
-                                 (i.category === 'Ração' ? 'badge-success' : 
-                                 (i.category === 'Sêmen' ? 'badge-pink' : 'badge-info'));
-                
+                let badgeClass = i.category === 'Vacina' ? 'badge-danger' : (i.category === 'Ração' ? 'badge-success' : (i.category === 'Sêmen' ? 'badge-pink' : 'badge-info'));
                 return `<div class="list-item">
                     <div><div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div><div class="text-sm text-gray">Médio: R$ ${i.avgPrice.toFixed(2)}</div></div>
                     <div class="text-center"><strong style="font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</strong></div>
@@ -2658,13 +3616,15 @@
             let totalIncome = 0, totalExpense = 0;
             const listFin = document.getElementById('financialList');
             let allTrans = appData.financials ? [...appData.financials] : [];
-            allTrans.forEach(t => { if(t.type === 'income') totalIncome += t.amount; else totalExpense += t.amount; });
+            allTrans.forEach(t => {
+                if(t.type === 'income') totalIncome += t.amount;
+                else totalExpense += t.amount;
+            });
             allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
             listFin.innerHTML = allTrans.map(t => `<div class="list-item">
                 <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div></div>
                 <div class="${t.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
             </div>`).join('');
-
             document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
             document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
             const net = totalIncome - totalExpense;
@@ -2679,11 +3639,107 @@
                 data: {
                     labels: appData.rainfall.map(r => r.date.substring(5)),
                     datasets: [
-                        { label: 'Chuva (mm)', data: appData.rainfall.map(r=>r.mm), backgroundColor: '#60a5fa', yAxisID: 'y' },
-                        { label: 'Peso Simulado', data: appData.rainfall.map(r=>Math.random()*5+300), type: 'line', borderColor: '#059669', yAxisID: 'y1' }
+                        {
+                            label: 'Chuva (mm)',
+                            data: appData.rainfall.map(r=>r.mm),
+                            backgroundColor: '#60a5fa',
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Peso Simulado',
+                            data: appData.rainfall.map(r=>Math.random()*5+300),
+                            type: 'line',
+                            borderColor: '#059669',
+                            yAxisID: 'y1'
+                        }
                     ]
                 },
-                options: { responsive: true, scales: { y: {position:'left'}, y1: {position:'right', grid:{drawOnChartArea:false}} } }
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {position:'left'},
+                        y1: {position:'right', grid:{drawOnChartArea:false}}
+                    }
+                }
+            });
+
+            renderLossAnalysisChart();
+        }
+
+        function renderLossAnalysisChart() {
+            const ctx = document.getElementById('lossAnalysisChart').getContext('2d');
+            if(lossChartInstance) {
+                lossChartInstance.destroy();
+            }
+            if(!appData.animalLosses || appData.animalLosses.length === 0) {
+                ctx.font = '14px Inter';
+                ctx.fillStyle = '#6b7280';
+                ctx.textAlign = 'center';
+                ctx.fillText('Nenhuma perda registrada', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                return;
+            }
+            const lossStats = {};
+            appData.animalLosses.forEach(loss => {
+                const key = loss.reason === 'Morte' ? `Morte - ${loss.deathCause}` : loss.reason;
+                if(!lossStats[key]) lossStats[key] = 0;
+                lossStats[key]++;
+            });
+            const labels = Object.keys(lossStats);
+            const data = Object.values(lossStats);
+            const colors = [
+                '#dc2626',
+                '#f59e0b',
+                '#10b981',
+                '#3b82f6',
+                '#8b5cf6',
+                '#ec4899',
+                '#6b7280'
+            ];
+            lossChartInstance = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, labels.length),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Por que estou perdendo dinheiro?',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((value / total) * 100).toFixed(1);
+                                    return `${label}: ${value} animais (${percentage}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
             });
         }
 
@@ -2693,33 +3749,37 @@
             document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
             nav.classList.add('active');
         }
+
         function switchTab(id, event) {
             document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
             document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
             event.target.classList.add('active');
         }
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // --- OFFLINE STATUS HELPER ---
-        // Monitorar status da conexão
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
 
         function updateOnlineStatus() {
             const statusDiv = document.getElementById('connectionStatus');
-            if (!statusDiv) return; // Se ainda não criou o elemento
-
+            if (!statusDiv) return;
             if (navigator.onLine) {
                 statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online (Sincronizado)';
                 statusDiv.className = 'badge badge-success';
                 statusDiv.style.position = 'fixed';
                 statusDiv.style.bottom = '10px';
                 statusDiv.style.right = '10px';
-                
-                // Some depois de 3 segundos
-                setTimeout(() => { statusDiv.style.display = 'none'; }, 3000);
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
             } else {
                 statusDiv.style.display = 'block';
                 statusDiv.innerHTML = '<i class="fas fa-cloud-slash"></i> Offline (Salvando no dispositivo)';
@@ -2731,12 +3791,17 @@
             }
         }
     </script>
+
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
-                    .then((registration) => { console.log('Service Worker registrado:', registration.scope); })
-                    .catch((error) => { console.log('Falha SW:', error); });
+                    .then((registration) => {
+                        console.log('Service Worker registrado:', registration.scope);
+                    })
+                    .catch((error) => {
+                        console.log('Falha SW:', error);
+                    });
             });
         }
     </script>
