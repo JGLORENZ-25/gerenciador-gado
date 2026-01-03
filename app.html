@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -53,6 +53,12 @@
             padding: 0;
             box-sizing: border-box;
             outline: none;
+        }
+
+        /* REGRA DE SEGURANÇA PARA MOBILE: Impede que imagens e gráficos estouram a tela */
+        img, canvas, video, svg {
+            max-width: 100%;
+            height: auto;
         }
 
         body {
@@ -383,9 +389,11 @@
             width: auto;
         }
 
+        /* CORREÇÃO CSS: Adicionado flex-wrap para evitar quebrar layout em telas pequenas */
         .btn-group-row {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
         }
 
         .form-group {
@@ -511,10 +519,13 @@
             text-align: center;
         }
 
+        /* CORREÇÃO CSS: Adicionado flex-wrap e gap para evitar sobreposição */
         .flex-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .gap-2 {
@@ -545,11 +556,14 @@
             color: var(--pink);
         }
 
+        /* CORREÇÃO CSS: Adicionado flex-wrap e gap no cabeçalho */
         .header-user {
             display: flex;
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .paddock-grid {
@@ -1617,7 +1631,6 @@
                     <div id="inventoryList"></div>
                 </div>
 
-                <!-- NOVO: Botão Flutuante (FAB) para Calculadora -->
                 <div class="fab-calculator" onclick="openModal('modalCalculator')" title="Calculadora de Nutrição">
                     <i class="fas fa-calculator"></i>
                 </div>
@@ -1629,7 +1642,6 @@
                     <div class="btn-group-row">
                         <button class="btn btn-sm btn-success" onclick="openTransactionModal('income')"><i class="fas fa-plus"></i> Receita</button>
                         <button class="btn btn-sm btn-danger" onclick="openTransactionModal('expense')"><i class="fas fa-minus"></i> Despesa</button>
-                        <!-- NOVO: Botão para Gerar Recibo -->
                         <button class="btn btn-sm btn-secondary" onclick="openReceiptModal()"><i class="fas fa-file-invoice"></i> Recibo</button>
                     </div>
                 </div>
@@ -1725,7 +1737,6 @@
         </div>
     </div>
 
-    <!-- MODALS -->
     <div id="modalSettings" class="modal">
         <div class="modal-content">
             <h3>Configurações</h3>
@@ -1854,7 +1865,6 @@
         </div>
     </div>
 
-    <!-- NOVO: Template de Recibo (oculto) -->
     <div id="receipt-hidden-container" style="position: fixed; left: -9999px; top: 0;">
         <div id="receipt-template" class="receipt-template">
             <img src="Branco-removebg-preview.png" class="watermark-img">
@@ -1912,7 +1922,6 @@
         </div>
     </div>
 
-    <!-- NOVO: Modal de Recibo -->
     <div id="modalReceipt" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-file-invoice"></i> Gerar Recibo de Compra e Venda</h3>
@@ -1956,7 +1965,6 @@
         </div>
     </div>
 
-    <!-- NOVO: Modal de Calculadora de Nutrição -->
     <div id="modalCalculator" class="modal">
         <div class="modal-content">
             <h3><i class="fas fa-calculator"></i> Calculadora de Nutrição</h3>
@@ -4276,10 +4284,11 @@
             }).join('');
         }
 
-        // --- SUB-FUNCTIONS ---
+        // ===== SUB-FUNCTIONS =====
         async function moveGroup(pid) {
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
+
             group.currentPastureId = pid || null;
             await saveData();
             renderAll();
@@ -4288,9 +4297,12 @@
         async function addWeight() {
             const date = document.getElementById('weightDate').value;
             const weight = parseFloat(document.getElementById('weightValue').value);
+
             if(!date || !weight) return;
+
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
+
             group.weighings.push({date, weight});
             await saveData();
             openGroupDetails(activeGroupId);
@@ -4299,22 +4311,27 @@
 
         function renderWeightList(group) {
             const list = document.getElementById('weightHistoryList');
-            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w => `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
+            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w =>
+                `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
             ).join('');
         }
 
         async function addAnimalToGroup() {
             const id = document.getElementById('newAnimalId').value;
             if(!id) return;
+
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
+
             group.animals.push({
                 id,
                 entryDate: new Date().toISOString().split('T')[0],
                 weight: 0
             });
+
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
+
             await saveData();
             renderAnimalList(group);
             renderAll();
@@ -4322,26 +4339,30 @@
 
         function renderAnimalList(group) {
             const list = document.getElementById('animalList');
-            list.innerHTML = group.animals.map((a, idx) => `<div class="list-item text-sm">
-                <div onclick="openAnimalDetails(${idx})" style="cursor:pointer; flex:1;">
-                    <span><i class="fas fa-tag"></i> <strong>${a.id}</strong></span>
-                    <div class="text-xs text-gray">Peso: ${a.weight ? a.weight.toFixed(2) + ' kg' : 'N/A'}</div>
-                </div>
-                <div class="btn-group-row">
-                    <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})"><i class="fas fa-pencil-alt"></i></button>
-                    <button class="btn btn-danger btn-sm" onclick="openRemoveAnimalModal(${idx})"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>`
+
+            list.innerHTML = group.animals.map((a, idx) =>
+                `<div class="list-item text-sm">
+                    <div onclick="openAnimalDetails(${idx})" style="cursor:pointer; flex:1;">
+                        <span><i class="fas fa-tag"></i> <strong>${a.id}</strong></span>
+                        <div class="text-xs text-gray">Peso: ${a.weight ? a.weight.toFixed(2) + ' kg' : 'N/A'}</div>
+                    </div>
+                    <div class="btn-group-row">
+                        <button class="btn btn-outline btn-sm" onclick="openEditAnimal(${idx})"><i class="fas fa-pencil-alt"></i></button>
+                        <button class="btn btn-danger btn-sm" onclick="openRemoveAnimalModal(${idx})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>`
             ).join('');
         }
 
         function openEditAnimal(idx) {
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
+
             const animal = group.animals[idx];
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
             document.getElementById('editAnimalWeightInput').value = animal.weight || '';
+
             openModal('modalEditAnimal');
         }
 
@@ -4349,10 +4370,13 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
+
             if(!newId) return;
+
             const group = appData.groups.find(g => g.id == activeGroupId);
             group.animals[idx].id = newId;
             group.animals[idx].weight = newWeight;
+
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
@@ -4362,6 +4386,7 @@
         function openRemoveAnimalModal(idx) {
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
+
             const animal = group.animals[idx];
             document.getElementById('removeAnimalIndex').value = idx;
             document.getElementById('removeAnimalName').innerText = animal.id;
@@ -4370,12 +4395,14 @@
             document.getElementById('removeDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('removeNotes').value = '';
             document.getElementById('deathCauseBlock').classList.add('hidden');
+
             openModal('modalRemoveAnimal');
         }
 
         function toggleDeathCause() {
             const reason = document.getElementById('removeReason').value;
             const deathBlock = document.getElementById('deathCauseBlock');
+
             if(reason === 'Morte') {
                 deathBlock.classList.remove('hidden');
             } else {
@@ -4389,17 +4416,22 @@
             const deathCause = document.getElementById('deathCause').value;
             const date = document.getElementById('removeDate').value;
             const notes = document.getElementById('removeNotes').value;
+
             if(!reason || !date) {
                 alert('Preencha o motivo e a data.');
                 return;
             }
+
             if(reason === 'Morte' && !deathCause) {
                 alert('Selecione a causa da morte.');
                 return;
             }
+
             const group = appData.groups.find(g => g.id == activeGroupId);
             const animal = group.animals[idx];
+
             if(!appData.animalLosses) appData.animalLosses = [];
+
             appData.animalLosses.push({
                 id: Date.now(),
                 animalId: animal.id,
@@ -4411,8 +4443,10 @@
                 notes: notes,
                 weight: animal.weight || 0
             });
+
             group.animals.splice(idx, 1);
             group.quantity = group.animals.length;
+
             await saveData();
             closeModal('modalRemoveAnimal');
             renderAnimalList(group);
@@ -4425,25 +4459,31 @@
         function openAnimalDetails(idx) {
             const group = appData.groups.find(g => g.id == activeGroupId);
             const animal = group.animals[idx];
+
             document.getElementById('animalDetailId').innerText = animal.id;
             document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
             document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
+
             renderAnimalGrowthChart(group, animal);
             openModal('modalAnimalDetails');
         }
 
         function renderAnimalGrowthChart(group, animal) {
             const ctx = document.getElementById('animalGrowthChart').getContext('2d');
+
             if(animalGrowthChartInstance) {
                 animalGrowthChartInstance.destroy();
             }
+
             const weighings = group.weighings || [];
             const labels = weighings.map(w => new Date(w.date).toLocaleDateString('pt-BR', {month: 'short', day: 'numeric'}));
             const animalWeights = [];
             const avgWeights = [];
+
             if(weighings.length > 0) {
                 const currentWeight = animal.weight || weighings[weighings.length - 1].weight;
                 const gmd = parseFloat(calculateGMD(group)) || 0.5;
+
                 for(let i = 0; i < weighings.length; i++) {
                     const daysBack = weighings.length - i - 1;
                     animalWeights.push(currentWeight - (gmd * daysBack * 30));
@@ -4454,6 +4494,7 @@
                 animalWeights.push(animal.weight || 0);
                 avgWeights.push(getCurrentLotWeight(group).weight);
             }
+
             animalGrowthChartInstance = new Chart(ctx, {
                 type: 'line',
                 data: {
@@ -4519,28 +4560,36 @@
             const date = document.getElementById('simDate').value;
             const gmd = parseFloat(document.getElementById('simGMD').value);
             const price = parseFloat(document.getElementById('simPrice').value);
+
             if(!date || !gmd || !price || !activeGroupId) return;
+
             const group = appData.groups.find(g => g.id == activeGroupId);
             const currentWeightInfo = getCurrentLotWeight(group);
+
             if(currentWeightInfo.weight === 0) return;
+
             const diffDays = Math.ceil((new Date(date) - new Date()) / (86400000));
             if(diffDays <= 0) return;
+
             const futureWeight = currentWeightInfo.weight + (gmd * diffDays);
             const revenue = (futureWeight * (group.animals.length || group.quantity) / 30) * price;
+
             document.getElementById('resWeight').innerText = futureWeight.toFixed(1) + ' kg';
             document.getElementById('resRevenue').innerText = `R$ ${revenue.toFixed(2)}`;
             document.getElementById('simResult').classList.remove('hidden');
         }
 
-        // --- FINANCEIRO ---
+        // ===== FINANCEIRO =====
         function openTransactionModal(type) {
             document.getElementById('transType').value = type;
             document.getElementById('transDesc').value = '';
             document.getElementById('transAmount').value = '';
             document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
+
             document.getElementById('transTitle').innerText = type === 'income' ? 'Nova Receita' : 'Nova Despesa';
             document.getElementById('transTitle').className = type === 'income' ? 'text-success' : 'text-danger';
             document.getElementById('btnSaveTrans').className = type === 'income' ? 'btn btn-success' : 'btn btn-danger';
+
             openModal('modalTransaction');
         }
 
@@ -4549,7 +4598,9 @@
             const desc = document.getElementById('transDesc').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
             const date = document.getElementById('transDate').value;
+
             if(!desc || !amount || !date) return;
+
             appData.financials.push({
                 id: Date.now(),
                 type,
@@ -4557,16 +4608,19 @@
                 amount,
                 date
             });
+
             await saveData();
             closeModal('modalTransaction');
             renderAll();
         }
 
-        // --- ADMIN FUNCTIONS ---
+        // ===== ADMIN FUNCTIONS =====
         async function loadAdminUserList() {
             if(currentUser.role !== 'admin') return;
+
             const listContainer = document.getElementById('adminUserList');
             listContainer.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Carregando lista...</div>';
+
             try {
                 const snapshot = await db.collection('auth').get();
                 allUsersCache = [];
@@ -4579,19 +4633,24 @@
 
         function renderAdminList() {
             const listContainer = document.getElementById('adminUserList');
+
             if(allUsersCache.length === 0) {
                 listContainer.innerHTML = '<p>Nenhum usuário.</p>';
                 return;
             }
+
             listContainer.innerHTML = allUsersCache.map(u => {
                 const isMe = u.id === currentUser.id;
                 let roleBadge = u.role === 'admin' ? '<span class="badge badge-purple">Admin</span>' : (u.role === 'manager' ? '<span class="badge badge-info">Gerente</span>' : '<span class="badge badge-gray">Produtor</span>');
+
                 const manageBtn = (u.role === 'manager') ? `<button class="btn btn-sm btn-secondary" onclick="openAssignModal('${u.id}')" style="margin-top:5px;"><i class="fas fa-network-wired"></i> Atribuir Fazendas</button>` : '';
+
                 const roleSelector = !isMe ? `<select class="form-input text-sm" style="width:auto; padding:5px;" onchange="changeUserRole('${u.id}', this.value)">
                     <option value="basic" ${u.role === 'basic' ? 'selected' : ''}>Produtor</option>
                     <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>Gerente</option>
                     <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
                 </select>` : '<span class="text-xs text-gray">Você</span>';
+
                 return `<div class="card" style="display:flex; flex-direction:column; gap:10px; border-left: 4px solid var(--primary);">
                     <div class="flex-between">
                         <div><strong>${u.fullName}</strong> <small class="text-gray">(${u.userName})</small><div style="margin-top:4px;">${roleBadge}</div></div>
@@ -4607,6 +4666,7 @@
                 loadAdminUserList();
                 return;
             }
+
             try {
                 await db.collection('auth').doc(targetId).update({ role: newRole });
                 const user = allUsersCache.find(u => u.id === targetId);
@@ -4620,10 +4680,13 @@
         function openAssignModal(managerId) {
             const manager = allUsersCache.find(u => u.id === managerId);
             if(!manager) return;
+
             document.getElementById('targetManagerId').value = managerId;
             document.getElementById('assignManagerName').innerText = manager.fullName;
+
             const list = document.getElementById('assignFarmList');
             const potentialFarms = allUsersCache.filter(u => u.id !== managerId && u.role !== 'admin');
+
             list.innerHTML = potentialFarms.map(farm => {
                 const isChecked = manager.managedFarms && manager.managedFarms.includes(farm.id);
                 return `<label class="list-item" style="display: flex; justify-content: flex-start; gap: 10px; align-items: center;">
@@ -4631,6 +4694,7 @@
                     <div><strong>${farm.fullName}</strong><div class="text-xs text-gray">Usuário: ${farm.userName}</div></div>
                 </label>`;
             }).join('');
+
             openModal('modalAdminAssign');
         }
 
@@ -4638,10 +4702,12 @@
             const managerId = document.getElementById('targetManagerId').value;
             const checkboxes = document.querySelectorAll('#assignFarmList input[type="checkbox"]:checked');
             const selectedFarms = Array.from(checkboxes).map(cb => cb.value);
+
             try {
                 await db.collection('auth').doc(managerId).update({ managedFarms: selectedFarms });
                 const manager = allUsersCache.find(u => u.id === managerId);
                 if(manager) manager.managedFarms = selectedFarms;
+
                 alert('Atribuições salvas!');
                 closeModal('modalAdminAssign');
                 renderAdminList();
@@ -4650,11 +4716,12 @@
             }
         }
 
-        // --- LÓGICA DE RELATÓRIOS PDF COM FILTROS ---
+        // ===== LÓGICA DE RELATÓRIOS PDF COM FILTROS =====
         function toggleReportOptions() {
             const type = document.getElementById('reportType').value;
             const groupDiv = document.getElementById('reportGroupSelectDiv');
             const groupSelect = document.getElementById('reportGroupTarget');
+
             if (type === 'group_specific') {
                 groupDiv.classList.remove('hidden');
                 groupSelect.innerHTML = appData.groups.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
@@ -4676,6 +4743,7 @@
                     alert('Por favor, selecione as datas inicial e final.');
                     return;
                 }
+
                 if (new Date(reportDateFilter.startDate) > new Date(reportDateFilter.endDate)) {
                     alert('A data inicial não pode ser posterior à data final.');
                     return;
@@ -4684,7 +4752,7 @@
 
             dateEl.innerText = new Date().toLocaleString('pt-BR');
             farmEl.innerText = currentUser ? `Produtor: ${currentUser.fullName}` : 'MeuGado';
-            
+
             const startFormatted = new Date(reportDateFilter.startDate).toLocaleDateString('pt-BR');
             const endFormatted = new Date(reportDateFilter.endDate).toLocaleDateString('pt-BR');
             dateRangeEl.innerText = `${startFormatted} a ${endFormatted}`;
@@ -4695,13 +4763,15 @@
                 titleEl.innerText = 'Relatório Financeiro Completo';
                 let totalIncome = 0;
                 let totalExpense = 0;
-                
+
                 const filteredFinancials = appData.financials.filter(f => isDateInRange(f.date));
-                
+
                 const rows = filteredFinancials.sort((a,b) => new Date(b.date) - new Date(a.date)).map(f => {
                     if(f.type === 'income') totalIncome += f.amount;
                     else totalExpense += f.amount;
+
                     const color = f.type === 'income' ? 'green' : 'red';
+
                     return `<tr>
                         <td>${new Date(f.date).toLocaleDateString('pt-BR')}</td>
                         <td>${f.desc}</td>
@@ -4709,7 +4779,7 @@
                         <td class="text-right">R$ ${f.amount.toFixed(2)}</td>
                     </tr>`;
                 }).join('');
-                
+
                 contentHtml = `
                     <div style="display:flex; justify-content:space-between; margin-bottom:20px; font-weight:bold;">
                         <div style="color:green;">Total Receitas: R$ ${totalIncome.toFixed(2)}</div>
@@ -4720,29 +4790,33 @@
                         <thead><tr><th>Data</th><th>Descrição</th><th>Tipo</th><th class="text-right">Valor</th></tr></thead>
                         <tbody>${rows || '<tr><td colspan="4">Nenhuma transação no período</td></tr>'}</tbody>
                     </table>`;
-            }
-            else if (type === 'group_specific') {
+            } else if (type === 'group_specific') {
                 const groupId = document.getElementById('reportGroupTarget').value;
                 const group = appData.groups.find(g => g.id == groupId);
+
                 if (group) {
                     titleEl.innerText = `Relatório do Lote: ${group.name}`;
-                    
+
                     const filteredCosts = (group.costHistory || []).filter(c => isDateInRange(c.date));
-                    
-                    const costRows = filteredCosts.map(c => `<tr>
-                        <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
-                        <td>${c.itemName}</td>
-                        <td>${c.qty} ${c.unit}</td>
-                        <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
-                    </tr>`).join('');
-                    
-                    const animalRows = (group.animals || []).map(a => `<tr>
-                        <td>${a.id}</td>
-                        <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
-                    </tr>`).join('');
-                    
+
+                    const costRows = filteredCosts.map(c =>
+                        `<tr>
+                            <td>${new Date(c.date).toLocaleDateString('pt-BR')}</td>
+                            <td>${c.itemName}</td>
+                            <td>${c.qty} ${c.unit}</td>
+                            <td class="text-right">R$ ${c.totalCost.toFixed(2)}</td>
+                        </tr>`
+                    ).join('');
+
+                    const animalRows = (group.animals || []).map(a =>
+                        `<tr>
+                            <td>${a.id}</td>
+                            <td class="text-right">${a.weight ? a.weight.toFixed(2) + ' kg' : '-'}</td>
+                        </tr>`
+                    ).join('');
+
                     const totalCostInPeriod = filteredCosts.reduce((sum, c) => sum + c.totalCost, 0);
-                    
+
                     contentHtml = `
                         <div style="background:#f3f4f6; padding:10px; border-radius:8px; margin-bottom:15px;">
                             <strong>Categoria:</strong> ${group.category} <br>
@@ -4762,9 +4836,9 @@
                         </table>
                     `;
                 }
-            }
-            else if (type === 'general_summary') {
+            } else if (type === 'general_summary') {
                 titleEl.innerText = 'Resumo Geral da Fazenda';
+
                 const rows = appData.groups.map(g => {
                     const weightInfo = getCurrentLotWeight(g);
                     return `<tr>
@@ -4775,18 +4849,18 @@
                         <td class="text-right">R$ ${calculateGroupCost(g)}</td>
                     </tr>`;
                 }).join('');
+
                 contentHtml = `
                     <table class="pdf-table">
                         <thead><tr><th>Lote</th><th>Categoria</th><th>Cab</th><th>Peso Médio</th><th class="text-right">Custo Total</th></tr></thead>
                         <tbody>${rows}</tbody>
                     </table>`;
-            }
-            else if (type === 'rainfall') {
+            } else if (type === 'rainfall') {
                 titleEl.innerText = 'Relatório de Chuvas (Pluviometria)';
                 let totalMm = 0;
-                
+
                 const filteredRainfall = appData.rainfall.filter(r => isDateInRange(r.date));
-                
+
                 const rows = filteredRainfall.map(r => {
                     totalMm += r.mm;
                     return `<tr>
@@ -4794,29 +4868,31 @@
                         <td class="text-right">${r.mm} mm</td>
                     </tr>`;
                 }).join('');
-                
+
                 contentHtml = `
                     <div style="margin-bottom:15px;"><strong>Acumulado no Período:</strong> ${totalMm} mm</div>
                     <table class="pdf-table">
                         <thead><tr><th>Data</th><th class="text-right">Milímetros (mm)</th></tr></thead>
                         <tbody>${rows || '<tr><td colspan="2">Nenhum registro no período</td></tr>'}</tbody>
                     </table>`;
-            }
-            else if (type === 'sanitary_general') {
+            } else if (type === 'sanitary_general') {
                 titleEl.innerText = 'Relatório Sanitário Geral';
                 let htmlBuilder = '';
+
                 appData.groups.forEach(g => {
                     if(g.health && g.health.length > 0) {
                         const filteredHealth = g.health.filter(h => isDateInRange(h.date));
-                        
+
                         if(filteredHealth.length > 0) {
-                            const healthRows = filteredHealth.map(h => `<tr>
-                                <td>${new Date(h.date).toLocaleDateString('pt-BR')}</td>
-                                <td>${h.name}</td>
-                                <td>${h.withdrawDays > 0 ? new Date(h.withdrawEnd).toLocaleDateString('pt-BR') : '-'}</td>
-                                <td>${h.scope === 'individual' ? 'Individual (' + (h.animalId || '?') + ')' : 'Lote Todo'}</td>
-                            </tr>`).join('');
-                            
+                            const healthRows = filteredHealth.map(h =>
+                                `<tr>
+                                    <td>${new Date(h.date).toLocaleDateString('pt-BR')}</td>
+                                    <td>${h.name}</td>
+                                    <td>${h.withdrawDays > 0 ? new Date(h.withdrawEnd).toLocaleDateString('pt-BR') : '-'}</td>
+                                    <td>${h.scope === 'individual' ? 'Individual (' + (h.animalId || '?') + ')' : 'Lote Todo'}</td>
+                                </tr>`
+                            ).join('');
+
                             htmlBuilder += `
                                 <h4 style="margin-top:15px; border-bottom:1px solid #ccc;">Lote: ${g.name}</h4>
                                 <table class="pdf-table">
@@ -4827,13 +4903,13 @@
                         }
                     }
                 });
+
                 contentHtml = htmlBuilder || '<p>Nenhum registro sanitário encontrado no período selecionado.</p>';
-            }
-            else if (type === 'loss_analysis') {
+            } else if (type === 'loss_analysis') {
                 titleEl.innerText = 'Análise de Perdas e Mortes';
-                
+
                 const filteredLosses = (appData.animalLosses || []).filter(loss => isDateInRange(loss.date));
-                
+
                 if(filteredLosses.length === 0) {
                     contentHtml = '<p>Nenhuma perda registrada no período selecionado.</p>';
                 } else {
@@ -4843,21 +4919,25 @@
                         if(!lossStats[key]) lossStats[key] = 0;
                         lossStats[key]++;
                     });
-                    
-                    const statsRows = Object.entries(lossStats).map(([reason, count]) => `<tr>
-                        <td>${reason}</td>
-                        <td class="text-right">${count}</td>
-                    </tr>`).join('');
-                    
-                    const detailRows = filteredLosses.sort((a,b) => new Date(b.date) - new Date(a.date)).map(loss => `<tr>
-                        <td>${new Date(loss.date).toLocaleDateString('pt-BR')}</td>
-                        <td>${loss.animalId}</td>
-                        <td>${loss.groupName}</td>
-                        <td>${loss.reason}</td>
-                        <td>${loss.deathCause || '-'}</td>
-                        <td>${loss.notes || '-'}</td>
-                    </tr>`).join('');
-                    
+
+                    const statsRows = Object.entries(lossStats).map(([reason, count]) =>
+                        `<tr>
+                            <td>${reason}</td>
+                            <td class="text-right">${count}</td>
+                        </tr>`
+                    ).join('');
+
+                    const detailRows = filteredLosses.sort((a,b) => new Date(b.date) - new Date(a.date)).map(loss =>
+                        `<tr>
+                            <td>${new Date(loss.date).toLocaleDateString('pt-BR')}</td>
+                            <td>${loss.animalId}</td>
+                            <td>${loss.groupName}</td>
+                            <td>${loss.reason}</td>
+                            <td>${loss.deathCause || '-'}</td>
+                            <td>${loss.notes || '-'}</td>
+                        </tr>`
+                    ).join('');
+
                     contentHtml = `
                         <h3>Resumo por Motivo (Período Selecionado)</h3>
                         <table class="pdf-table" style="margin-bottom:30px;">
@@ -4885,7 +4965,7 @@
             };
 
             closeModal('modalReports');
-            
+
             setTimeout(() => {
                 html2pdf().set(opt).from(element).save().then(() => {
                     alert('PDF gerado com sucesso!');
@@ -4896,7 +4976,7 @@
             }, 500);
         }
 
-        // --- RENDER ---
+        // ===== RENDER =====
         let chartInstance = null;
         let lossChartInstance = null;
 
@@ -4906,6 +4986,7 @@
                 if(!g.sold) totalAnimals += (g.animals.length || g.quantity);
             });
             document.getElementById('dashTotalAnimals').innerText = totalAnimals;
+
             let sumGmd = 0, countGmd = 0;
             appData.groups.forEach(g => {
                 if(!g.sold) {
@@ -4924,6 +5005,7 @@
                 const opacity = g.sold ? 'opacity: 0.7;' : '';
                 const soldBadge = g.sold ? '<span class="badge badge-gray" style="margin-left:5px;">VENDIDO</span>' : '';
                 const iconClass = getIconForType(g.herdType);
+
                 return `<div class="card list-item" onclick="openGroupDetails(${g.id})" style="${opacity}">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div style="background:var(--primary-light); padding:10px; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; color:var(--primary-dark);">
@@ -4942,40 +5024,51 @@
                 const ua = getStockingRate(p.id);
                 const groups = appData.groups.filter(g => g.currentPastureId == p.id && !g.sold);
                 const isOccupied = groups.length > 0;
+
                 return `<div class="paddock-cell ${isOccupied ? 'occupied' : ''}" onclick="openEditPasture(${p.id})">
                     <strong>${p.name}</strong><div class="text-sm">${p.area} ha</div>
-                    <div style="font-size:0.75rem; margin-top:4px;">${ua} UA/ha</div>
+                    <div style="font-size:0.7rem; margin-top:4px;">${ua} UA/ha</div>
                     ${isOccupied ? `<small style="color:var(--primary-dark); font-weight:bold;">${groups.length} Lotes</small>` : ''}
                 </div>`;
             }).join('');
 
             let stockTotal = 0;
             const inventoryList = document.getElementById('inventoryList');
+
             if(appData.inventory.length === 0) inventoryList.innerHTML = '<p class="text-center text-gray" style="padding:20px;">Vazio.</p>';
             else inventoryList.innerHTML = appData.inventory.map(i => {
                 stockTotal += (i.currentQty * i.avgPrice);
                 let badgeClass = i.category === 'Vacina' ? 'badge-danger' : (i.category === 'Ração' ? 'badge-success' : (i.category === 'Sêmen' ? 'badge-pink' : 'badge-info'));
+
                 return `<div class="list-item">
                     <div><div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div><div class="text-sm text-gray">Médio: R$ ${i.avgPrice.toFixed(2)}</div></div>
                     <div class="text-center"><strong style="font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</strong></div>
                 </div>`;
             }).join('');
+
             document.getElementById('stockTotalValue').innerText = `R$ ${stockTotal.toFixed(2)}`;
 
             let totalIncome = 0, totalExpense = 0;
             const listFin = document.getElementById('financialList');
             let allTrans = appData.financials ? [...appData.financials] : [];
+
             allTrans.forEach(t => {
                 if(t.type === 'income') totalIncome += t.amount;
                 else totalExpense += t.amount;
             });
+
             allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
-            listFin.innerHTML = allTrans.map(t => `<div class="list-item">
-                <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div></div>
-                <div class="${t.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
-            </div>`).join('');
+
+            listFin.innerHTML = allTrans.map(t =>
+                `<div class="list-item">
+                    <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div></div>
+                    <div class="${t.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
+                </div>`
+            ).join('');
+
             document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
             document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
+
             const net = totalIncome - totalExpense;
             const elNet = document.getElementById('finNetProfit');
             elNet.innerText = `R$ ${net.toFixed(2)}`;
@@ -4983,6 +5076,7 @@
 
             const ctx = document.getElementById('rainWeightChart').getContext('2d');
             if(chartInstance) chartInstance.destroy();
+
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -5013,16 +5107,17 @@
             });
 
             renderLossAnalysisChart();
-            
             renderTasks();
             renderNotifications();
         }
 
         function renderLossAnalysisChart() {
             const ctx = document.getElementById('lossAnalysisChart').getContext('2d');
+
             if(lossChartInstance) {
                 lossChartInstance.destroy();
             }
+
             if(!appData.animalLosses || appData.animalLosses.length === 0) {
                 ctx.font = '14px Inter';
                 ctx.fillStyle = '#6b7280';
@@ -5030,14 +5125,17 @@
                 ctx.fillText('Nenhuma perda registrada', ctx.canvas.width / 2, ctx.canvas.height / 2);
                 return;
             }
+
             const lossStats = {};
             appData.animalLosses.forEach(loss => {
                 const key = loss.reason === 'Morte' ? `Morte - ${loss.deathCause}` : loss.reason;
                 if(!lossStats[key]) lossStats[key] = 0;
                 lossStats[key]++;
             });
+
             const labels = Object.keys(lossStats);
             const data = Object.values(lossStats);
+
             const colors = [
                 '#dc2626',
                 '#f59e0b',
@@ -5047,6 +5145,7 @@
                 '#ec4899',
                 '#6b7280'
             ];
+
             lossChartInstance = new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -5098,13 +5197,19 @@
         function switchView(id, nav) {
             document.querySelectorAll('.view-section').forEach(e => e.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+
             document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
             nav.classList.add('active');
+
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
         }
 
         function switchTab(id, event) {
             document.querySelectorAll('.tab-content').forEach(e => e.classList.add('hidden'));
             document.getElementById(id).classList.remove('hidden');
+
             document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
             event.target.classList.add('active');
         }
@@ -5123,6 +5228,7 @@
         function updateOnlineStatus() {
             const statusDiv = document.getElementById('connectionStatus');
             if (!statusDiv) return;
+
             if (navigator.onLine) {
                 statusDiv.innerHTML = '<i class="fas fa-wifi"></i> Online (Sincronizado)';
                 statusDiv.className = 'badge badge-success';
