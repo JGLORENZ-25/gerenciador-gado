@@ -24,7 +24,7 @@
     
     <style>
         :root {
-            /* Mesmas variáveis do sistema para manter identidade visual */
+            /* Cores Padrão (Modo Claro) */
             --primary: #059669;       
             --primary-dark: #047857;  
             --primary-light: #d1fae5; 
@@ -36,6 +36,25 @@
             --light: #f3f4f6;         
             --white: #ffffff;         
             --border: #f1f5f9;
+            --hero-gradient: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        /* CONFIGURAÇÃO DO MODO ESCURO */
+        body.dark-mode {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #064e3b;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #f3f4f6; /* Texto fica claro */
+            --gray: #9ca3af;
+            --light: #0f172a; /* Fundo fica escuro */
+            --white: #1e293b; /* Cards ficam cinza escuro */
+            --border: #334155;
+            --hero-gradient: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+            --nav-bg: rgba(15, 23, 42, 0.95);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
@@ -46,12 +65,22 @@
             color: var(--dark);
             line-height: 1.6;
             overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        
+        /* Ajuste para o fundo do body no modo escuro */
+        body.dark-mode {
+            background-color: var(--light);
         }
 
         /* --- Tipografia --- */
         h1, h2, h3, h4 { font-weight: 800; color: var(--dark); line-height: 1.2; }
         h1 { font-size: 2.5rem; }
         h2 { font-size: 2rem; margin-bottom: 1rem; color: var(--primary-dark); }
+        
+        /* No modo escuro, o título H2 precisa ser mais claro para contraste */
+        body.dark-mode h2 { color: var(--primary); }
+
         p { color: var(--gray); margin-bottom: 1rem; }
 
         /* --- Botões --- */
@@ -74,8 +103,9 @@
         /* --- Navbar --- */
         .navbar {
             position: fixed; top: 0; left: 0; width: 100%;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            background: var(--nav-bg); backdrop-filter: blur(10px);
             padding: 15px 0; z-index: 1000; border-bottom: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
         }
         .nav-content { display: flex; justify-content: space-between; align-items: center; }
         .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.5rem; color: var(--primary); }
@@ -84,26 +114,48 @@
         .nav-links a { text-decoration: none; color: var(--gray); font-weight: 600; transition: 0.2s; cursor: pointer; }
         .nav-links a:hover { color: var(--primary); }
         
+        /* Botão Toggle Theme */
+        .theme-toggle {
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-left: 10px;
+            margin-right: 10px;
+            padding: 5px;
+            transition: color 0.3s, transform 0.3s;
+        }
+        .theme-toggle:hover {
+            color: var(--primary);
+            transform: rotate(15deg);
+        }
+        
         @media(min-width: 768px) { .nav-links { display: flex; align-items: center; } }
 
         /* --- Hero Section --- */
         .hero {
-            background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            background: var(--hero-gradient);
             padding-top: 140px; padding-bottom: 100px;
             text-align: center; position: relative;
+            transition: background 0.3s;
         }
         .hero::before {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('Branco-removebg-preview.png');
             background-repeat: no-repeat; background-position: center; background-size: 60%;
             opacity: 0.03; pointer-events: none;
+            transition: filter 0.3s;
         }
+        /* Inverte a marca d'água no modo escuro para aparecer melhor */
+        body.dark-mode .hero::before { filter: invert(1); opacity: 0.05; }
+        
         .hero h1 span { color: var(--primary); }
         .hero-tag { 
             background: var(--primary-light); color: var(--primary-dark); 
             padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; 
             font-weight: 700; display: inline-block; margin-bottom: 20px;
         }
+        /* Ajuste da tag no modo escuro */
+        body.dark-mode .hero-tag { background: var(--primary-light); color: #ffffff; }
 
         /* --- Features Grid --- */
         .features-grid {
@@ -124,9 +176,17 @@
         }
         .icon-box.blue { background: #eff6ff; color: var(--secondary); }
         .icon-box.orange { background: #fff7ed; color: var(--accent); }
+        
+        /* Ajustes dos ícones no modo escuro */
+        body.dark-mode .icon-box.blue { background: #1e3a8a; color: #93c5fd; }
+        body.dark-mode .icon-box.orange { background: #78350f; color: #fcd34d; }
 
         /* --- Highlight Section (Dark) --- */
-        .highlight-section { background: var(--dark); color: white; text-align: center; }
+        .highlight-section { background: #1f2937; color: white; text-align: center; }
+        
+        /* Garante que a seção de destaque continue escura mesmo no modo escuro */
+        body.dark-mode .highlight-section { background: #020617; }
+        
         .highlight-section h2 { color: white; }
         .highlight-section p { color: #9ca3af; max-width: 700px; margin: 0 auto 30px auto; }
         
@@ -154,15 +214,60 @@
             background: var(--white); width: 100%; max-width: 700px;
             border-radius: 24px; padding: 30px; max-height: 85vh;
             overflow-y: auto; border: 1px solid var(--border); position: relative;
+            color: var(--dark);
         }
         .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--gray); }
         .legal-text h4 { margin-top: 15px; color: var(--primary); }
         .legal-text ul { padding-left: 20px; margin-bottom: 10px; color: var(--gray); }
 
+        /* Estilos específicos para o card de KPI na Hero */
+        .hero-kpi-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.1);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            border: 1px solid var(--border);
+            margin-top: 60px;
+        }
+
+        .kpi-box-green {
+            background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 12px; flex: 1;
+        }
+        .kpi-box-blue {
+            background: #eff6ff; border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; flex: 1;
+        }
+        .chart-placeholder {
+            background: #f8fafc; height: 180px; border-radius: 12px; border: 1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8;
+        }
+
+        /* Ajustes KPI Dark Mode */
+        body.dark-mode .kpi-box-green { background: #064e3b; border-color: #065f46; color: white; }
+        body.dark-mode .kpi-box-green small { color: #86efac !important; }
+        body.dark-mode .kpi-box-green div { color: #ffffff !important; }
+
+        body.dark-mode .kpi-box-blue { background: #1e3a8a; border-color: #1e40af; color: white; }
+        body.dark-mode .kpi-box-blue small { color: #93c5fd !important; }
+        body.dark-mode .kpi-box-blue div { color: #ffffff !important; }
+
+        body.dark-mode .chart-placeholder { background: #1e293b; border-color: #334155; color: #64748b; }
+
         /* Responsividade */
         @media(max-width: 768px) {
             h1 { font-size: 2rem; }
             .hero { padding-top: 120px; }
+            
+            /* Ajuste para o botão toggle aparecer no mobile (na direita do logo ou similar) */
+            /* Como o menu mobile não está totalmente implementado neste template, vamos adicionar um botão flutuante ou na navbar principal */
+            .nav-links {
+                /* Exibição básica no mobile para o botão de tema, caso desejado */
+                display: flex;
+            }
+            .nav-links a:not(.btn-outline):not(.btn) {
+                display: none; /* Esconde links de texto no mobile */
+            }
         }
     </style>
 </head>
@@ -175,6 +280,10 @@
                 MeuGado
             </div>
             <div class="nav-links">
+                <div class="theme-toggle" onclick="toggleTheme()" title="Alternar Tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
+
                 <a href="#features">Funcionalidades</a>
                 <a href="#tech">Tecnologia</a>
                 <a href="#legal">Legal</a>
@@ -197,15 +306,15 @@
                 <a href="#features" class="btn btn-outline btn-large">Saiba Mais</a>
             </div>
             
-            <div style="margin-top: 60px; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 20px 50px -10px rgba(0,0,0,0.1); max-width: 900px; margin-left: auto; margin-right: auto; border: 1px solid var(--border);">
+            <div class="hero-kpi-card">
                 <div style="display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 250px; text-align: left;">
                         <div style="display:flex; gap:10px; margin-bottom:15px;">
-                             <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:12px; flex:1;">
+                             <div class="kpi-box-green">
                                 <small style="color:#166534; font-weight:bold;">TOTAL ANIMAIS</small>
                                 <div style="font-size:1.5rem; font-weight:800; color:#14532d;">1.240</div>
                              </div>
-                             <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:12px; flex:1;">
+                             <div class="kpi-box-blue">
                                 <small style="color:#1e40af; font-weight:bold;">GMD MÉDIO</small>
                                 <div style="font-size:1.5rem; font-weight:800; color:#1e3a8a;">0.850</div>
                              </div>
@@ -213,7 +322,7 @@
                         <p class="text-sm">Visualize indicadores chave de desempenho (KPIs) em tempo real, controle lotes e gerencie a evolução de peso do seu rebanho.</p>
                     </div>
                     <div style="flex: 1; min-width: 250px;">
-                        <div style="background: #f8fafc; height: 180px; border-radius: 12px; border: 1px dashed #cbd5e1; display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                        <div class="chart-placeholder">
                             <i class="fas fa-chart-line" style="font-size:3rem;"></i>
                         </div>
                     </div>
@@ -222,11 +331,11 @@
         </div>
     </section>
 
-    <section id="features" style="background: white;">
+    <section id="features" style="background: var(--white); transition: background 0.3s;">
         <div class="container">
             <div style="text-align: center; max-width: 700px; margin: 0 auto 50px auto;">
                 <h2>6 Pilares Operacionais</h2>
-                <p>O sistema foi desenhado para cobrir todas as necessidades do produtor rural e consultor técnico (DETEC).</p>
+                <p>O sistema foi desenhado para cobrir todas as necessidades do produtor rural e consultor técnico.</p>
             </div>
 
             <div class="features-grid">
@@ -405,6 +514,49 @@
                 document.body.style.overflow = 'auto';
             }
         }
+
+        // --- LÓGICA DO MODO ESCURO ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            
+            // Alterna a classe no body
+            body.classList.toggle('dark-mode');
+            
+            // Atualiza ícone e salva preferência
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Inicializa o tema ao carregar a página
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const icon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            } else {
+                // Se não tiver preferência ou for light, garante que o ícone seja lua
+                if (icon) {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        }
+
+        // Executa a inicialização
+        initTheme();
 
         // Registro do Service Worker para permitir instalação na tela inicial a partir da Landing Page
         if ('serviceWorker' in navigator) {
