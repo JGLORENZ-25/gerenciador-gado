@@ -39,7 +39,7 @@
             --secondary: #3b82f6;
             --accent: #f59e0b;
             --danger: #ef4444;
-            --dark: #f3f4f6;
+            --dark: #9a9c9f;
             --gray: #9ca3af;
             --light: #0f172a;
             --white: #1e293b;
@@ -2173,6 +2173,107 @@
         </div>
     </div>
 
+    <div id="modalEditStockItem" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-edit"></i> Editar Item de Estoque</h3>
+            <input type="hidden" id="stockEditId">
+            <div class="form-group">
+                <label>Nome do Produto / Touro</label>
+                <input type="text" id="stockEditName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
+            </div>
+            <div class="form-group">
+                <label>Categoria</label>
+                <select id="stockEditCategory" class="form-input">
+                    <option value="Ração">Ração / Nutrição</option>
+                    <option value="Sal Mineral">Sal Mineral</option>
+                    <option value="Vacina">Vacina</option>
+                    <option value="Medicamento">Medicamento</option>
+                    <option value="Sêmen">Sêmen / Genética</option>
+                    <option value="Outros">Outros Materiais</option>
+                </select>
+            </div>
+            <div class="flex-between gap-2">
+                <div class="form-group" style="flex:1">
+                    <label>Quantidade Atual</label>
+                    <input type="number" id="stockEditQty" class="form-input" placeholder="0" step="0.01" min="0">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Unidade</label>
+                    <select id="stockEditUnit" class="form-input">
+                        <option value="kg">Kg (Quilos)</option>
+                        <option value="ds">Doses (Palhetas)</option>
+                        <option value="ml">ml (Mililitros)</option>
+                        <option value="lt">Lt (Litros)</option>
+                        <option value="un">Unid.</option>
+                        <option value="sc">Sacos</option>
+                        <option value="fr">Frascos</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Preço Médio Unitário (R$)</label>
+                <input type="number" id="stockEditAvgPrice" class="form-input" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <div class="btn-group-row">
+                <button class="btn" onclick="saveStockItemEdit()"><i class="fas fa-save"></i> Salvar Alterações</button>
+                <button type="button" class="btn btn-danger" onclick="openRemoveStockFromEdit()"><i class="fas fa-trash"></i> Excluir</button>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalEditStockItem')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalRemoveStock" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-box-open"></i> Remover do Estoque</h3>
+            <input type="hidden" id="stockRemoveId">
+            <p class="text-gray" style="margin-bottom: 16px;" id="stockRemoveItemName">—</p>
+            <div class="form-group">
+                <label>Por que remover do estoque?</label>
+                <div style="display:flex; flex-direction:column; gap:10px; margin-top:8px;">
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Uso próprio" onchange="toggleStockRemoveOther()">
+                        <span>Uso próprio</span>
+                    </label>
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Perda" onchange="toggleStockRemoveOther()">
+                        <span>Perda</span>
+                    </label>
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Vencimento" onchange="toggleStockRemoveOther()">
+                        <span>Vencimento</span>
+                    </label>
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Doação" onchange="toggleStockRemoveOther()">
+                        <span>Doação</span>
+                    </label>
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Descarte" onchange="toggleStockRemoveOther()">
+                        <span>Descarte</span>
+                    </label>
+                    <label class="list-item" style="cursor:pointer; display:flex; align-items:center; gap:10px;">
+                        <input type="radio" name="stockRemoveReason" value="Outros" onchange="toggleStockRemoveOther()">
+                        <span>Outros</span>
+                    </label>
+                </div>
+            </div>
+            <div class="form-group hidden" id="stockRemoveOtherWrap">
+                <label>Descreva (opcional)</label>
+                <input type="text" id="stockRemoveOtherText" class="form-input" placeholder="Ex: Transferência para outro setor...">
+            </div>
+            <div class="form-group">
+                <label>Quantidade a remover</label>
+                <input type="number" id="stockRemoveQty" class="form-input" placeholder="0" step="0.01" min="0">
+                <div class="text-sm text-gray" style="margin-top:4px;">Disponível: <span id="stockRemoveAvailable">0</span></div>
+                <label style="display:flex; align-items:center; gap:8px; margin-top:8px;">
+                    <input type="checkbox" id="stockRemoveAll" onchange="toggleStockRemoveAll()">
+                    Remover todo o estoque deste item
+                </label>
+            </div>
+            <button type="button" class="btn btn-danger" onclick="confirmRemoveStock()"><i class="fas fa-trash"></i> Confirmar remoção</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalRemoveStock')">Fechar</button>
+        </div>
+    </div>
+
     <div id="modalGroupDetails" class="modal">
         <div class="modal-content">
             <div class="flex-between">
@@ -2490,9 +2591,17 @@
                 <label>Data</label>
                 <input type="date" id="transDate" class="form-input">
             </div>
+            <div class="form-group">
+                <label>Observações</label>
+                <textarea id="transNotes" class="form-input" rows="3" placeholder="Anotações sobre esta receita ou despesa..."></textarea>
+            </div>
             <input type="hidden" id="transType">
-            <button class="btn" id="btnSaveTrans" onclick="addTransaction()">Salvar</button>
-            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalTransaction')">Cancelar</button>
+            <input type="hidden" id="transId">
+            <div class="btn-group-row">
+                <button class="btn" id="btnSaveTrans" onclick="saveTransaction()"><i class="fas fa-save"></i> Salvar</button>
+                <button type="button" class="btn btn-danger" id="btnTransExcluir" onclick="removeTransaction()" style="display: none;"><i class="fas fa-trash"></i> Excluir</button>
+            </div>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalTransaction')">Fechar</button>
         </div>
     </div>
 
@@ -3920,6 +4029,116 @@
             renderAll();
         }
 
+        function openEditStockModal(itemId) {
+            const item = (appData.inventory || []).find(i => i.id == itemId);
+            if (!item) return;
+            document.getElementById('stockEditId').value = item.id;
+            document.getElementById('stockEditName').value = item.name || '';
+            document.getElementById('stockEditCategory').value = item.category || 'Outros';
+            document.getElementById('stockEditQty').value = item.currentQty != null ? item.currentQty : '';
+            document.getElementById('stockEditUnit').value = item.unit || 'un';
+            document.getElementById('stockEditAvgPrice').value = item.avgPrice != null ? item.avgPrice.toFixed(2) : '';
+            openModal('modalEditStockItem');
+        }
+
+        async function saveStockItemEdit() {
+            const id = document.getElementById('stockEditId').value;
+            const name = document.getElementById('stockEditName').value.trim();
+            const category = document.getElementById('stockEditCategory').value;
+            const currentQty = parseFloat(document.getElementById('stockEditQty').value);
+            const unit = document.getElementById('stockEditUnit').value;
+            const avgPrice = parseFloat(document.getElementById('stockEditAvgPrice').value);
+
+            if (!name) { alert('Informe o nome do produto.'); return; }
+            if (currentQty < 0 || isNaN(currentQty)) { alert('Quantidade inválida.'); return; }
+            if (avgPrice < 0 || isNaN(avgPrice)) { alert('Preço médio inválido.'); return; }
+
+            const item = appData.inventory.find(i => i.id == id);
+            if (!item) return;
+            item.name = name;
+            item.category = category;
+            item.currentQty = currentQty;
+            item.unit = unit;
+            item.avgPrice = avgPrice;
+            await saveData();
+            closeModal('modalEditStockItem');
+            renderAll();
+        }
+
+        function openRemoveStockModal(itemId) {
+            openRemoveStockModalWithId(itemId);
+        }
+
+        function openRemoveStockFromEdit() {
+            const itemId = document.getElementById('stockEditId').value;
+            if (!itemId) return;
+            openRemoveStockModalWithId(itemId);
+        }
+
+        function openRemoveStockModalWithId(itemId) {
+            const item = (appData.inventory || []).find(i => i.id == itemId);
+            if (!item) return;
+            document.getElementById('stockRemoveId').value = item.id;
+            document.getElementById('stockRemoveItemName').innerText = item.name + ' (' + parseFloat(item.currentQty).toFixed(2) + ' ' + item.unit + ')';
+            document.getElementById('stockRemoveAvailable').innerText = parseFloat(item.currentQty).toFixed(2) + ' ' + item.unit;
+            document.getElementById('stockRemoveQty').value = '';
+            document.getElementById('stockRemoveQty').max = item.currentQty;
+            document.getElementById('stockRemoveQty').placeholder = 'Máx: ' + parseFloat(item.currentQty).toFixed(2);
+            document.getElementById('stockRemoveAll').checked = false;
+            document.getElementById('stockRemoveOtherText').value = '';
+            document.getElementById('stockRemoveOtherWrap').classList.add('hidden');
+            document.querySelectorAll('input[name="stockRemoveReason"]').forEach(r => { r.checked = false; });
+            openModal('modalRemoveStock');
+        }
+
+        async function confirmRemoveStock() {
+            const itemId = document.getElementById('stockRemoveId').value;
+            const reasonEl = document.querySelector('input[name="stockRemoveReason"]:checked');
+            const reason = reasonEl ? reasonEl.value : '';
+            const removeAll = document.getElementById('stockRemoveAll').checked;
+            let qty = parseFloat(document.getElementById('stockRemoveQty').value) || 0;
+
+            if (!reason) { alert('Selecione o motivo da remoção.'); return; }
+
+            const item = appData.inventory.find(i => i.id == itemId);
+            if (!item) return;
+            const available = parseFloat(item.currentQty) || 0;
+            if (removeAll) qty = available;
+            if (qty <= 0) { alert('Informe a quantidade a remover.'); return; }
+            if (qty > available) { alert('Quantidade maior que o disponível.'); return; }
+
+            item.currentQty = Math.max(0, available - qty);
+            if (item.currentQty <= 0) {
+                const idx = appData.inventory.findIndex(i => i.id == itemId);
+                if (idx !== -1) appData.inventory.splice(idx, 1);
+            }
+            await saveData();
+            closeModal('modalRemoveStock');
+            closeModal('modalEditStockItem');
+            renderAll();
+        }
+
+        function toggleStockRemoveOther() {
+            const r = document.querySelector('input[name="stockRemoveReason"]:checked');
+            const wrap = document.getElementById('stockRemoveOtherWrap');
+            if (wrap) wrap.classList.toggle('hidden', !r || r.value !== 'Outros');
+        }
+        function toggleStockRemoveAll() {
+            const cb = document.getElementById('stockRemoveAll');
+            const qtyEl = document.getElementById('stockRemoveQty');
+            if (!cb || !qtyEl) return;
+            if (cb.checked) {
+                const avail = document.getElementById('stockRemoveAvailable');
+                const txt = (avail && avail.innerText) ? avail.innerText : '';
+                const num = parseFloat(txt.replace(/[^0-9,.]/g, '').replace(',', '.')) || 0;
+                qtyEl.value = num;
+                qtyEl.disabled = true;
+            } else {
+                qtyEl.value = '';
+                qtyEl.disabled = false;
+            }
+        }
+
         // --- USO DE ESTOQUE E GESTÃO DE LOTE ---
         let activeGroupId = null;
 
@@ -4581,10 +4800,13 @@
 
         // ===== FINANCEIRO =====
         function openTransactionModal(type) {
+            document.getElementById('transId').value = '';
+            document.getElementById('btnTransExcluir').style.display = 'none';
             document.getElementById('transType').value = type;
             document.getElementById('transDesc').value = '';
             document.getElementById('transAmount').value = '';
             document.getElementById('transDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('transNotes').value = '';
 
             document.getElementById('transTitle').innerText = type === 'income' ? 'Nova Receita' : 'Nova Despesa';
             document.getElementById('transTitle').className = type === 'income' ? 'text-success' : 'text-danger';
@@ -4593,22 +4815,71 @@
             openModal('modalTransaction');
         }
 
-        async function addTransaction() {
+        function openEditTransactionModal(idOrIndex) {
+            const list = appData.financials || [];
+            let t = list.find(x => x.id == idOrIndex);
+            if (!t && typeof idOrIndex === 'number' && idOrIndex >= 0 && idOrIndex < list.length) t = list[idOrIndex];
+
+            if (!t) return;
+            if (t.id == null) t.id = 'legacy_' + Date.now();
+
+            document.getElementById('transId').value = t.id;
+            document.getElementById('btnTransExcluir').style.display = '';
+            document.getElementById('transType').value = t.type;
+            document.getElementById('transDesc').value = t.desc || '';
+            document.getElementById('transAmount').value = t.amount != null ? t.amount : '';
+            document.getElementById('transDate').value = (t.date || '').toString().substring(0, 10);
+            document.getElementById('transNotes').value = t.notes || '';
+
+            document.getElementById('transTitle').innerText = t.type === 'income' ? 'Editar Receita' : 'Editar Despesa';
+            document.getElementById('transTitle').className = t.type === 'income' ? 'text-success' : 'text-danger';
+            document.getElementById('btnSaveTrans').className = t.type === 'income' ? 'btn btn-success' : 'btn btn-danger';
+
+            openModal('modalTransaction');
+        }
+
+        async function saveTransaction() {
+            const transId = document.getElementById('transId').value;
             const type = document.getElementById('transType').value;
             const desc = document.getElementById('transDesc').value;
             const amount = parseFloat(document.getElementById('transAmount').value);
             const date = document.getElementById('transDate').value;
+            const notes = (document.getElementById('transNotes').value || '').trim();
 
             if(!desc || !amount || !date) return;
 
-            appData.financials.push({
-                id: Date.now(),
-                type,
-                desc,
-                amount,
-                date
-            });
+            if (transId !== '') {
+                const idx = appData.financials.findIndex(x => x.id == transId);
+                if (idx === -1) return;
+                const existing = appData.financials[idx];
+                existing.type = type;
+                existing.desc = desc;
+                existing.amount = amount;
+                existing.date = date;
+                existing.notes = notes || undefined;
+            } else {
+                appData.financials.push({
+                    id: Date.now(),
+                    type,
+                    desc,
+                    amount,
+                    date,
+                    notes: notes || undefined
+                });
+            }
 
+            await saveData();
+            closeModal('modalTransaction');
+            renderAll();
+        }
+
+        async function removeTransaction() {
+            const transId = document.getElementById('transId').value;
+            if (!transId) return;
+            if (!confirm('Remover esta receita/despesa? Esta ação não pode ser desfeita.')) return;
+            const idx = appData.financials.findIndex(x => x.id == transId);
+            if (idx === -1) return;
+            appData.financials.splice(idx, 1);
             await saveData();
             closeModal('modalTransaction');
             renderAll();
@@ -5039,10 +5310,14 @@
             else inventoryList.innerHTML = appData.inventory.map(i => {
                 stockTotal += (i.currentQty * i.avgPrice);
                 let badgeClass = i.category === 'Vacina' ? 'badge-danger' : (i.category === 'Ração' ? 'badge-success' : (i.category === 'Sêmen' ? 'badge-pink' : 'badge-info'));
+                const editArg = typeof i.id === 'number' ? i.id : "'" + String(i.id).replace(/'/g, "\\'") + "'";
 
-                return `<div class="list-item">
-                    <div><div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div><div class="text-sm text-gray">Médio: R$ ${i.avgPrice.toFixed(2)}</div></div>
-                    <div class="text-center"><strong style="font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</strong></div>
+                return `<div class="list-item" style="align-items: center;">
+                    <div style="flex:1;"><div style="font-weight:bold;">${i.name} <span class="badge ${badgeClass}">${i.category}</span></div><div class="text-sm text-gray">Médio: R$ ${i.avgPrice.toFixed(2)}</div></div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="text-center" style="font-weight:bold; font-size:1.1rem; color:var(--primary);">${parseFloat(i.currentQty).toFixed(2)} ${i.unit}</div>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="openEditStockModal(${editArg})" title="Editar"><i class="fas fa-edit"></i></button>
+                    </div>
                 </div>`;
             }).join('');
 
@@ -5059,12 +5334,18 @@
 
             allTrans.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-            listFin.innerHTML = allTrans.map(t =>
-                `<div class="list-item">
-                    <div><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div></div>
-                    <div class="${t.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
-                </div>`
-            ).join('');
+            listFin.innerHTML = allTrans.map(t => {
+                const editId = t.id != null ? t.id : appData.financials.indexOf(t);
+                const editArg = typeof editId === 'number' ? editId : "'" + String(editId).replace(/'/g, "\\'") + "'";
+                const notesHtml = (t.notes && t.notes.trim()) ? `<div class="text-sm text-gray" style="margin-top:4px;"><i class="fas fa-sticky-note"></i> ${t.notes.trim()}</div>` : '';
+                return `<div class="list-item" style="align-items: flex-start;">
+                    <div style="flex:1;"><div style="font-weight:600;">${t.desc}</div><div class="text-sm text-gray">${new Date(t.date).toLocaleDateString('pt-BR')}</div>${notesHtml}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div class="${t.type === 'income' ? 'text-success' : 'text-danger'}" style="font-weight:bold;">${t.type === 'income' ? '+' : '-'} R$ ${t.amount.toFixed(2)}</div>
+                        <button type="button" class="btn btn-sm btn-outline" onclick="openEditTransactionModal(${editArg})" title="Editar"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
 
             document.getElementById('finTotalRevenue').innerText = `R$ ${totalIncome.toFixed(2)}`;
             document.getElementById('finTotalExpense').innerText = `R$ ${totalExpense.toFixed(2)}`;
