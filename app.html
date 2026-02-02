@@ -14,6 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <!-- Leitor QR Code: carrega via CDN; offline: scanner desabilitado com mensagem -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
@@ -1500,6 +1502,55 @@
                 display: none;
             }
         }
+
+        /* --- Leitor QR Code / Câmera (coleta no campo) --- */
+        .input-with-qr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-with-qr .form-input {
+            flex: 1;
+        }
+        .btn-qr-scan {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-qr-scan:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .btn-qr-scan:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #modalQRScanner .modal-content {
+            max-width: 320px;
+            padding: 16px;
+        }
+        #qrReaderContainer {
+            width: 100%;
+            min-height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--light);
+        }
+        #qrReaderContainer video {
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -2097,7 +2148,10 @@
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
             <div class="form-group">
                 <label>Nome do Produto / Touro</label>
-                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
+                <div class="input-with-qr">
+                    <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
+                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('stockName')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Categoria</label>
@@ -2123,7 +2177,7 @@
                 </div>
             </div>
             <div id="stockSemenFields" class="hidden" style="background: var(--light); padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed var(--primary);">
-                <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-dna"></i> Dados do Reprodutor</h4>
+                <h4 style="color:var(--primary); margin-bottom:10px;"><i class="fas fa-dna"></i> Dados do Reprodutor (Banco de Sêmen com Pedigree)</h4>
                 <div class="form-group">
                     <label>Raça</label>
                     <input type="text" id="stockSemenBreed" class="form-input" placeholder="Ex: Nelore, Angus...">
@@ -2137,6 +2191,18 @@
                         <label>Central</label>
                         <input type="text" id="stockSemenCenter" class="form-input" placeholder="Ex: Alta, ABS">
                     </div>
+                </div>
+                <div class="form-group">
+                    <label>Foto do Touro (URL)</label>
+                    <input type="url" id="stockSemenPhotoUrl" class="form-input" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>Pedigree / Árvore Genealógica</label>
+                    <div class="flex-between gap-2" style="margin-bottom:6px;">
+                        <input type="text" id="stockSemenPedigreeSire" class="form-input" placeholder="Pai (Sire)">
+                        <input type="text" id="stockSemenPedigreeDam" class="form-input" placeholder="Mãe (Dam)">
+                    </div>
+                    <textarea id="stockSemenPedigreeTree" class="form-input" rows="2" placeholder="Árvore genealógica (texto livre, opcional)"></textarea>
                 </div>
             </div>
             <div class="flex-between gap-2">
@@ -2183,7 +2249,7 @@
             </div>
             <div class="form-group">
                 <label>Categoria</label>
-                <select id="stockEditCategory" class="form-input">
+                <select id="stockEditCategory" class="form-input" onchange="toggleEditSemenFields(this.value)">
                     <option value="Ração">Ração / Nutrição</option>
                     <option value="Sal Mineral">Sal Mineral</option>
                     <option value="Vacina">Vacina</option>
@@ -2213,6 +2279,18 @@
             <div class="form-group">
                 <label>Preço Médio Unitário (R$)</label>
                 <input type="number" id="stockEditAvgPrice" class="form-input" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <div id="stockEditSemenFields" class="hidden" style="background: var(--light); padding:10px; border-radius:10px; margin-bottom:15px; border:1px dashed var(--primary);">
+                <h4 style="color:var(--primary); margin-bottom:8px;"><i class="fas fa-dna"></i> Pedigree / Foto (Sêmen)</h4>
+                <div class="form-group">
+                    <label>Foto (URL)</label>
+                    <input type="url" id="stockEditPhotoUrl" class="form-input" placeholder="https://...">
+                </div>
+                <div class="flex-between gap-2">
+                    <input type="text" id="stockEditPedigreeSire" class="form-input" placeholder="Pai (Sire)">
+                    <input type="text" id="stockEditPedigreeDam" class="form-input" placeholder="Mãe (Dam)">
+                </div>
+                <textarea id="stockEditPedigreeTree" class="form-input" rows="2" placeholder="Árvore genealógica (texto)" style="margin-top:8px;"></textarea>
             </div>
             <div class="btn-group-row">
                 <button class="btn" onclick="saveStockItemEdit()"><i class="fas fa-save"></i> Salvar Alterações</button>
@@ -2331,8 +2409,12 @@
                     </div>
                     <div class="form-group">
                         <label>Touro (Estoque de Sêmen)</label>
-                        <select id="breedingBullSelect" class="form-input"></select>
+                        <select id="breedingBullSelect" class="form-input" onchange="showBullPedigree(this.value)"></select>
                         <div id="breedingBullAlert" class="text-xs text-danger hidden" style="margin-top:2px;">Estoque baixo!</div>
+                        <div id="breedingBullPedigreeBox" class="hidden" style="margin-top:10px; padding:10px; background:var(--light); border-radius:10px; border:1px solid var(--border);">
+                            <div id="breedingBullPhoto" class="text-center" style="margin-bottom:8px;"></div>
+                            <div id="breedingBullPedigree" class="text-sm text-gray"></div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Inseminador</label>
@@ -2357,6 +2439,16 @@
                         <input type="number" id="breedingECC" class="form-input" placeholder="1 a 5" step="0.1">
                     </div>
                     <button class="btn btn-pink" onclick="saveInsemination()">Registrar IA e Baixar Estoque</button>
+                </div>
+                <div class="card" style="margin-top:20px; border-color:var(--primary);">
+                    <h4 style="color:var(--primary);"><i class="fas fa-dna"></i> Banco de Sêmen com Pedigree</h4>
+                    <p class="text-sm text-gray" style="margin-bottom:10px;">Touros cadastrados com foto e árvore genealógica.</p>
+                    <div id="semenBankList"></div>
+                </div>
+                <div class="card" style="margin-top:20px; border-color:var(--pink);">
+                    <h4 style="color:var(--pink);"><i class="fas fa-crown"></i> Matrizes de Elite</h4>
+                    <p class="text-sm text-gray" style="margin-bottom:10px;">Ranking das vacas por GMD médio dos bezerros (ajuda a decidir quais matrizes manter).</p>
+                    <div id="eliteMatricesList"></div>
                 </div>
                 <h4 style="margin-top:20px;">Histórico Reprodutivo</h4>
                 <div id="breedingList"></div>
@@ -2421,17 +2513,44 @@
                         <button class="btn btn-sm" onclick="addWeight()">Salvar</button>
                     </div>
                 </div>
+                <div class="card" style="margin-top:10px;">
+                    <label class="text-sm text-gray">Pesagem individual (para GMD do animal / Matrizes de Elite)</label>
+                    <div class="flex-between gap-2" style="flex-wrap:wrap;">
+                        <input type="date" id="weightIndivDate" class="form-input">
+                        <select id="weightIndivAnimal" class="form-input" style="min-width:120px;"></select>
+                        <input type="number" id="weightIndivValue" class="form-input" placeholder="Kg" step="0.01">
+                        <button class="btn btn-sm" onclick="addIndividualWeight()">Registrar</button>
+                    </div>
+                </div>
                 <div id="weightHistoryList" style="margin-top: 10px;"></div>
             </div>
 
             <div id="tabAnimals" class="tab-content hidden">
                 <div class="form-group">
-                    <div class="flex-between gap-2">
-                        <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
+                    <div class="flex-between gap-2" style="flex-wrap: wrap;">
+                        <div class="input-with-qr" style="flex: 1; min-width: 180px;">
+                            <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID" data-animal-id-field="true">
+                            <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('newAnimalId')" title="Ler QR Code / Brinco"><i class="fas fa-camera"></i></button>
+                        </div>
                         <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
                     </div>
+                    <div class="form-group" style="margin-top:8px;">
+                        <label class="text-sm text-gray">Fornecedor/Fazenda de origem (rastreabilidade)</label>
+                        <input type="text" id="newAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
+                    </div>
+                    <div class="form-group">
+                        <label class="text-sm text-gray">Matriz (mãe) — se for bezerro deste rebanho</label>
+                        <select id="newAnimalMotherId" class="form-input">
+                            <option value="">— Nenhuma / comprado —</option>
+                        </select>
+                    </div>
                 </div>
-                <div id="animalList" style="max-height: 250px; overflow-y: auto;"></div>
+                <div class="card text-sm" style="margin-top:10px; border-color:var(--secondary);">
+                    <h4 style="color:var(--secondary);"><i class="fas fa-map-marker-alt"></i> Rastreabilidade por origem</h4>
+                    <p class="text-gray" style="margin-bottom:8px;">Resumo por fornecedor/fazenda de origem (para analisar quais compras são mais lucrativas).</p>
+                    <div id="originSummaryList"></div>
+                </div>
+                <div id="animalList" style="max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
             </div>
 
             <div id="tabSim" class="tab-content hidden">
@@ -2487,16 +2606,34 @@
         </div>
     </div>
 
+    <!-- Modal Scanner QR Code (coleta no campo; funciona offline se biblioteca já carregada) -->
+    <div id="modalQRScanner" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-qrcode"></i> Ler QR Code</h3>
+            <p class="text-sm text-gray" style="margin-bottom: 10px;">Aponte a câmera para o código. O valor será preenchido automaticamente.</p>
+            <div id="qrReaderContainer"></div>
+            <p id="qrScannerOfflineMsg" class="text-sm text-gray hidden" style="margin-top: 10px;">Câmera/QR indisponível offline. Conecte-se para usar o leitor.</p>
+            <button type="button" class="btn btn-outline" style="margin-top: 12px;" onclick="closeQRScanner()">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
             <h3>Editar Animal</h3>
             <div class="form-group">
                 <label>Brinco/ID</label>
-                <input type="text" id="editAnimalIdInput" class="form-input">
+                <div class="input-with-qr">
+                    <input type="text" id="editAnimalIdInput" class="form-input" data-animal-id-field="true">
+                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('editAnimalIdInput')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Peso Individual (kg)</label>
                 <input type="number" id="editAnimalWeightInput" class="form-input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Fornecedor/Fazenda de origem</label>
+                <input type="text" id="editAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
             </div>
             <input type="hidden" id="editAnimalIndex">
             <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
@@ -2560,9 +2697,13 @@
                     <span class="text-gray">Peso Atual:</span>
                     <strong id="animalDetailWeight">-</strong>
                 </div>
-                <div class="flex-between">
+                <div class="flex-between" style="margin-bottom: 10px;">
                     <span class="text-gray">Entrada no Lote:</span>
                     <strong id="animalDetailEntry">-</strong>
+                </div>
+                <div class="flex-between" style="margin-bottom: 10px;" id="animalDetailOriginRow">
+                    <span class="text-gray">Origem (fornecedor/fazenda):</span>
+                    <strong id="animalDetailOrigin">-</strong>
                 </div>
             </div>
             <div class="growth-chart-container">
@@ -3992,6 +4133,16 @@
                 existingItem.currentQty = newQty;
                 if(brand) existingItem.brand = brand;
                 if(batch) existingItem.batch = batch;
+                if(category === 'Sêmen') {
+                    const photoUrl = (document.getElementById('stockSemenPhotoUrl').value || '').trim();
+                    const pedigreeSire = (document.getElementById('stockSemenPedigreeSire').value || '').trim();
+                    const pedigreeDam = (document.getElementById('stockSemenPedigreeDam').value || '').trim();
+                    const pedigreeTree = (document.getElementById('stockSemenPedigreeTree').value || '').trim();
+                    if(photoUrl) existingItem.photoUrl = photoUrl;
+                    if(pedigreeSire) existingItem.pedigreeSire = pedigreeSire;
+                    if(pedigreeDam) existingItem.pedigreeDam = pedigreeDam;
+                    if(pedigreeTree) existingItem.pedigreeTree = pedigreeTree;
+                }
             } else {
                 appData.inventory.push({
                     id: Date.now(),
@@ -4004,7 +4155,11 @@
                     batch,
                     breed,
                     reg,
-                    center
+                    center,
+                    photoUrl: category === 'Sêmen' ? (document.getElementById('stockSemenPhotoUrl').value || '').trim() : undefined,
+                    pedigreeSire: category === 'Sêmen' ? (document.getElementById('stockSemenPedigreeSire').value || '').trim() : undefined,
+                    pedigreeDam: category === 'Sêmen' ? (document.getElementById('stockSemenPedigreeDam').value || '').trim() : undefined,
+                    pedigreeTree: category === 'Sêmen' ? (document.getElementById('stockSemenPedigreeTree').value || '').trim() : undefined
                 });
             }
             if(autoLaunch) {
@@ -4026,7 +4181,18 @@
             document.getElementById('stockBatch').value = '';
             document.getElementById('stockSemenBreed').value = '';
             document.getElementById('stockSemenReg').value = '';
+            document.getElementById('stockSemenCenter').value = '';
+            document.getElementById('stockSemenPhotoUrl').value = '';
+            document.getElementById('stockSemenPedigreeSire').value = '';
+            document.getElementById('stockSemenPedigreeDam').value = '';
+            document.getElementById('stockSemenPedigreeTree').value = '';
             renderAll();
+        }
+
+        function toggleEditSemenFields(category) {
+            const el = document.getElementById('stockEditSemenFields');
+            if (category === 'Sêmen') el.classList.remove('hidden');
+            else el.classList.add('hidden');
         }
 
         function openEditStockModal(itemId) {
@@ -4038,6 +4204,16 @@
             document.getElementById('stockEditQty').value = item.currentQty != null ? item.currentQty : '';
             document.getElementById('stockEditUnit').value = item.unit || 'un';
             document.getElementById('stockEditAvgPrice').value = item.avgPrice != null ? item.avgPrice.toFixed(2) : '';
+            const semenEdit = document.getElementById('stockEditSemenFields');
+            if (item.category === 'Sêmen') {
+                semenEdit.classList.remove('hidden');
+                document.getElementById('stockEditPhotoUrl').value = item.photoUrl || '';
+                document.getElementById('stockEditPedigreeSire').value = item.pedigreeSire || '';
+                document.getElementById('stockEditPedigreeDam').value = item.pedigreeDam || '';
+                document.getElementById('stockEditPedigreeTree').value = item.pedigreeTree || '';
+            } else {
+                semenEdit.classList.add('hidden');
+            }
             openModal('modalEditStockItem');
         }
 
@@ -4060,6 +4236,12 @@
             item.currentQty = currentQty;
             item.unit = unit;
             item.avgPrice = avgPrice;
+            if (category === 'Sêmen') {
+                item.photoUrl = (document.getElementById('stockEditPhotoUrl').value || '').trim() || undefined;
+                item.pedigreeSire = (document.getElementById('stockEditPedigreeSire').value || '').trim() || undefined;
+                item.pedigreeDam = (document.getElementById('stockEditPedigreeDam').value || '').trim() || undefined;
+                item.pedigreeTree = (document.getElementById('stockEditPedigreeTree').value || '').trim() || undefined;
+            }
             await saveData();
             closeModal('modalEditStockItem');
             renderAll();
@@ -4178,13 +4360,23 @@
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
             animalSelect.innerHTML = animalsHtml;
             breedingAnimalSelect.innerHTML = animalsHtml;
+            const prenhaIds = (group.breedingEvents || []).filter(e => e.status === 'Prenha' && e.animalId && e.animalId !== 'LOTE').map(e => e.animalId);
+            const uniqueMothers = [...new Set(prenhaIds)].filter(id => group.animals.some(a => a.id === id));
+            const motherSelect = document.getElementById('newAnimalMotherId');
+            motherSelect.innerHTML = '<option value="">— Nenhuma / comprado —</option>' + uniqueMothers.map(id => `<option value="${id}">${id} (matriz)</option>`).join('');
+            const weightIndivAnimal = document.getElementById('weightIndivAnimal');
+            weightIndivAnimal.innerHTML = '<option value="">Animal...</option>' + (group.animals || []).map(a => `<option value="${a.id}">${a.id}</option>`).join('');
+            document.getElementById('weightIndivDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('scopeLot').checked = true;
             toggleIndividualUsage();
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderBreedingList(group);
             populateBreedingStock();
+            renderSemenBankList();
+            renderEliteMatricesList(group);
             const pSelect = document.getElementById('movePastureSelect');
             if(group.sold) {
                 pSelect.disabled = true;
@@ -4355,7 +4547,113 @@
                 } else {
                     alertEl.classList.add('hidden');
                 }
+                showBullPedigree(select.value);
             };
+            showBullPedigree(select.value);
+        }
+
+        function showBullPedigree(bullId) {
+            const box = document.getElementById('breedingBullPedigreeBox');
+            const photoEl = document.getElementById('breedingBullPhoto');
+            const pedigreeEl = document.getElementById('breedingBullPedigree');
+            if(!bullId) {
+                box.classList.add('hidden');
+                return;
+            }
+            const item = (appData.inventory || []).find(i => i.id == bullId);
+            if(!item || item.category !== 'Sêmen') {
+                box.classList.add('hidden');
+                return;
+            }
+            box.classList.remove('hidden');
+            if(item.photoUrl) {
+                photoEl.innerHTML = '<img src="' + item.photoUrl + '" alt="Touro" style="max-width:120px; max-height:120px; border-radius:10px; object-fit:cover;">';
+            } else {
+                photoEl.innerHTML = '<span class="text-gray text-sm">Sem foto</span>';
+            }
+            let pedigreeText = [];
+            if(item.pedigreeSire) pedigreeText.push('Pai: ' + item.pedigreeSire);
+            if(item.pedigreeDam) pedigreeText.push('Mãe: ' + item.pedigreeDam);
+            if(item.pedigreeTree) pedigreeText.push(item.pedigreeTree);
+            pedigreeEl.innerHTML = pedigreeText.length ? pedigreeText.join(' | ') : '<span class="text-gray">Pedigree não informado</span>';
+        }
+
+        function renderSemenBankList() {
+            const list = document.getElementById('semenBankList');
+            const semenItems = (appData.inventory || []).filter(i => i.category === 'Sêmen');
+            if(semenItems.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray text-center">Nenhum touro cadastrado no estoque.</p>';
+                return;
+            }
+            list.innerHTML = semenItems.map(b => {
+                let photoHtml = b.photoUrl ? '<img src="' + b.photoUrl + '" alt="" style="width:48px; height:48px; border-radius:8px; object-fit:cover;">' : '<span class="text-gray text-xs">Sem foto</span>';
+                let pedigreeParts = [];
+                if(b.pedigreeSire) pedigreeParts.push('Pai: ' + b.pedigreeSire);
+                if(b.pedigreeDam) pedigreeParts.push('Mãe: ' + b.pedigreeDam);
+                if(b.pedigreeTree) pedigreeParts.push(b.pedigreeTree);
+                const pedigreeStr = pedigreeParts.length ? pedigreeParts.join(' · ') : '—';
+                return `<div class="list-item text-sm" style="display:flex; align-items:center; gap:12px;">
+                    <div style="flex-shrink:0;">${photoHtml}</div>
+                    <div style="flex:1; min-width:0;">
+                        <strong>${b.name}</strong> ${b.breed ? '(' + b.breed + ')' : ''}
+                        <div class="text-xs text-gray" style="margin-top:4px;">${pedigreeStr}</div>
+                    </div>
+                    <span class="badge">${b.currentQty} doses</span>
+                </div>`;
+            }).join('');
+        }
+
+        function getAnimalGMD(animal) {
+            if(!animal.weighings || animal.weighings.length < 2) return null;
+            const sorted = [...animal.weighings].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const first = sorted[0], last = sorted[sorted.length - 1];
+            const diffDays = Math.ceil((new Date(last.date) - new Date(first.date)) / (1000*60*60*24));
+            if(diffDays <= 0) return null;
+            return ((last.weight - first.weight) / diffDays).toFixed(3);
+        }
+
+        function getEliteMatricesRanking(group) {
+            const allCalves = [];
+            (appData.groups || []).forEach(g => {
+                (g.animals || []).forEach(a => {
+                    if(a.motherId) allCalves.push({ ...a, groupId: g.id });
+                });
+            });
+            const byMother = {};
+            allCalves.forEach(c => {
+                if(!byMother[c.motherId]) byMother[c.motherId] = [];
+                byMother[c.motherId].push(c);
+            });
+            const groupAnimalIds = new Set((group.animals || []).map(a => a.id));
+            const ranking = [];
+            Object.keys(byMother).forEach(motherId => {
+                if(!groupAnimalIds.has(motherId)) return;
+                const calves = byMother[motherId];
+                let sumGMD = 0, count = 0;
+                calves.forEach(c => {
+                    const gmd = getAnimalGMD(c);
+                    if(gmd != null) { sumGMD += parseFloat(gmd); count++; }
+                });
+                if(count === 0) return;
+                ranking.push({ motherId, avgGMD: (sumGMD / count).toFixed(3), calfCount: calves.length });
+            });
+            ranking.sort((a,b) => parseFloat(b.avgGMD) - parseFloat(a.avgGMD));
+            return ranking;
+        }
+
+        function renderEliteMatricesList(group) {
+            const list = document.getElementById('eliteMatricesList');
+            const ranking = getEliteMatricesRanking(group);
+            if(ranking.length === 0) {
+                list.innerHTML = '<p class="text-sm text-gray text-center">Registre bezerros com "Matriz (mãe)" e pesagens individuais para ver o ranking.</p>';
+                return;
+            }
+            list.innerHTML = ranking.map((r, i) => `
+                <div class="list-item text-sm">
+                    <span class="badge" style="background:var(--pink); color:white;">#${i+1}</span>
+                    <strong>${r.motherId}</strong> — GMD médio dos bezerros: <strong>${r.avgGMD} kg/dia</strong> (${r.calfCount} bezerro(s))
+                </div>
+            `).join('');
         }
 
         function calcIatfDate() {
@@ -4528,9 +4826,34 @@
             renderAll();
         }
 
+        async function addIndividualWeight() {
+            const date = document.getElementById('weightIndivDate').value;
+            const animalId = document.getElementById('weightIndivAnimal').value;
+            const weight = parseFloat(document.getElementById('weightIndivValue').value);
+            if(!date || !animalId || !weight) {
+                alert('Preencha data, animal e peso.');
+                return;
+            }
+            const group = appData.groups.find(g => g.id == activeGroupId);
+            if(group.sold) return;
+            const animal = (group.animals || []).find(a => a.id === animalId);
+            if(!animal) return;
+            if(!animal.weighings) animal.weighings = [];
+            const existing = animal.weighings.find(w => w.date === date);
+            if(existing) existing.weight = weight;
+            else animal.weighings.push({ date, weight });
+            animal.weight = weight;
+            await saveData();
+            renderWeightList(group);
+            renderAnimalList(group);
+            renderEliteMatricesList(group);
+            document.getElementById('weightIndivValue').value = '';
+        }
+
         function renderWeightList(group) {
             const list = document.getElementById('weightHistoryList');
-            list.innerHTML = group.weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w =>
+            const weighings = group.weighings || [];
+            list.innerHTML = weighings.sort((a,b) => new Date(b.date) - new Date(a.date)).map(w =>
                 `<div class="list-item text-sm"><span>${new Date(w.date).toLocaleDateString('pt-BR')}</span> <strong>${w.weight} kg</strong></div>`
             ).join('');
         }
@@ -4542,18 +4865,46 @@
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
 
+            const originSupplier = (document.getElementById('newAnimalOrigin').value || '').trim();
+            const motherId = (document.getElementById('newAnimalMotherId').value || '').trim() || undefined;
+
             group.animals.push({
                 id,
                 entryDate: new Date().toISOString().split('T')[0],
-                weight: 0
+                weight: 0,
+                originSupplier: originSupplier || undefined,
+                motherId: motherId
             });
 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
+            document.getElementById('newAnimalOrigin').value = '';
+            document.getElementById('newAnimalMotherId').value = '';
 
             await saveData();
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderAll();
+            const group2 = appData.groups.find(g => g.id == activeGroupId);
+            if(group2) renderEliteMatricesList(group2);
+        }
+
+        function renderOriginSummaryList(group) {
+            const list = document.getElementById('originSummaryList');
+            const byOrigin = {};
+            (group.animals || []).forEach(a => {
+                const key = a.originSupplier || 'Não informado';
+                if(!byOrigin[key]) byOrigin[key] = 0;
+                byOrigin[key]++;
+            });
+            const entries = Object.entries(byOrigin).sort((a,b) => b[1] - a[1]);
+            if(entries.length === 0) {
+                list.innerHTML = '<p class="text-gray text-center">Nenhum animal com origem registrada.</p>';
+                return;
+            }
+            list.innerHTML = entries.map(([origin, count]) =>
+                `<div class="list-item text-sm"><span>${origin}</span> <strong>${count} animal(is)</strong></div>`
+            ).join('');
         }
 
         function renderAnimalList(group) {
@@ -4581,6 +4932,7 @@
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
             document.getElementById('editAnimalWeightInput').value = animal.weight || '';
+            document.getElementById('editAnimalOrigin').value = animal.originSupplier || '';
 
             openModal('modalEditAnimal');
         }
@@ -4589,17 +4941,29 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
+            const originSupplier = (document.getElementById('editAnimalOrigin').value || '').trim();
 
             if(!newId) return;
 
             const group = appData.groups.find(g => g.id == activeGroupId);
-            group.animals[idx].id = newId;
-            group.animals[idx].weight = newWeight;
+            const animal = group.animals[idx];
+            animal.id = newId;
+            animal.weight = newWeight;
+            animal.originSupplier = originSupplier || undefined;
+            if(newWeight > 0) {
+                if(!animal.weighings) animal.weighings = [];
+                const today = new Date().toISOString().split('T')[0];
+                const existing = animal.weighings.find(w => w.date === today);
+                if(existing) existing.weight = newWeight;
+                else animal.weighings.push({ date: today, weight: newWeight });
+            }
 
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderAll();
+            renderEliteMatricesList(group);
         }
 
         function openRemoveAnimalModal(idx) {
@@ -4682,6 +5046,14 @@
             document.getElementById('animalDetailId').innerText = animal.id;
             document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
             document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
+            const originRow = document.getElementById('animalDetailOriginRow');
+            const originEl = document.getElementById('animalDetailOrigin');
+            if(animal.originSupplier) {
+                originRow.classList.remove('hidden');
+                originEl.innerText = animal.originSupplier;
+            } else {
+                originRow.classList.add('hidden');
+            }
 
             renderAnimalGrowthChart(group, animal);
             openModal('modalAnimalDetails');
@@ -5500,8 +5872,64 @@
         }
 
         function closeModal(id) {
+            if (id === 'modalQRScanner' && qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                qrScannerInstance.stop().then(() => {}).catch(() => {});
+                qrScannerInstance = null;
+                qrScannerTargetInputId = null;
+            }
             document.getElementById(id).classList.remove('active');
         }
+
+        // --- Leitor QR Code / Câmera (coleta no campo; offline: biblioteca pode falhar ao carregar) ---
+        let qrScannerInstance = null;
+        let qrScannerTargetInputId = null;
+
+        function openQRScannerForInput(inputId) {
+            qrScannerTargetInputId = inputId;
+            const container = document.getElementById('qrReaderContainer');
+            const offlineMsg = document.getElementById('qrScannerOfflineMsg');
+            container.innerHTML = '';
+            offlineMsg.classList.add('hidden');
+            if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
+                offlineMsg.classList.remove('hidden');
+                openModal('modalQRScanner');
+                return;
+            }
+            openModal('modalQRScanner');
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            qrScannerInstance = new Html5Qrcode('qrReaderContainer');
+            qrScannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
+                const el = document.getElementById(qrScannerTargetInputId);
+                if (el) { el.value = decodedText; }
+                closeQRScanner();
+            }).catch(() => {
+                offlineMsg.classList.remove('hidden');
+            });
+        }
+
+        function closeQRScanner() {
+            if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                qrScannerInstance.stop().then(() => {}).catch(() => {});
+            }
+            qrScannerInstance = null;
+            qrScannerTargetInputId = null;
+            closeModal('modalQRScanner');
+        }
+
+        // --- Bastão RFID (modo HID): entradas rápidas + Enter disparam ação na aba Animais ---
+        document.addEventListener('keydown', function(evt) {
+            if (evt.key !== 'Enter') return;
+            const el = document.activeElement;
+            if (!el || !el.getAttribute || el.getAttribute('data-animal-id-field') !== 'true') return;
+            var modalDetails = document.getElementById('modalGroupDetails');
+            var tabAnimals = document.getElementById('tabAnimals');
+            if (!modalDetails || !tabAnimals || !modalDetails.classList.contains('active')) return;
+            if (tabAnimals.classList.contains('hidden')) return;
+            if (el.id === 'newAnimalId') {
+                evt.preventDefault();
+                addAnimalToGroup();
+            }
+        });
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
