@@ -14,8 +14,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <!-- Leitor QR Code: carrega via CDN; offline: scanner desabilitado com mensagem -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
@@ -1502,55 +1500,6 @@
                 display: none;
             }
         }
-
-        /* --- Leitor QR Code / Câmera (coleta no campo) --- */
-        .input-with-qr {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .input-with-qr .form-input {
-            flex: 1;
-        }
-        .btn-qr-scan {
-            flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            min-width: 44px;
-            min-height: 44px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .btn-qr-scan:hover {
-            background: var(--primary);
-            color: var(--white);
-        }
-        .btn-qr-scan:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        #modalQRScanner .modal-content {
-            max-width: 320px;
-            padding: 16px;
-        }
-        #qrReaderContainer {
-            width: 100%;
-            min-height: 200px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--light);
-        }
-        #qrReaderContainer video {
-            max-width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -2148,10 +2097,7 @@
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
             <div class="form-group">
                 <label>Nome do Produto / Touro</label>
-                <div class="input-with-qr">
-                    <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
-                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('stockName')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
-                </div>
+                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
             </div>
             <div class="form-group">
                 <label>Categoria</label>
@@ -2527,11 +2473,8 @@
 
             <div id="tabAnimals" class="tab-content hidden">
                 <div class="form-group">
-                    <div class="flex-between gap-2" style="flex-wrap: wrap;">
-                        <div class="input-with-qr" style="flex: 1; min-width: 180px;">
-                            <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID" data-animal-id-field="true">
-                            <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('newAnimalId')" title="Ler QR Code / Brinco"><i class="fas fa-camera"></i></button>
-                        </div>
+                    <div class="flex-between gap-2">
+                        <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
                         <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
                     </div>
                     <div class="form-group" style="margin-top:8px;">
@@ -2606,26 +2549,12 @@
         </div>
     </div>
 
-    <!-- Modal Scanner QR Code (coleta no campo; funciona offline se biblioteca já carregada) -->
-    <div id="modalQRScanner" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-qrcode"></i> Ler QR Code</h3>
-            <p class="text-sm text-gray" style="margin-bottom: 10px;">Aponte a câmera para o código. O valor será preenchido automaticamente.</p>
-            <div id="qrReaderContainer"></div>
-            <p id="qrScannerOfflineMsg" class="text-sm text-gray hidden" style="margin-top: 10px;">Câmera/QR indisponível offline. Conecte-se para usar o leitor.</p>
-            <button type="button" class="btn btn-outline" style="margin-top: 12px;" onclick="closeQRScanner()">Cancelar</button>
-        </div>
-    </div>
-
     <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
             <h3>Editar Animal</h3>
             <div class="form-group">
                 <label>Brinco/ID</label>
-                <div class="input-with-qr">
-                    <input type="text" id="editAnimalIdInput" class="form-input" data-animal-id-field="true">
-                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('editAnimalIdInput')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
-                </div>
+                <input type="text" id="editAnimalIdInput" class="form-input">
             </div>
             <div class="form-group">
                 <label>Peso Individual (kg)</label>
@@ -5872,64 +5801,8 @@
         }
 
         function closeModal(id) {
-            if (id === 'modalQRScanner' && qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                qrScannerInstance.stop().then(() => {}).catch(() => {});
-                qrScannerInstance = null;
-                qrScannerTargetInputId = null;
-            }
             document.getElementById(id).classList.remove('active');
         }
-
-        // --- Leitor QR Code / Câmera (coleta no campo; offline: biblioteca pode falhar ao carregar) ---
-        let qrScannerInstance = null;
-        let qrScannerTargetInputId = null;
-
-        function openQRScannerForInput(inputId) {
-            qrScannerTargetInputId = inputId;
-            const container = document.getElementById('qrReaderContainer');
-            const offlineMsg = document.getElementById('qrScannerOfflineMsg');
-            container.innerHTML = '';
-            offlineMsg.classList.add('hidden');
-            if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
-                offlineMsg.classList.remove('hidden');
-                openModal('modalQRScanner');
-                return;
-            }
-            openModal('modalQRScanner');
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            qrScannerInstance = new Html5Qrcode('qrReaderContainer');
-            qrScannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
-                const el = document.getElementById(qrScannerTargetInputId);
-                if (el) { el.value = decodedText; }
-                closeQRScanner();
-            }).catch(() => {
-                offlineMsg.classList.remove('hidden');
-            });
-        }
-
-        function closeQRScanner() {
-            if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                qrScannerInstance.stop().then(() => {}).catch(() => {});
-            }
-            qrScannerInstance = null;
-            qrScannerTargetInputId = null;
-            closeModal('modalQRScanner');
-        }
-
-        // --- Bastão RFID (modo HID): entradas rápidas + Enter disparam ação na aba Animais ---
-        document.addEventListener('keydown', function(evt) {
-            if (evt.key !== 'Enter') return;
-            const el = document.activeElement;
-            if (!el || !el.getAttribute || el.getAttribute('data-animal-id-field') !== 'true') return;
-            var modalDetails = document.getElementById('modalGroupDetails');
-            var tabAnimals = document.getElementById('tabAnimals');
-            if (!modalDetails || !tabAnimals || !modalDetails.classList.contains('active')) return;
-            if (tabAnimals.classList.contains('hidden')) return;
-            if (el.id === 'newAnimalId') {
-                evt.preventDefault();
-                addAnimalToGroup();
-            }
-        });
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
