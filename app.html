@@ -14,6 +14,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <!-- Leitor QR Code: carrega via CDN; offline: scanner desabilitado com mensagem -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/dist/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
@@ -1500,6 +1502,55 @@
                 display: none;
             }
         }
+
+        /* --- Leitor QR Code / Câmera (coleta no campo) --- */
+        .input-with-qr {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .input-with-qr .form-input {
+            flex: 1;
+        }
+        .btn-qr-scan {
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--primary-light);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-qr-scan:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .btn-qr-scan:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        #modalQRScanner .modal-content {
+            max-width: 320px;
+            padding: 16px;
+        }
+        #qrReaderContainer {
+            width: 100%;
+            min-height: 200px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--light);
+        }
+        #qrReaderContainer video {
+            max-width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -2097,7 +2148,10 @@
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
             <div class="form-group">
                 <label>Nome do Produto / Touro</label>
-                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
+                <div class="input-with-qr">
+                    <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
+                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('stockName')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Categoria</label>
@@ -2473,25 +2527,13 @@
 
             <div id="tabAnimals" class="tab-content hidden">
                 <div class="form-group">
-                    <div class="flex-between gap-2">
-                        <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
+                    <div class="flex-between gap-2" style="flex-wrap: wrap;">
+                        <div class="input-with-qr" style="flex: 1; min-width: 180px;">
+                            <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID" data-animal-id-field="true">
+                            <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('newAnimalId')" title="Ler QR Code / Brinco"><i class="fas fa-camera"></i></button>
+                        </div>
                         <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
                     </div>
-                    <div class="form-group" style="margin-top:8px;">
-                        <label class="text-sm text-gray">Fornecedor/Fazenda de origem (rastreabilidade)</label>
-                        <input type="text" id="newAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
-                    </div>
-                    <div class="form-group">
-                        <label class="text-sm text-gray">Matriz (mãe) — se for bezerro deste rebanho</label>
-                        <select id="newAnimalMotherId" class="form-input">
-                            <option value="">— Nenhuma / comprado —</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card text-sm" style="margin-top:10px; border-color:var(--secondary);">
-                    <h4 style="color:var(--secondary);"><i class="fas fa-map-marker-alt"></i> Rastreabilidade por origem</h4>
-                    <p class="text-gray" style="margin-bottom:8px;">Resumo por fornecedor/fazenda de origem (para analisar quais compras são mais lucrativas).</p>
-                    <div id="originSummaryList"></div>
                 </div>
                 <div id="animalList" style="max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
             </div>
@@ -2549,20 +2591,30 @@
         </div>
     </div>
 
+    <!-- Modal Scanner QR Code (coleta no campo; funciona offline se biblioteca já carregada) -->
+    <div id="modalQRScanner" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-qrcode"></i> Ler QR Code</h3>
+            <p class="text-sm text-gray" style="margin-bottom: 10px;">Aponte a câmera para o código. O valor será preenchido automaticamente.</p>
+            <div id="qrReaderContainer"></div>
+            <p id="qrScannerOfflineMsg" class="text-sm text-gray hidden" style="margin-top: 10px;">Leitor de QR não carregou (conexão ou permissão). Verifique a internet e recarregue a página.</p>
+            <button type="button" class="btn btn-outline" style="margin-top: 12px;" onclick="closeQRScanner()">Cancelar</button>
+        </div>
+    </div>
+
     <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
             <h3>Editar Animal</h3>
             <div class="form-group">
                 <label>Brinco/ID</label>
-                <input type="text" id="editAnimalIdInput" class="form-input">
+                <div class="input-with-qr">
+                    <input type="text" id="editAnimalIdInput" class="form-input" data-animal-id-field="true">
+                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('editAnimalIdInput')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
+                </div>
             </div>
             <div class="form-group">
                 <label>Peso Individual (kg)</label>
                 <input type="number" id="editAnimalWeightInput" class="form-input" placeholder="0.00" step="0.01">
-            </div>
-            <div class="form-group">
-                <label>Fornecedor/Fazenda de origem</label>
-                <input type="text" id="editAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
             </div>
             <input type="hidden" id="editAnimalIndex">
             <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
@@ -2629,10 +2681,6 @@
                 <div class="flex-between" style="margin-bottom: 10px;">
                     <span class="text-gray">Entrada no Lote:</span>
                     <strong id="animalDetailEntry">-</strong>
-                </div>
-                <div class="flex-between" style="margin-bottom: 10px;" id="animalDetailOriginRow">
-                    <span class="text-gray">Origem (fornecedor/fazenda):</span>
-                    <strong id="animalDetailOrigin">-</strong>
                 </div>
             </div>
             <div class="growth-chart-container">
@@ -4289,10 +4337,6 @@
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
             animalSelect.innerHTML = animalsHtml;
             breedingAnimalSelect.innerHTML = animalsHtml;
-            const prenhaIds = (group.breedingEvents || []).filter(e => e.status === 'Prenha' && e.animalId && e.animalId !== 'LOTE').map(e => e.animalId);
-            const uniqueMothers = [...new Set(prenhaIds)].filter(id => group.animals.some(a => a.id === id));
-            const motherSelect = document.getElementById('newAnimalMotherId');
-            motherSelect.innerHTML = '<option value="">— Nenhuma / comprado —</option>' + uniqueMothers.map(id => `<option value="${id}">${id} (matriz)</option>`).join('');
             const weightIndivAnimal = document.getElementById('weightIndivAnimal');
             weightIndivAnimal.innerHTML = '<option value="">Animal...</option>' + (group.animals || []).map(a => `<option value="${a.id}">${a.id}</option>`).join('');
             document.getElementById('weightIndivDate').value = new Date().toISOString().split('T')[0];
@@ -4301,7 +4345,6 @@
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderBreedingList(group);
             populateBreedingStock();
             renderSemenBankList();
@@ -4794,46 +4837,20 @@
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
 
-            const originSupplier = (document.getElementById('newAnimalOrigin').value || '').trim();
-            const motherId = (document.getElementById('newAnimalMotherId').value || '').trim() || undefined;
-
             group.animals.push({
                 id,
                 entryDate: new Date().toISOString().split('T')[0],
-                weight: 0,
-                originSupplier: originSupplier || undefined,
-                motherId: motherId
+                weight: 0
             });
 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
-            document.getElementById('newAnimalOrigin').value = '';
-            document.getElementById('newAnimalMotherId').value = '';
 
             await saveData();
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderAll();
             const group2 = appData.groups.find(g => g.id == activeGroupId);
             if(group2) renderEliteMatricesList(group2);
-        }
-
-        function renderOriginSummaryList(group) {
-            const list = document.getElementById('originSummaryList');
-            const byOrigin = {};
-            (group.animals || []).forEach(a => {
-                const key = a.originSupplier || 'Não informado';
-                if(!byOrigin[key]) byOrigin[key] = 0;
-                byOrigin[key]++;
-            });
-            const entries = Object.entries(byOrigin).sort((a,b) => b[1] - a[1]);
-            if(entries.length === 0) {
-                list.innerHTML = '<p class="text-gray text-center">Nenhum animal com origem registrada.</p>';
-                return;
-            }
-            list.innerHTML = entries.map(([origin, count]) =>
-                `<div class="list-item text-sm"><span>${origin}</span> <strong>${count} animal(is)</strong></div>`
-            ).join('');
         }
 
         function renderAnimalList(group) {
@@ -4861,7 +4878,6 @@
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
             document.getElementById('editAnimalWeightInput').value = animal.weight || '';
-            document.getElementById('editAnimalOrigin').value = animal.originSupplier || '';
 
             openModal('modalEditAnimal');
         }
@@ -4870,7 +4886,6 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
-            const originSupplier = (document.getElementById('editAnimalOrigin').value || '').trim();
 
             if(!newId) return;
 
@@ -4878,7 +4893,6 @@
             const animal = group.animals[idx];
             animal.id = newId;
             animal.weight = newWeight;
-            animal.originSupplier = originSupplier || undefined;
             if(newWeight > 0) {
                 if(!animal.weighings) animal.weighings = [];
                 const today = new Date().toISOString().split('T')[0];
@@ -4890,7 +4904,6 @@
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderAll();
             renderEliteMatricesList(group);
         }
@@ -4975,14 +4988,6 @@
             document.getElementById('animalDetailId').innerText = animal.id;
             document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
             document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
-            const originRow = document.getElementById('animalDetailOriginRow');
-            const originEl = document.getElementById('animalDetailOrigin');
-            if(animal.originSupplier) {
-                originRow.classList.remove('hidden');
-                originEl.innerText = animal.originSupplier;
-            } else {
-                originRow.classList.add('hidden');
-            }
 
             renderAnimalGrowthChart(group, animal);
             openModal('modalAnimalDetails');
@@ -5801,8 +5806,68 @@
         }
 
         function closeModal(id) {
+            if (id === 'modalQRScanner' && qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                qrScannerInstance.stop().then(() => {}).catch(() => {});
+                qrScannerInstance = null;
+                qrScannerTargetInputId = null;
+            }
             document.getElementById(id).classList.remove('active');
         }
+
+        // --- Leitor QR Code / Câmera (coleta no campo; offline: biblioteca pode falhar ao carregar) ---
+        let qrScannerInstance = null;
+        let qrScannerTargetInputId = null;
+
+        function openQRScannerForInput(inputId) {
+            qrScannerTargetInputId = inputId;
+            const container = document.getElementById('qrReaderContainer');
+            const offlineMsg = document.getElementById('qrScannerOfflineMsg');
+            container.innerHTML = '';
+            offlineMsg.classList.add('hidden');
+            if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
+                offlineMsg.classList.remove('hidden');
+                openModal('modalQRScanner');
+                return;
+            }
+            openModal('modalQRScanner');
+            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+            qrScannerInstance = new Html5Qrcode('qrReaderContainer');
+            function startScanner() {
+                qrScannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
+                    const el = document.getElementById(qrScannerTargetInputId);
+                    if (el) { el.value = decodedText; }
+                    closeQRScanner();
+                }).catch(function(err) {
+                    offlineMsg.textContent = err && err.message ? 'Câmera: ' + err.message : 'Não foi possível acessar a câmera. Permita o uso no navegador.';
+                    offlineMsg.classList.remove('hidden');
+                });
+            }
+            setTimeout(startScanner, 150);
+        }
+
+        function closeQRScanner() {
+            if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                qrScannerInstance.stop().then(() => {}).catch(() => {});
+            }
+            qrScannerInstance = null;
+            qrScannerTargetInputId = null;
+            closeModal('modalQRScanner');
+        }
+
+        // --- Bastão RFID (modo HID): entradas rápidas + Enter disparam ação na aba Animais ---
+        document.addEventListener('keydown', function(evt) {
+            if (evt.key !== 'Enter') return;
+            const el = document.activeElement;
+            if (!el || !el.getAttribute || el.getAttribute('data-animal-id-field') !== 'true') return;
+            var modalDetails = document.getElementById('modalGroupDetails');
+            var tabAnimals = document.getElementById('tabAnimals');
+            if (!modalDetails || !tabAnimals || !modalDetails.classList.contains('active')) return;
+            if (tabAnimals.classList.contains('hidden')) return;
+            if (el.id === 'newAnimalId') {
+                evt.preventDefault();
+                addAnimalToGroup();
+            }
+        });
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
