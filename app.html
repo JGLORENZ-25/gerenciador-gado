@@ -5832,17 +5832,14 @@
             openModal('modalQRScanner');
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             qrScannerInstance = new Html5Qrcode('qrReaderContainer');
-            function startScanner() {
-                qrScannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
-                    const el = document.getElementById(qrScannerTargetInputId);
-                    if (el) { el.value = decodedText; }
-                    closeQRScanner();
-                }).catch(function(err) {
-                    offlineMsg.textContent = err && err.message ? 'Câmera: ' + err.message : 'Não foi possível acessar a câmera. Permita o uso no navegador.';
-                    offlineMsg.classList.remove('hidden');
-                });
-            }
-            setTimeout(startScanner, 150);
+            qrScannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
+                const el = document.getElementById(qrScannerTargetInputId);
+                if (el) { el.value = decodedText; }
+                closeQRScanner();
+            }).catch(function(err) {
+                offlineMsg.textContent = err && err.message ? 'Câmera: ' + err.message : 'Não foi possível acessar a câmera. Permita o uso no navegador.';
+                offlineMsg.classList.remove('hidden');
+            });
         }
 
         function closeQRScanner() {
