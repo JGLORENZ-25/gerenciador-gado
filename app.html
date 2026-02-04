@@ -5879,27 +5879,60 @@
             var container = document.getElementById('qrReaderContainer');
             var offlineMsg = document.getElementById('qrScannerOfflineMsg');
             if (!container || !qrScannerTargetInputId) return;
+
+            if (!window.isSecureContext) {
+                offlineMsg.textContent = 'Câmera exige conexão segura (HTTPS). Abra o site com https:// no celular.';
+                offlineMsg.classList.remove('hidden');
+                return;
+            }
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                offlineMsg.textContent = 'Seu navegador não suporta acesso à câmera. Use Chrome ou Safari atualizado.';
+                offlineMsg.classList.remove('hidden');
+                return;
+            }
             if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
                 offlineMsg.textContent = 'Leitor de QR não carregou. Recarregue a página com internet.';
                 offlineMsg.classList.remove('hidden');
                 return;
             }
-            container.innerHTML = '';
-            var config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            qrScannerInstance = new Html5Qrcode('qrReaderContainer');
-            qrScannerInstance.start({ facingMode: 'environment' }, config, function(decodedText) {
-                var el = document.getElementById(qrScannerTargetInputId);
-                if (el) el.value = decodedText;
-                closeQRScanner();
+
+            container.innerHTML = '<div class="qrScannerPlaceholder"><p class="text-sm text-gray text-center">Abrindo câmera… Aguarde e permita o acesso se o navegador pedir.</p></div>';
+            offlineMsg.classList.add('hidden');
+
+            var videoConstraints = { video: { facingMode: 'environment' }, audio: false };
+            navigator.mediaDevices.getUserMedia(videoConstraints).then(function(stream) {
+                stream.getTracks().forEach(function(t) { t.stop(); });
+                container.innerHTML = '';
+                var config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                qrScannerInstance = new Html5Qrcode('qrReaderContainer');
+                qrScannerInstance.start({ facingMode: 'environment' }, config, function(decodedText) {
+                    var el = document.getElementById(qrScannerTargetInputId);
+                    if (el) el.value = decodedText;
+                    closeQRScanner();
+                }).catch(function(err) {
+                    offlineMsg.textContent = err && err.message ? 'Scanner: ' + err.message : 'Não foi possível iniciar o leitor.';
+                    offlineMsg.classList.remove('hidden');
+                    showQrPlaceholderAgain(container);
+                });
             }).catch(function(err) {
-                offlineMsg.textContent = err && err.message ? 'Câmera: ' + err.message : 'Não foi possível acessar a câmera. Permita o uso no navegador e use HTTPS no celular.';
+                var msg = 'Câmera bloqueada ou indisponível. ';
+                if (err && err.name === 'NotAllowedError') msg += 'Permita o uso da câmera nas configurações do site/navegador.';
+                else if (err && err.message) msg += err.message;
+                else msg += 'No celular use HTTPS.';
+                offlineMsg.textContent = msg;
                 offlineMsg.classList.remove('hidden');
-                var ph = document.createElement('div');
-                ph.id = 'qrScannerPlaceholder';
-                ph.className = 'qrScannerPlaceholder';
-                ph.innerHTML = '<p class="text-sm text-gray text-center">Clique para tentar novamente.</p><button type="button" onclick="startQRCamera()"><i class="fas fa-camera"></i> Ativar câmera</button>';
-                container.appendChild(ph);
+                showQrPlaceholderAgain(container);
             });
+        }
+
+        function showQrPlaceholderAgain(container) {
+            if (!container) return;
+            container.innerHTML = '';
+            var ph = document.createElement('div');
+            ph.id = 'qrScannerPlaceholder';
+            ph.className = 'qrScannerPlaceholder';
+            ph.innerHTML = '<p class="text-sm text-gray text-center">Clique para tentar novamente.</p><button type="button" onclick="startQRCamera()"><i class="fas fa-camera"></i> Ativar câmera</button>';
+            container.appendChild(ph);
         }
 
         function closeQRScanner() {
