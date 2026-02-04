@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <!-- Leitor QR Code: carrega via CDN; offline: scanner desabilitado com mensagem -->
-    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/dist/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
@@ -1883,22 +1883,22 @@
                 </label>
                 
                 <div class="date-filter-buttons">
-                    <button class="date-filter-btn active" onclick="setDateFilter('week')">
+                    <button type="button" class="date-filter-btn active" data-filter="week" onclick="setDateFilter('week', event)">
                         <i class="fas fa-calendar-week"></i> Semanal
                     </button>
-                    <button class="date-filter-btn" onclick="setDateFilter('month')">
+                    <button type="button" class="date-filter-btn" data-filter="month" onclick="setDateFilter('month', event)">
                         <i class="fas fa-calendar"></i> Mensal
                     </button>
-                    <button class="date-filter-btn" onclick="setDateFilter('quarter')">
+                    <button type="button" class="date-filter-btn" data-filter="quarter" onclick="setDateFilter('quarter', event)">
                         <i class="fas fa-calendar-alt"></i> Trimestral
                     </button>
-                    <button class="date-filter-btn" onclick="setDateFilter('semester')">
+                    <button type="button" class="date-filter-btn" data-filter="semester" onclick="setDateFilter('semester', event)">
                         <i class="fas fa-calendar-check"></i> Semestral
                     </button>
-                    <button class="date-filter-btn" onclick="setDateFilter('year')">
+                    <button type="button" class="date-filter-btn" data-filter="year" onclick="setDateFilter('year', event)">
                         <i class="fas fa-calendar-day"></i> Anual
                     </button>
-                    <button class="date-filter-btn" onclick="setDateFilter('custom')">
+                    <button type="button" class="date-filter-btn" data-filter="custom" onclick="setDateFilter('custom', event)">
                         <i class="fas fa-calendar-plus"></i> Personalizado
                     </button>
                 </div>
@@ -3312,9 +3312,11 @@
             let endDate = new Date();
 
             document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
-            
-            if(event && event.target) {
+            if (event && event.target && event.target.classList) {
                 event.target.classList.add('active');
+            } else {
+                var activeBtn = document.querySelector('.date-filter-btn[data-filter="' + type + '"]');
+                if (activeBtn && activeBtn.classList) activeBtn.classList.add('active');
             }
 
             const customInputs = document.getElementById('customDateInputs');
