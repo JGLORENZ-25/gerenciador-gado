@@ -14,8 +14,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <!-- Leitor QR Code: carrega via CDN; offline: scanner desabilitado com mensagem -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" crossorigin="anonymous" onerror="window.__qrLibFailed = true;"></script>
     <style>
         :root {
             /* Cores Padrão (Modo Claro) */
@@ -1502,92 +1500,6 @@
                 display: none;
             }
         }
-
-        /* --- Leitor QR Code / Câmera (coleta no campo) --- */
-        .input-with-qr {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .input-with-qr .form-input {
-            flex: 1;
-        }
-        .btn-qr-scan {
-            flex-shrink: 0;
-            width: 44px;
-            height: 44px;
-            min-width: 44px;
-            min-height: 44px;
-            padding: 0;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--primary-light);
-            color: var(--primary-dark);
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-        .btn-qr-scan:hover {
-            background: var(--primary);
-            color: var(--white);
-        }
-        .btn-qr-scan:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        #modalQRScanner .modal-content {
-            max-width: 320px;
-            padding: 16px;
-        }
-        #qrReaderContainer {
-            width: 100%;
-            height: 280px;
-            min-height: 280px;
-            border-radius: 12px;
-            overflow: hidden;
-            background: var(--light);
-            position: relative;
-        }
-        #qrReaderContainer video {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover;
-            display: block;
-        }
-        #qrScannerPlaceholder,
-        .qrScannerPlaceholder {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: var(--light);
-            border-radius: 12px;
-            padding: 16px;
-        }
-        #qrScannerPlaceholder.hidden,
-        .qrScannerPlaceholder.hidden {
-            display: none !important;
-        }
-        #btnStartQrCamera {
-            padding: 12px 24px;
-            background: var(--primary);
-            color: var(--white);
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        #btnStartQrCamera:hover {
-            background: var(--primary-dark);
-        }
     </style>
 </head>
 <body>
@@ -1883,22 +1795,22 @@
                 </label>
                 
                 <div class="date-filter-buttons">
-                    <button type="button" class="date-filter-btn active" data-filter="week" onclick="setDateFilter('week', event)">
+                    <button class="date-filter-btn active" onclick="setDateFilter('week')">
                         <i class="fas fa-calendar-week"></i> Semanal
                     </button>
-                    <button type="button" class="date-filter-btn" data-filter="month" onclick="setDateFilter('month', event)">
+                    <button class="date-filter-btn" onclick="setDateFilter('month')">
                         <i class="fas fa-calendar"></i> Mensal
                     </button>
-                    <button type="button" class="date-filter-btn" data-filter="quarter" onclick="setDateFilter('quarter', event)">
+                    <button class="date-filter-btn" onclick="setDateFilter('quarter')">
                         <i class="fas fa-calendar-alt"></i> Trimestral
                     </button>
-                    <button type="button" class="date-filter-btn" data-filter="semester" onclick="setDateFilter('semester', event)">
+                    <button class="date-filter-btn" onclick="setDateFilter('semester')">
                         <i class="fas fa-calendar-check"></i> Semestral
                     </button>
-                    <button type="button" class="date-filter-btn" data-filter="year" onclick="setDateFilter('year', event)">
+                    <button class="date-filter-btn" onclick="setDateFilter('year')">
                         <i class="fas fa-calendar-day"></i> Anual
                     </button>
-                    <button type="button" class="date-filter-btn" data-filter="custom" onclick="setDateFilter('custom', event)">
+                    <button class="date-filter-btn" onclick="setDateFilter('custom')">
                         <i class="fas fa-calendar-plus"></i> Personalizado
                     </button>
                 </div>
@@ -2185,10 +2097,7 @@
             <h3><i class="fas fa-cart-plus"></i> Entrada de Estoque</h3>
             <div class="form-group">
                 <label>Nome do Produto / Touro</label>
-                <div class="input-with-qr">
-                    <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
-                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('stockName')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
-                </div>
+                <input type="text" id="stockName" class="form-input" placeholder="Ex: Ração, Touro Nelore...">
             </div>
             <div class="form-group">
                 <label>Categoria</label>
@@ -2564,13 +2473,25 @@
 
             <div id="tabAnimals" class="tab-content hidden">
                 <div class="form-group">
-                    <div class="flex-between gap-2" style="flex-wrap: wrap;">
-                        <div class="input-with-qr" style="flex: 1; min-width: 180px;">
-                            <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID" data-animal-id-field="true">
-                            <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('newAnimalId')" title="Ler QR Code / Brinco"><i class="fas fa-camera"></i></button>
-                        </div>
+                    <div class="flex-between gap-2">
+                        <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
                         <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
                     </div>
+                    <div class="form-group" style="margin-top:8px;">
+                        <label class="text-sm text-gray">Fornecedor/Fazenda de origem (rastreabilidade)</label>
+                        <input type="text" id="newAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
+                    </div>
+                    <div class="form-group">
+                        <label class="text-sm text-gray">Matriz (mãe) — se for bezerro deste rebanho</label>
+                        <select id="newAnimalMotherId" class="form-input">
+                            <option value="">— Nenhuma / comprado —</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="card text-sm" style="margin-top:10px; border-color:var(--secondary);">
+                    <h4 style="color:var(--secondary);"><i class="fas fa-map-marker-alt"></i> Rastreabilidade por origem</h4>
+                    <p class="text-gray" style="margin-bottom:8px;">Resumo por fornecedor/fazenda de origem (para analisar quais compras são mais lucrativas).</p>
+                    <div id="originSummaryList"></div>
                 </div>
                 <div id="animalList" style="max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
             </div>
@@ -2628,30 +2549,20 @@
         </div>
     </div>
 
-    <!-- Modal Scanner QR Code (coleta no campo; funciona offline se biblioteca já carregada) -->
-    <div id="modalQRScanner" class="modal">
-        <div class="modal-content">
-            <h3><i class="fas fa-qrcode"></i> Ler QR Code</h3>
-            <p class="text-sm text-gray" style="margin-bottom: 10px;">Aponte a câmera para o código. O valor será preenchido automaticamente.</p>
-            <div id="qrReaderContainer"></div>
-            <p id="qrScannerOfflineMsg" class="text-sm text-gray hidden" style="margin-top: 10px;">Leitor de QR não carregou (conexão ou permissão). Verifique a internet e recarregue a página.</p>
-            <button type="button" class="btn btn-outline" style="margin-top: 12px;" onclick="closeQRScanner()">Cancelar</button>
-        </div>
-    </div>
-
     <div id="modalEditAnimal" class="modal">
         <div class="modal-content">
             <h3>Editar Animal</h3>
             <div class="form-group">
                 <label>Brinco/ID</label>
-                <div class="input-with-qr">
-                    <input type="text" id="editAnimalIdInput" class="form-input" data-animal-id-field="true">
-                    <button type="button" class="btn-qr-scan" onclick="openQRScannerForInput('editAnimalIdInput')" title="Ler QR Code"><i class="fas fa-camera"></i></button>
-                </div>
+                <input type="text" id="editAnimalIdInput" class="form-input">
             </div>
             <div class="form-group">
                 <label>Peso Individual (kg)</label>
                 <input type="number" id="editAnimalWeightInput" class="form-input" placeholder="0.00" step="0.01">
+            </div>
+            <div class="form-group">
+                <label>Fornecedor/Fazenda de origem</label>
+                <input type="text" id="editAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
             </div>
             <input type="hidden" id="editAnimalIndex">
             <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
@@ -2718,6 +2629,10 @@
                 <div class="flex-between" style="margin-bottom: 10px;">
                     <span class="text-gray">Entrada no Lote:</span>
                     <strong id="animalDetailEntry">-</strong>
+                </div>
+                <div class="flex-between" style="margin-bottom: 10px;" id="animalDetailOriginRow">
+                    <span class="text-gray">Origem (fornecedor/fazenda):</span>
+                    <strong id="animalDetailOrigin">-</strong>
                 </div>
             </div>
             <div class="growth-chart-container">
@@ -3312,11 +3227,9 @@
             let endDate = new Date();
 
             document.querySelectorAll('.date-filter-btn').forEach(btn => btn.classList.remove('active'));
-            if (event && event.target && event.target.classList) {
+            
+            if(event && event.target) {
                 event.target.classList.add('active');
-            } else {
-                var activeBtn = document.querySelector('.date-filter-btn[data-filter="' + type + '"]');
-                if (activeBtn && activeBtn.classList) activeBtn.classList.add('active');
             }
 
             const customInputs = document.getElementById('customDateInputs');
@@ -4376,6 +4289,10 @@
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
             animalSelect.innerHTML = animalsHtml;
             breedingAnimalSelect.innerHTML = animalsHtml;
+            const prenhaIds = (group.breedingEvents || []).filter(e => e.status === 'Prenha' && e.animalId && e.animalId !== 'LOTE').map(e => e.animalId);
+            const uniqueMothers = [...new Set(prenhaIds)].filter(id => group.animals.some(a => a.id === id));
+            const motherSelect = document.getElementById('newAnimalMotherId');
+            motherSelect.innerHTML = '<option value="">— Nenhuma / comprado —</option>' + uniqueMothers.map(id => `<option value="${id}">${id} (matriz)</option>`).join('');
             const weightIndivAnimal = document.getElementById('weightIndivAnimal');
             weightIndivAnimal.innerHTML = '<option value="">Animal...</option>' + (group.animals || []).map(a => `<option value="${a.id}">${a.id}</option>`).join('');
             document.getElementById('weightIndivDate').value = new Date().toISOString().split('T')[0];
@@ -4384,6 +4301,7 @@
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderBreedingList(group);
             populateBreedingStock();
             renderSemenBankList();
@@ -4876,20 +4794,46 @@
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
 
+            const originSupplier = (document.getElementById('newAnimalOrigin').value || '').trim();
+            const motherId = (document.getElementById('newAnimalMotherId').value || '').trim() || undefined;
+
             group.animals.push({
                 id,
                 entryDate: new Date().toISOString().split('T')[0],
-                weight: 0
+                weight: 0,
+                originSupplier: originSupplier || undefined,
+                motherId: motherId
             });
 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
+            document.getElementById('newAnimalOrigin').value = '';
+            document.getElementById('newAnimalMotherId').value = '';
 
             await saveData();
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderAll();
             const group2 = appData.groups.find(g => g.id == activeGroupId);
             if(group2) renderEliteMatricesList(group2);
+        }
+
+        function renderOriginSummaryList(group) {
+            const list = document.getElementById('originSummaryList');
+            const byOrigin = {};
+            (group.animals || []).forEach(a => {
+                const key = a.originSupplier || 'Não informado';
+                if(!byOrigin[key]) byOrigin[key] = 0;
+                byOrigin[key]++;
+            });
+            const entries = Object.entries(byOrigin).sort((a,b) => b[1] - a[1]);
+            if(entries.length === 0) {
+                list.innerHTML = '<p class="text-gray text-center">Nenhum animal com origem registrada.</p>';
+                return;
+            }
+            list.innerHTML = entries.map(([origin, count]) =>
+                `<div class="list-item text-sm"><span>${origin}</span> <strong>${count} animal(is)</strong></div>`
+            ).join('');
         }
 
         function renderAnimalList(group) {
@@ -4917,6 +4861,7 @@
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
             document.getElementById('editAnimalWeightInput').value = animal.weight || '';
+            document.getElementById('editAnimalOrigin').value = animal.originSupplier || '';
 
             openModal('modalEditAnimal');
         }
@@ -4925,6 +4870,7 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
+            const originSupplier = (document.getElementById('editAnimalOrigin').value || '').trim();
 
             if(!newId) return;
 
@@ -4932,6 +4878,7 @@
             const animal = group.animals[idx];
             animal.id = newId;
             animal.weight = newWeight;
+            animal.originSupplier = originSupplier || undefined;
             if(newWeight > 0) {
                 if(!animal.weighings) animal.weighings = [];
                 const today = new Date().toISOString().split('T')[0];
@@ -4943,6 +4890,7 @@
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
+            renderOriginSummaryList(group);
             renderAll();
             renderEliteMatricesList(group);
         }
@@ -5027,6 +4975,14 @@
             document.getElementById('animalDetailId').innerText = animal.id;
             document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
             document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
+            const originRow = document.getElementById('animalDetailOriginRow');
+            const originEl = document.getElementById('animalDetailOrigin');
+            if(animal.originSupplier) {
+                originRow.classList.remove('hidden');
+                originEl.innerText = animal.originSupplier;
+            } else {
+                originRow.classList.add('hidden');
+            }
 
             renderAnimalGrowthChart(group, animal);
             openModal('modalAnimalDetails');
@@ -5845,158 +5801,8 @@
         }
 
         function closeModal(id) {
-            if (id === 'modalQRScanner') {
-                var cont = document.getElementById('qrReaderContainer');
-                if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                    qrScannerInstance.stop().then(function() {
-                        if (cont) {
-                            var video = cont.querySelector('video');
-                            if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(function(t) { t.stop(); });
-                            cont.innerHTML = '';
-                        }
-                    }).catch(function() {});
-                }
-                qrScannerInstance = null;
-                qrScannerTargetInputId = null;
-                if (cont) cont.innerHTML = '';
-            }
             document.getElementById(id).classList.remove('active');
         }
-
-        // --- Leitor QR Code / Câmera (coleta no campo; offline: biblioteca pode falhar ao carregar) ---
-        let qrScannerInstance = null;
-        let qrScannerTargetInputId = null;
-
-        function openQRScannerForInput(inputId) {
-            qrScannerTargetInputId = inputId;
-            const container = document.getElementById('qrReaderContainer');
-            const offlineMsg = document.getElementById('qrScannerOfflineMsg');
-            offlineMsg.classList.add('hidden');
-            if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
-                offlineMsg.classList.remove('hidden');
-                container.innerHTML = '';
-                openModal('modalQRScanner');
-                return;
-            }
-            container.innerHTML = '';
-            var placeholder = document.createElement('div');
-            placeholder.id = 'qrScannerPlaceholder';
-            placeholder.className = 'qrScannerPlaceholder';
-            placeholder.innerHTML = '<p class="text-sm text-gray text-center">Clique no botão abaixo para permitir o uso da câmera e iniciar o leitor.</p><button type="button" id="btnStartQrCamera" onclick="startQRCamera()"><i class="fas fa-camera"></i> Ativar câmera</button>';
-            container.appendChild(placeholder);
-            openModal('modalQRScanner');
-        }
-
-        function startQRCamera() {
-            var container = document.getElementById('qrReaderContainer');
-            var offlineMsg = document.getElementById('qrScannerOfflineMsg');
-            if (!container || !qrScannerTargetInputId) return;
-
-            if (!window.isSecureContext) {
-                offlineMsg.textContent = 'Câmera exige conexão segura (HTTPS). Abra o site com https:// no celular.';
-                offlineMsg.classList.remove('hidden');
-                return;
-            }
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                offlineMsg.textContent = 'Seu navegador não suporta acesso à câmera. Use Chrome ou Safari atualizado.';
-                offlineMsg.classList.remove('hidden');
-                return;
-            }
-            if (window.__qrLibFailed || typeof Html5Qrcode === 'undefined') {
-                offlineMsg.textContent = 'Leitor de QR não carregou. Recarregue a página com internet.';
-                offlineMsg.classList.remove('hidden');
-                return;
-            }
-
-            container.innerHTML = '<div class="qrScannerPlaceholder"><p class="text-sm text-gray text-center">Abrindo câmera… Aguarde e permita o acesso se o navegador pedir.</p></div>';
-            offlineMsg.classList.add('hidden');
-
-            var videoConstraints = { video: { facingMode: 'environment' }, audio: false };
-            navigator.mediaDevices.getUserMedia(videoConstraints).then(function(stream) {
-                stream.getTracks().forEach(function(t) { t.stop(); });
-                container.innerHTML = '';
-                var config = { fps: 10, qrbox: { width: 250, height: 250 } };
-                qrScannerInstance = new Html5Qrcode('qrReaderContainer');
-                qrScannerInstance.start({ facingMode: 'environment' }, config, function(decodedText) {
-                    var el = document.getElementById(qrScannerTargetInputId);
-                    if (el) el.value = decodedText;
-                    closeQRScanner();
-                }).catch(function(err) {
-                    offlineMsg.textContent = err && err.message ? 'Scanner: ' + err.message : 'Não foi possível iniciar o leitor.';
-                    offlineMsg.classList.remove('hidden');
-                    showQrPlaceholderAgain(container);
-                });
-            }).catch(function(err) {
-                var msg = 'Câmera bloqueada ou indisponível. ';
-                if (err && err.name === 'NotAllowedError') msg += 'Permita o uso da câmera nas configurações do site/navegador.';
-                else if (err && err.message) msg += err.message;
-                else msg += 'No celular use HTTPS.';
-                offlineMsg.textContent = msg;
-                offlineMsg.classList.remove('hidden');
-                showQrPlaceholderAgain(container);
-            });
-        }
-
-        function showQrPlaceholderAgain(container) {
-            if (!container) return;
-            container.innerHTML = '';
-            var ph = document.createElement('div');
-            ph.id = 'qrScannerPlaceholder';
-            ph.className = 'qrScannerPlaceholder';
-            ph.innerHTML = '<p class="text-sm text-gray text-center">Clique para tentar novamente.</p><button type="button" onclick="startQRCamera()"><i class="fas fa-camera"></i> Ativar câmera</button>';
-            container.appendChild(ph);
-        }
-
-        function closeQRScanner() {
-            var container = document.getElementById('qrReaderContainer');
-            function stopAndClose() {
-                if (container) container.innerHTML = '';
-                qrScannerInstance = null;
-                qrScannerTargetInputId = null;
-                closeModal('modalQRScanner');
-            }
-            if (!qrScannerInstance) {
-                stopAndClose();
-                return;
-            }
-            if (typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                qrScannerInstance.stop().then(function() {
-                    if (container) {
-                        var video = container.querySelector('video');
-                        if (video && video.srcObject) {
-                            var stream = video.srcObject;
-                            if (stream && stream.getTracks) stream.getTracks().forEach(function(t) { t.stop(); });
-                        }
-                        container.innerHTML = '';
-                    }
-                    qrScannerInstance = null;
-                    qrScannerTargetInputId = null;
-                    closeModal('modalQRScanner');
-                }).catch(function() {
-                    stopAndClose();
-                });
-            } else {
-                if (container) container.innerHTML = '';
-                qrScannerInstance = null;
-                qrScannerTargetInputId = null;
-                closeModal('modalQRScanner');
-            }
-        }
-
-        // --- Bastão RFID (modo HID): entradas rápidas + Enter disparam ação na aba Animais ---
-        document.addEventListener('keydown', function(evt) {
-            if (evt.key !== 'Enter') return;
-            const el = document.activeElement;
-            if (!el || !el.getAttribute || el.getAttribute('data-animal-id-field') !== 'true') return;
-            var modalDetails = document.getElementById('modalGroupDetails');
-            var tabAnimals = document.getElementById('tabAnimals');
-            if (!modalDetails || !tabAnimals || !modalDetails.classList.contains('active')) return;
-            if (tabAnimals.classList.contains('hidden')) return;
-            if (el.id === 'newAnimalId') {
-                evt.preventDefault();
-                addAnimalToGroup();
-            }
-        });
 
         window.addEventListener('online', updateOnlineStatus);
         window.addEventListener('offline', updateOnlineStatus);
@@ -6041,4 +5847,3 @@
     </script>
 </body>
 </html>
-
