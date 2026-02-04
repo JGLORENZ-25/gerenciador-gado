@@ -5845,10 +5845,20 @@
         }
 
         function closeModal(id) {
-            if (id === 'modalQRScanner' && qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                qrScannerInstance.stop().then(() => {}).catch(() => {});
+            if (id === 'modalQRScanner') {
+                var cont = document.getElementById('qrReaderContainer');
+                if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                    qrScannerInstance.stop().then(function() {
+                        if (cont) {
+                            var video = cont.querySelector('video');
+                            if (video && video.srcObject && video.srcObject.getTracks) video.srcObject.getTracks().forEach(function(t) { t.stop(); });
+                            cont.innerHTML = '';
+                        }
+                    }).catch(function() {});
+                }
                 qrScannerInstance = null;
                 qrScannerTargetInputId = null;
+                if (cont) cont.innerHTML = '';
             }
             document.getElementById(id).classList.remove('active');
         }
@@ -5938,12 +5948,39 @@
         }
 
         function closeQRScanner() {
-            if (qrScannerInstance && typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
-                qrScannerInstance.stop().then(() => {}).catch(() => {});
+            var container = document.getElementById('qrReaderContainer');
+            function stopAndClose() {
+                if (container) container.innerHTML = '';
+                qrScannerInstance = null;
+                qrScannerTargetInputId = null;
+                closeModal('modalQRScanner');
             }
-            qrScannerInstance = null;
-            qrScannerTargetInputId = null;
-            closeModal('modalQRScanner');
+            if (!qrScannerInstance) {
+                stopAndClose();
+                return;
+            }
+            if (typeof qrScannerInstance.isScanning === 'function' && qrScannerInstance.isScanning()) {
+                qrScannerInstance.stop().then(function() {
+                    if (container) {
+                        var video = container.querySelector('video');
+                        if (video && video.srcObject) {
+                            var stream = video.srcObject;
+                            if (stream && stream.getTracks) stream.getTracks().forEach(function(t) { t.stop(); });
+                        }
+                        container.innerHTML = '';
+                    }
+                    qrScannerInstance = null;
+                    qrScannerTargetInputId = null;
+                    closeModal('modalQRScanner');
+                }).catch(function() {
+                    stopAndClose();
+                });
+            } else {
+                if (container) container.innerHTML = '';
+                qrScannerInstance = null;
+                qrScannerTargetInputId = null;
+                closeModal('modalQRScanner');
+            }
         }
 
         // --- Bastão RFID (modo HID): entradas rápidas + Enter disparam ação na aba Animais ---
