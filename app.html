@@ -2477,21 +2477,6 @@
                         <input type="text" id="newAnimalId" class="form-input" placeholder="ID/Brinco/RFID">
                         <button class="btn btn-sm" onclick="addAnimalToGroup()">Adicionar</button>
                     </div>
-                    <div class="form-group" style="margin-top:8px;">
-                        <label class="text-sm text-gray">Fornecedor/Fazenda de origem (rastreabilidade)</label>
-                        <input type="text" id="newAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
-                    </div>
-                    <div class="form-group">
-                        <label class="text-sm text-gray">Matriz (mãe) — se for bezerro deste rebanho</label>
-                        <select id="newAnimalMotherId" class="form-input">
-                            <option value="">— Nenhuma / comprado —</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="card text-sm" style="margin-top:10px; border-color:var(--secondary);">
-                    <h4 style="color:var(--secondary);"><i class="fas fa-map-marker-alt"></i> Rastreabilidade por origem</h4>
-                    <p class="text-gray" style="margin-bottom:8px;">Resumo por fornecedor/fazenda de origem (para analisar quais compras são mais lucrativas).</p>
-                    <div id="originSummaryList"></div>
                 </div>
                 <div id="animalList" style="max-height: 250px; overflow-y: auto; margin-top:10px;"></div>
             </div>
@@ -2560,10 +2545,6 @@
                 <label>Peso Individual (kg)</label>
                 <input type="number" id="editAnimalWeightInput" class="form-input" placeholder="0.00" step="0.01">
             </div>
-            <div class="form-group">
-                <label>Fornecedor/Fazenda de origem</label>
-                <input type="text" id="editAnimalOrigin" class="form-input" placeholder="Ex: Fazenda X, Leilão Y">
-            </div>
             <input type="hidden" id="editAnimalIndex">
             <button class="btn" onclick="saveAnimalEdit()">Salvar Alteração</button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalEditAnimal')">Cancelar</button>
@@ -2629,10 +2610,6 @@
                 <div class="flex-between" style="margin-bottom: 10px;">
                     <span class="text-gray">Entrada no Lote:</span>
                     <strong id="animalDetailEntry">-</strong>
-                </div>
-                <div class="flex-between" style="margin-bottom: 10px;" id="animalDetailOriginRow">
-                    <span class="text-gray">Origem (fornecedor/fazenda):</span>
-                    <strong id="animalDetailOrigin">-</strong>
                 </div>
             </div>
             <div class="growth-chart-container">
@@ -4289,10 +4266,6 @@
             const animalsHtml = group.animals.map(a => `<option value="${a.id}">${a.id}</option>`).join('') || '<option value="">Nenhum animal cadastrado</option>';
             animalSelect.innerHTML = animalsHtml;
             breedingAnimalSelect.innerHTML = animalsHtml;
-            const prenhaIds = (group.breedingEvents || []).filter(e => e.status === 'Prenha' && e.animalId && e.animalId !== 'LOTE').map(e => e.animalId);
-            const uniqueMothers = [...new Set(prenhaIds)].filter(id => group.animals.some(a => a.id === id));
-            const motherSelect = document.getElementById('newAnimalMotherId');
-            motherSelect.innerHTML = '<option value="">— Nenhuma / comprado —</option>' + uniqueMothers.map(id => `<option value="${id}">${id} (matriz)</option>`).join('');
             const weightIndivAnimal = document.getElementById('weightIndivAnimal');
             weightIndivAnimal.innerHTML = '<option value="">Animal...</option>' + (group.animals || []).map(a => `<option value="${a.id}">${a.id}</option>`).join('');
             document.getElementById('weightIndivDate').value = new Date().toISOString().split('T')[0];
@@ -4301,7 +4274,6 @@
             renderGroupCostHistory(group);
             renderWeightList(group);
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderBreedingList(group);
             populateBreedingStock();
             renderSemenBankList();
@@ -4794,46 +4766,20 @@
             const group = appData.groups.find(g => g.id == activeGroupId);
             if(group.sold) return;
 
-            const originSupplier = (document.getElementById('newAnimalOrigin').value || '').trim();
-            const motherId = (document.getElementById('newAnimalMotherId').value || '').trim() || undefined;
-
             group.animals.push({
                 id,
                 entryDate: new Date().toISOString().split('T')[0],
-                weight: 0,
-                originSupplier: originSupplier || undefined,
-                motherId: motherId
+                weight: 0
             });
 
             group.quantity = group.animals.length;
             document.getElementById('newAnimalId').value = '';
-            document.getElementById('newAnimalOrigin').value = '';
-            document.getElementById('newAnimalMotherId').value = '';
 
             await saveData();
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderAll();
             const group2 = appData.groups.find(g => g.id == activeGroupId);
             if(group2) renderEliteMatricesList(group2);
-        }
-
-        function renderOriginSummaryList(group) {
-            const list = document.getElementById('originSummaryList');
-            const byOrigin = {};
-            (group.animals || []).forEach(a => {
-                const key = a.originSupplier || 'Não informado';
-                if(!byOrigin[key]) byOrigin[key] = 0;
-                byOrigin[key]++;
-            });
-            const entries = Object.entries(byOrigin).sort((a,b) => b[1] - a[1]);
-            if(entries.length === 0) {
-                list.innerHTML = '<p class="text-gray text-center">Nenhum animal com origem registrada.</p>';
-                return;
-            }
-            list.innerHTML = entries.map(([origin, count]) =>
-                `<div class="list-item text-sm"><span>${origin}</span> <strong>${count} animal(is)</strong></div>`
-            ).join('');
         }
 
         function renderAnimalList(group) {
@@ -4861,7 +4807,6 @@
             document.getElementById('editAnimalIndex').value = idx;
             document.getElementById('editAnimalIdInput').value = animal.id;
             document.getElementById('editAnimalWeightInput').value = animal.weight || '';
-            document.getElementById('editAnimalOrigin').value = animal.originSupplier || '';
 
             openModal('modalEditAnimal');
         }
@@ -4870,7 +4815,6 @@
             const idx = document.getElementById('editAnimalIndex').value;
             const newId = document.getElementById('editAnimalIdInput').value;
             const newWeight = parseFloat(document.getElementById('editAnimalWeightInput').value) || 0;
-            const originSupplier = (document.getElementById('editAnimalOrigin').value || '').trim();
 
             if(!newId) return;
 
@@ -4878,7 +4822,6 @@
             const animal = group.animals[idx];
             animal.id = newId;
             animal.weight = newWeight;
-            animal.originSupplier = originSupplier || undefined;
             if(newWeight > 0) {
                 if(!animal.weighings) animal.weighings = [];
                 const today = new Date().toISOString().split('T')[0];
@@ -4890,7 +4833,6 @@
             await saveData();
             closeModal('modalEditAnimal');
             renderAnimalList(group);
-            renderOriginSummaryList(group);
             renderAll();
             renderEliteMatricesList(group);
         }
@@ -4975,14 +4917,6 @@
             document.getElementById('animalDetailId').innerText = animal.id;
             document.getElementById('animalDetailWeight').innerText = animal.weight ? animal.weight.toFixed(2) + ' kg' : 'Não informado';
             document.getElementById('animalDetailEntry').innerText = new Date(animal.entryDate).toLocaleDateString('pt-BR');
-            const originRow = document.getElementById('animalDetailOriginRow');
-            const originEl = document.getElementById('animalDetailOrigin');
-            if(animal.originSupplier) {
-                originRow.classList.remove('hidden');
-                originEl.innerText = animal.originSupplier;
-            } else {
-                originRow.classList.add('hidden');
-            }
 
             renderAnimalGrowthChart(group, animal);
             openModal('modalAnimalDetails');
