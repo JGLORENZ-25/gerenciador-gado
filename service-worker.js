@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meugado-v10-final'; // Mudei a versão para forçar atualização no navegador
+const CACHE_NAME = 'meugado-V11-final'; // Mudei a versão para forçar atualização no navegador
 
 // Apenas arquivos LOCAIS que garantimos que existem na pasta
 const ASSETS_TO_CACHE = [
@@ -7,7 +7,9 @@ const ASSETS_TO_CACHE = [
   './app.html',
   './manifest.json',
   './Verde.jpg',
-  './Branco-removebg-preview.png'
+  './Branco-removebg-preview.png',
+  './planos.html',
+  './verificacao.html'
 ];
 
 // 1. Instalação: Cache apenas dos arquivos essenciais locais
@@ -75,4 +77,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
