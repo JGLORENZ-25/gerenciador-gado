@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nossos Planos - MeuGado</title>
+    <link rel="icon" type="image/jpeg" href="Verde.jpg">
+    <meta name="theme-color" content="#059669">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- ESTILOS GLOBAIS COPIADOS DO INDEX.HTML --- */
+        :root {
+            --primary: #059669;       
+            --primary-dark: #047857;  
+            --primary-light: #d1fae5; 
+            --secondary: #2563eb;     
+            --accent: #d97706;        
+            --danger: #dc2626;        
+            --dark: #1f2937;          
+            --gray: #6b7280;          
+            --light: #f3f4f6;         
+            --white: #ffffff;         
+            --border: #f1f5f9;
+            --hero-gradient: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+            --nav-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body.dark-mode {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --primary-light: #064e3b;
+            --secondary: #3b82f6;
+            --accent: #f59e0b;
+            --danger: #ef4444;
+            --dark: #f3f4f6;
+            --gray: #9ca3af;
+            --light: #0f172a;
+            --white: #1e293b;
+            --border: #334155;
+            --hero-gradient: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+            --nav-bg: rgba(15, 23, 42, 0.95);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: var(--white);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        body.dark-mode { background-color: var(--light); }
+
+        h1, h2, h3, h4 { font-weight: 800; color: var(--dark); line-height: 1.2; }
+        p { color: var(--gray); margin-bottom: 1rem; }
+
+        /* Botões */
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 24px; border-radius: 10px; font-weight: 600;
+            cursor: pointer; transition: all 0.2s; display: inline-flex; 
+            align-items: center; justify-content: center; gap: 8px;
+            text-decoration: none; font-size: 1rem;
+        }
+        .btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-outline:hover { background: var(--primary-light); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        /* Navbar */
+        .navbar {
+            position: fixed; top: 0; left: 0; width: 100%;
+            background: var(--nav-bg); backdrop-filter: blur(10px);
+            padding: 15px 0; z-index: 1000; border-bottom: 1px solid var(--border);
+            transition: background 0.3s, border-color 0.3s;
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.5rem; color: var(--primary); }
+        .logo img { height: 40px; border-radius: 50%; }
+        .nav-links { display: none; gap: 20px; }
+        .nav-links a { text-decoration: none; color: var(--gray); font-weight: 600; transition: 0.2s; cursor: pointer; }
+        .nav-links a:hover { color: var(--primary); }
+        
+        .theme-toggle {
+            cursor: pointer; font-size: 1.2rem; color: var(--gray);
+            margin-left: 10px; margin-right: 10px; padding: 5px;
+            transition: color 0.3s, transform 0.3s;
+        }
+        .theme-toggle:hover { color: var(--primary); transform: rotate(15deg); }
+        
+        @media(min-width: 768px) { .nav-links { display: flex; align-items: center; } }
+
+        /* Footer */
+        footer { background: #111827; color: #9ca3af; padding: 60px 0 20px 0; font-size: 0.9rem; margin-top: auto; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-bottom: 40px; }
+        .footer-col h4 { color: white; margin-bottom: 20px; }
+        .footer-col ul { list-style: none; }
+        .footer-col ul li { margin-bottom: 10px; }
+        .footer-col ul li a { color: #9ca3af; text-decoration: none; transition: 0.2s; cursor: pointer;}
+        .footer-col ul li a:hover { color: var(--primary); }
+        .copyright { text-align: center; border-top: 1px solid #374151; padding-top: 20px; }
+
+        /* Modais */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            z-index: 2000; justify-content: center; align-items: center; padding: 20px;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--white); width: 100%; max-width: 700px;
+            border-radius: 24px; padding: 30px; max-height: 85vh;
+            overflow-y: auto; border: 1px solid var(--border); position: relative;
+            color: var(--dark);
+        }
+        .close-modal { position: absolute; top: 20px; right: 20px; font-size: 1.5rem; cursor: pointer; color: var(--gray); }
+        .legal-text h4 { margin-top: 15px; color: var(--primary); }
+        .legal-text ul { padding-left: 20px; margin-bottom: 10px; color: var(--gray); }
+
+        /* --- ESTILOS ESPECÍFICOS DOS PLANOS --- */
+        .pricing-section {
+            padding: 120px 0 80px 0; /* Espaço para navbar fixa */
+            background: var(--hero-gradient);
+            flex: 1;
+        }
+
+        .pricing-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 50px auto;
+        }
+
+        .pricing-grid {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .plan-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            flex: 1;
+            min-width: 300px;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .plan-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1);
+        }
+
+        /* Destaque do plano do meio */
+        .plan-card.highlight {
+            border: 2px solid var(--primary);
+            transform: scale(1.02);
+            z-index: 10;
+        }
+        
+        .plan-card.highlight:hover {
+            transform: scale(1.02) translateY(-8px);
+        }
+
+        .badge-popular {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 4px 6px rgba(5, 150, 105, 0.3);
+        }
+
+        .plan-name { font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 0.5rem; }
+        .plan-price { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--dark); }
+        .plan-price span { font-size: 1rem; color: var(--gray); font-weight: 400; }
+
+        .features-list { list-style: none; padding: 0; margin: 0 0 2rem 0; flex-grow: 1; }
+        .features-list li { margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; font-size: 0.95rem; color: var(--gray); }
+        .features-list i { color: var(--primary); width: 20px; }
+        .features-list i.fa-times { color: var(--gray); opacity: 0.5; }
+
+        .btn-full { width: 100%; text-align: center; }
+
+        @media (max-width: 900px) {
+            .pricing-grid { flex-direction: column; align-items: center; }
+            .plan-card { width: 100%; max-width: 400px; margin-bottom: 20px; }
+            .plan-card.highlight { transform: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo" style="text-decoration: none;">
+                <img src="Verde.jpg" alt="Logo MeuGado">
+                MeuGado
+            </a>
+            <div class="nav-links">
+                <div class="theme-toggle" onclick="toggleTheme()" title="Alternar Tema">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </div>
+
+                <a href="index.html#features">Funcionalidades</a>
+                <a href="index.html#tech">Tecnologia</a>
+                <a href="#legal">Legal</a>
+                <a href="app.html" class="btn btn-outline" style="padding: 8px 16px;">Entrar</a> 
+                <a href="app.html" class="btn" style="padding: 8px 16px;">Criar Conta</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="pricing-section">
+        <div class="container">
+            <div class="pricing-header">
+                <h1>Planos e Preços</h1>
+                <p>Escolha a melhor opção para a gestão da sua fazenda. Transparência total, sem fidelidade.</p>
+            </div>
+
+            <div class="pricing-grid">
+                <div class="plan-card">
+                    <div class="plan-name">Plano Básico</div>
+                    <div class="plan-price">R$ 49,90<span>/mês</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> Acesso total ao sistema</li>
+                        <li><i class="fas fa-check"></i> Funcionamento 100% Offline</li>
+                        <li><i class="fas fa-check"></i> Gestão de GTA e Vacinas</li>
+                        <li><i class="fas fa-check"></i> Relatórios em PDF</li>
+                        <li><i class="fas fa-times"></i> Sem assistência personalizada</li>
+                    </ul>
+                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=91de7abb5ce8446b910c63ad5641167b" target="_blank" class="btn btn-outline btn-full">Começar Agora</a>
+                </div>
+
+                <div class="plan-card highlight">
+                    <div class="badge-popular">RECOMENDADO</div>
+                    <div class="plan-name">Plano com Assistência</div>
+                    <div class="plan-price">R$ 89,90<span>/mês</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> <strong>Tudo do Plano Básico</strong></li>
+                        <li><i class="fas fa-check"></i> 1 Visita/mês para auxílio (</li>
+                        <li><i class="fas fa-check"></i> Assistência personalizada</li>
+                        <li><i class="fas fa-check"></i> Pedidos de novas funções</li>
+                        <li><i class="fas fa-check"></i> Suporte Prioritário</li>
+                    </ul>
+                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2869de8f0ab94f7db3ce64191c4b5f05" target="_blank" class="btn btn-full">Assinar Plano</a>
+                </div>
+
+                <div class="plan-card">
+                    <div class="plan-name">Plano para Empresas</div>
+                    <div class="plan-price">A Combinar<span>/consultar</span></div>
+                    <ul class="features-list">
+                        <li><i class="fas fa-check"></i> Site personalizado da empresa</li>
+                        <li><i class="fas fa-check"></i> Acesso p/ múltiplos gerentes</li>
+                        <li><i class="fas fa-check"></i> Gestão de múltiplas contas</li>
+                        <li><i class="fas fa-check"></i> Valores reduzidos por volume</li>
+                        <li><i class="fas fa-check"></i> Funcionalidades Exclusivas</li>
+                    </ul>
+                    <a href="https://api.whatsapp.com/send/?phone=5555992229449&text=Ol%C3%A1%21+Tenho+interesse+no+Plano+Empresarial&type=phone_number&app_absent=0" target="_blank" class="btn btn-outline btn-full">Falar com Consultor</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="legal">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <div class="logo" style="margin-bottom: 15px; color: white;">
+                        <img src="Verde.jpg" alt="Logo"> MeuGado
+                    </div>
+                    <p>Sistema de Gestão Zootécnica em Nuvem.<br>Cachoeira do Sul - RS</p>
+                    <p style="font-size: 0.8rem; margin-top: 10px;">CNPJ: 63.992.533 JOAO GUILHERME POZZEBON LORENZ</p>
+                    <p style="font-size: 0.8rem; margin-top: 5px; color: #9ca3af;"><i class="fas fa-envelope"></i> meugadoonline@gmail.com</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Produto</h4>
+                    <ul>
+                        <li><a href="app.html">Entrar / Login</a></li>
+                        <li><a href="app.html">Criar Conta</a></li>
+                        <li><a href="index.html#features">Funcionalidades</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Jurídico</h4>
+                    <ul>
+                        <li><a onclick="openModal('modalTerms')">Termos de Uso</a></li>
+                        <li><a onclick="openModal('modalPrivacy')">Política de Privacidade</a></li>
+                        <li><a onclick="openModal('modalEula')">EULA (Licença)</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2025 MeuGado. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <div id="modalTerms" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalTerms')">&times;</span>
+            <h2>Termos de Uso</h2>
+            <div class="legal-text">
+                <h4>1. Definições</h4>
+                <p>O sistema MeuGado é uma plataforma digital para gerenciamento de informações zootécnicas. Usuário é quem utiliza; Empresa Gestora é quem contrata.</p>
+                <h4>2. Objeto</h4>
+                <p>O software apoia a gestão pecuária. Não presta consultoria técnica, veterinária ou zootécnica.</p>
+                <h4>3. Elegibilidade</h4>
+                <p>Empresas devem possuir CNPJ válido. O usuário declara possuir capacidade legal.</p>
+                <h4>4. Responsabilidade</h4>
+                <p>Todos os dados inseridos e decisões tomadas são de responsabilidade exclusiva do usuário.</p>
+                <h4>5. Disponibilidade</h4>
+                <p>O sistema é fornecido "como está". Podem ocorrer indisponibilidades por manutenção ou falhas técnicas.</p>
+                <h4>6. Uso Indevido</h4>
+                <p>É proibido utilizar para fins ilegais, copiar, revender ou realizar engenharia reversa.</p>
+                <h4>7. Suspensão</h4>
+                <p>Contas que violem os termos podem ser suspensas sem aviso prévio.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalTerms')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalPrivacy" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalPrivacy')">&times;</span>
+            <h2>Política de Privacidade</h2>
+            <div class="legal-text">
+                <h4>1. Dados Coletados</h4>
+                <ul>
+                    <li>Identificação: nome, e-mail, login.</li>
+                    <li>Profissionais: empresa, propriedades.</li>
+                    <li>Produtivos: animais, manejo, custos.</li>
+                    <li>Técnicos: cookies, cache offline.</li>
+                </ul>
+                <h4>2. Finalidade</h4>
+                <p>Operação do sistema, relatórios, melhoria da plataforma e cumprimento legal.</p>
+                <h4>3. Armazenamento</h4>
+                <p>Nuvem e bancos de dados locais no dispositivo (para uso offline). Medidas de segurança são adotadas.</p>
+                <h4>4. Compartilhamento</h4>
+                <p>Dados não são vendidos. Compartilhados apenas entre usuários autorizados da mesma gestão.</p>
+                <h4>5. Direitos do Titular</h4>
+                <p>Acesso, correção, exclusão e portabilidade. Solicitações via e-mail.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalPrivacy')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalEula" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('modalEula')">&times;</span>
+            <h2>EULA - Contrato de Licença</h2>
+            <div class="legal-text">
+                <h4>1. Licença</h4>
+                <p>O MeuGado é licenciado, não vendido. Concessão de licença limitada, não exclusiva, intransferível e revogável.</p>
+                <h4>2. Propriedade Intelectual</h4>
+                <p>Todo o sistema, código e marca pertencem a <strong>63.992.533 JOAO GUILHERME POZZEBON LORENZ</strong>.</p>
+                <h4>3. Restrições</h4>
+                <p>É proibido copiar, modificar, criar produtos derivados ou comercializar sem autorização.</p>
+                <h4>4. Encerramento</h4>
+                <p>A licença encerra automaticamente em caso de violação dos termos.</p>
+            </div>
+            <button class="btn btn-outline" style="margin-top:20px; width:100%;" onclick="closeModal('modalEula')">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // --- LÓGICA DO MODO ESCURO ---
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const icon = document.getElementById('themeIcon');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                if (icon) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            } else {
+                if (icon) {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            }
+        }
+
+        initTheme();
+    </script>
+</body>
+</html>
