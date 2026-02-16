@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meugado-V13-final'; // Mudei a versão para forçar atualização no navegador
+const CACHE_NAME = 'meugado-V15-final'; // Mudei a versão para forçar atualização no navegador
 
 // Apenas arquivos LOCAIS que garantimos que existem na pasta
 const ASSETS_TO_CACHE = [
@@ -77,5 +77,6 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
+
 
 
