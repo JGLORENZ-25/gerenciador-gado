@@ -247,24 +247,32 @@
                     <ul class="features-list">
                         <li><i class="fas fa-check"></i> Acesso total ao sistema</li>
                         <li><i class="fas fa-check"></i> Funcionamento 100% Offline</li>
-                        <li><i class="fas fa-check"></i> Gestão de GTA e Vacinas</li>
+                        <li><i class="fas fa-check"></i> Gestão de Animais e Pastos</li>
+                        <li><i class="fas fa-check"></i> Módulo Financeiro</li>
+                        <li><i class="fas fa-check"></i> Gráficos de Desempenho</li>
                         <li><i class="fas fa-check"></i> Relatórios em PDF</li>
+                        <li><i class="fas fa-times"></i> Sem assistência personalizada</li>
                     </ul>
                     <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=91de7abb5ce8446b910c63ad5641167b" target="_blank" class="btn btn-outline btn-full">Começar Agora</a>
                 </div>
 
                 <div class="plan-card highlight">
                     <div class="badge-popular">RECOMENDADO</div>
-                    <div class="plan-name">Plano com Assistência</div>
-                    <div class="plan-price">R$ --,--<span>/mês</span></div>
+                    <div class="plan-name">Plano para Gerentes</div>
+                    <div class="plan-price" id="gerentePrice">R$ 85,90<span>/mês</span></div>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem; color: var(--gray); text-align: center;">Para gerente de uma ou mais fazendas</p>
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark); font-size: 0.9rem;">Número de Fazendas:</label>
+                        <input type="number" id="numFazendas" min="1" value="1" style="width: 100%; padding: 10px; border: 2px solid var(--border); border-radius: 10px; font-size: 1rem; background: var(--white); color: var(--dark); transition: border-color 0.3s;" onchange="calcularPrecoGerente()" oninput="calcularPrecoGerente()">
+                    </div>
                     <ul class="features-list">
                         <li><i class="fas fa-check"></i> <strong>Tudo do Plano Básico</strong></li>
-                        <li><i class="fas fa-check"></i> -------------------------</li>
-                        <li><i class="fas fa-check"></i> Assistência personalizada</li>
-                        <li><i class="fas fa-check"></i> Pedidos de novas funções</li>
+                        <li><i class="fas fa-check"></i> Gestão de múltiplas fazendas</li>
+                        <li><i class="fas fa-check"></i> Acesso centralizado</li>
+                        <li><i class="fas fa-check"></i> Relatórios consolidados</li>
                         <li><i class="fas fa-check"></i> Suporte Prioritário</li>
                     </ul>
-                    <a href="https://www.mercadopago.com.br/subscriptions/checkout?preapproval_plan_id=2869de8f0ab94f7db3ce64191c4b5f05" target="_blank" class="btn btn-full">Assinar Plano</a>
+                    <a href="https://api.whatsapp.com/send/?phone=5555992229449&text=Ol%C3%A1%21+Tenho+interesse+no+Plano+Empresarial&type=phone_number&app_absent=0" target="_blank" class="btn btn-outline btn-full" target="_blank" class="btn btn-full" id="btnGerente">Assinar Plano</a>
                 </div>
 
                 <div class="plan-card">
@@ -273,6 +281,7 @@
                     <ul class="features-list">
                         <li><i class="fas fa-check"></i> Site personalizado da empresa</li>
                         <li><i class="fas fa-check"></i> Acesso p/ múltiplos gerentes</li>
+                        <li><i class="fas fa-check"></i> Dominio personalizado</li>
                         <li><i class="fas fa-check"></i> Gestão de múltiplas contas</li>
                         <li><i class="fas fa-check"></i> Valores reduzidos por volume</li>
                         <li><i class="fas fa-check"></i> Funcionalidades Exclusivas</li>
@@ -438,6 +447,33 @@
         }
 
         initTheme();
+
+        // Função para calcular o preço do Plano para Gerentes
+        function calcularPrecoGerente() {
+            const numFazendas = parseInt(document.getElementById('numFazendas').value) || 1;
+            const valorBase = 85.90;
+            const valorPorFazenda = 20.90;
+            
+            // Garantir que seja pelo menos 1 fazenda
+            const fazendas = Math.max(1, numFazendas);
+            
+            // Calcular: base + (fazendas - 1) * valor por fazenda
+            const total = valorBase + (fazendas - 1) * valorPorFazenda;
+            
+            // Formatar o valor em reais
+            const valorFormatado = total.toFixed(2).replace('.', ',');
+            
+            // Atualizar o preço exibido
+            const priceElement = document.getElementById('gerentePrice');
+            if (priceElement) {
+                priceElement.innerHTML = `R$ ${valorFormatado}<span>/mês</span>`;
+            }
+        }
+
+        // Inicializar o cálculo ao carregar a página
+        document.addEventListener('DOMContentLoaded', function() {
+            calcularPrecoGerente();
+        });
     </script>
 </body>
 </html>
