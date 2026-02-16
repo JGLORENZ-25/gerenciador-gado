@@ -1800,6 +1800,24 @@
                 <button class="btn btn-outline" onclick="toggleTheme('light')"><i class="fas fa-sun"></i> Claro</button>
                 <button class="btn btn-dark" onclick="toggleTheme('dark')"><i class="fas fa-moon"></i> Escuro</button>
             </div>
+            <!-- Seção de Gerenciamento de Contas (apenas para gerentes) -->
+            <div id="managerAccountsSection" style="display: none; margin-top: 25px;">
+                <h4 style="margin-bottom:10px;"><i class="fas fa-users"></i> Gerenciamento de Contas</h4>
+                <div class="card" style="padding: 15px; margin-bottom: 15px; background: var(--bg-light);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div>
+                            <p class="text-sm text-gray" style="margin: 0;">Contas criadas</p>
+                            <p style="font-size: 1.5rem; font-weight: bold; margin: 5px 0; color: var(--primary);">
+                                <span id="managerCreatedAccounts">0</span> / <span id="managerMaxAccounts">0</span>
+                            </p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-sm" onclick="openCreateAccountModal()" id="btnCreateAccount" style="width: 100%;">
+                        <i class="fas fa-user-plus"></i> Criar Nova Conta Básica
+                    </button>
+                    <p id="managerAccountsMessage" class="text-sm" style="margin-top:8px; color: var(--success);"></p>
+                </div>
+            </div>
             <h4 style="margin-top:25px; margin-bottom:10px;">Jurídico & Termos</h4>
             <div class="btn-group-row">
                 <button class="btn btn-outline btn-sm" onclick="openLegal('terms')">Termos de Uso</button>
@@ -2088,6 +2106,37 @@
             <input type="hidden" id="targetManagerId">
             <button class="btn" onclick="saveManagerAssignments()">Salvar Permissões</button>
             <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalAdminAssign')">Fechar</button>
+        </div>
+    </div>
+
+    <div id="modalCreateAccount" class="modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-plus"></i> Criar Nova Conta Básica</h3>
+            <p class="text-sm text-gray" style="margin-bottom: 20px;">Crie uma nova conta com acesso básico que será automaticamente adicionada às suas fazendas gerenciadas.</p>
+            <div class="form-group">
+                <label class="text-sm text-gray">Nome de Usuário</label>
+                <input type="text" id="newAccountUser" class="form-input" placeholder="Ex: joao_silva" autocomplete="username">
+                <small class="text-xs text-gray">Apenas letras, números e underscore</small>
+            </div>
+            <div class="form-group">
+                <label class="text-sm text-gray">Nome Completo</label>
+                <input type="text" id="newAccountName" class="form-input" placeholder="Ex: João Silva" autocomplete="name">
+            </div>
+            <div class="form-group">
+                <label class="text-sm text-gray">E-mail (opcional)</label>
+                <input type="email" id="newAccountEmail" class="form-input" placeholder="email@exemplo.com" autocomplete="email">
+            </div>
+            <div class="form-group">
+                <label class="text-sm text-gray">Telefone (opcional)</label>
+                <input type="tel" id="newAccountPhone" class="form-input" placeholder="(00) 00000-0000" autocomplete="tel">
+            </div>
+            <div class="form-group">
+                <label class="text-sm text-gray">Senha</label>
+                <input type="password" id="newAccountPass" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+            </div>
+            <p id="createAccountMessage" class="text-sm" style="margin-top:8px; color: var(--danger);"></p>
+            <button class="btn" onclick="createBasicAccount()"><i class="fas fa-user-plus"></i> Criar Conta</button>
+            <button class="btn btn-outline" style="margin-top: 10px;" onclick="closeModal('modalCreateAccount')">Cancelar</button>
         </div>
     </div>
 
@@ -5905,11 +5954,47 @@
             document.getElementById(id).classList.add('active');
         }
 
-        function openSettingsModal() {
+        async function openSettingsModal() {
             if (currentUser) {
                 document.getElementById('settingsEmail').value = currentUser.email || '';
                 document.getElementById('settingsPhone').value = currentUser.phone || '';
                 document.getElementById('settingsContactMessage').textContent = '';
+                
+                // Carregar informações de contas para gerentes
+                if (currentUser.role === 'manager') {
+                    try {
+                        const userDoc = await db.collection('auth').doc(currentUser.id).get();
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            const maxAccounts = userData.maxAccounts || 0;
+                            const createdAccounts = userData.createdAccounts || [];
+                            const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
+                            
+                            document.getElementById('managerMaxAccounts').textContent = maxAccounts;
+                            document.getElementById('managerCreatedAccounts').textContent = createdCount;
+                            document.getElementById('managerAccountsMessage').textContent = '';
+                            
+                            // Mostrar/ocultar seção e habilitar/desabilitar botão
+                            const accountsSection = document.getElementById('managerAccountsSection');
+                            accountsSection.style.display = 'block';
+                            
+                            const btnCreate = document.getElementById('btnCreateAccount');
+                            if (createdCount >= maxAccounts && maxAccounts > 0) {
+                                btnCreate.disabled = true;
+                                btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                                btnCreate.style.opacity = '0.6';
+                            } else {
+                                btnCreate.disabled = false;
+                                btnCreate.innerHTML = '<i class="fas fa-user-plus"></i> Criar Nova Conta Básica';
+                                btnCreate.style.opacity = '1';
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Erro ao carregar informações de contas:', err);
+                    }
+                } else {
+                    document.getElementById('managerAccountsSection').style.display = 'none';
+                }
             }
             openModal('modalSettings');
         }
@@ -5933,6 +6018,156 @@
                 msgEl.style.color = 'var(--success)';
             } catch (err) {
                 msgEl.textContent = 'Erro ao salvar: ' + (err.message || 'tente novamente.');
+                msgEl.style.color = 'var(--danger)';
+            }
+        }
+
+        function openCreateAccountModal() {
+            if (!currentUser || currentUser.role !== 'manager') {
+                alert('Apenas gerentes podem criar contas.');
+                return;
+            }
+            
+            // Limpar campos do formulário
+            document.getElementById('newAccountUser').value = '';
+            document.getElementById('newAccountName').value = '';
+            document.getElementById('newAccountEmail').value = '';
+            document.getElementById('newAccountPhone').value = '';
+            document.getElementById('newAccountPass').value = '';
+            document.getElementById('createAccountMessage').textContent = '';
+            
+            openModal('modalCreateAccount');
+        }
+
+        async function createBasicAccount() {
+            if (!currentUser || currentUser.role !== 'manager') {
+                alert('Apenas gerentes podem criar contas.');
+                return;
+            }
+
+            const user = document.getElementById('newAccountUser').value.trim();
+            const name = document.getElementById('newAccountName').value.trim();
+            const email = document.getElementById('newAccountEmail').value.trim();
+            const phone = document.getElementById('newAccountPhone').value.trim();
+            const pass = document.getElementById('newAccountPass').value;
+            const msgEl = document.getElementById('createAccountMessage');
+
+            // Validações
+            if (user.length < 3) {
+                msgEl.textContent = 'Nome de usuário muito curto (mínimo 3 caracteres).';
+                msgEl.style.color = 'var(--danger)';
+                return;
+            }
+
+            if (!name || name.length < 2) {
+                msgEl.textContent = 'Nome completo é obrigatório (mínimo 2 caracteres).';
+                msgEl.style.color = 'var(--danger)';
+                return;
+            }
+
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                msgEl.textContent = 'Informe um e-mail válido.';
+                msgEl.style.color = 'var(--danger)';
+                return;
+            }
+
+            if (!pass || pass.length < 6) {
+                msgEl.textContent = 'A senha deve ter no mínimo 6 caracteres.';
+                msgEl.style.color = 'var(--danger)';
+                return;
+            }
+
+            // Verificar limite de contas
+            try {
+                const managerDoc = await db.collection('auth').doc(currentUser.id).get();
+                if (!managerDoc.exists) {
+                    msgEl.textContent = 'Erro: Gerente não encontrado.';
+                    msgEl.style.color = 'var(--danger)';
+                    return;
+                }
+
+                const managerData = managerDoc.data();
+                const maxAccounts = managerData.maxAccounts || 0;
+                const createdAccounts = managerData.createdAccounts || [];
+                const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
+
+                if (maxAccounts > 0 && createdCount >= maxAccounts) {
+                    msgEl.textContent = `Limite de contas atingido (${createdCount}/${maxAccounts}).`;
+                    msgEl.style.color = 'var(--danger)';
+                    return;
+                }
+
+                // Verificar se o usuário já existe
+                const userId = user.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+                const authDoc = await db.collection('auth').doc(userId).get();
+                if (authDoc.exists) {
+                    msgEl.textContent = 'Este nome de usuário já existe. Escolha outro.';
+                    msgEl.style.color = 'var(--danger)';
+                    return;
+                }
+
+                // Criar a conta básica
+                await db.collection('auth').doc(userId).set({
+                    userName: user,
+                    fullName: name,
+                    email: email || '',
+                    phone: phone || '',
+                    passwordHash: btoa(pass + userId),
+                    createdAt: new Date().toISOString(),
+                    role: 'basic',
+                    managedFarms: [],
+                    status_assinatura: 'ativo', // Contas criadas por gerentes já entram ativas
+                    createdByManager: currentUser.id // Rastrear quem criou
+                });
+
+                // Adicionar à lista de contas criadas do gerente
+                const updatedCreatedAccounts = [...createdAccounts, userId];
+                await db.collection('auth').doc(currentUser.id).update({
+                    createdAccounts: updatedCreatedAccounts
+                });
+
+                // Adicionar automaticamente ao managedFarms do gerente
+                const currentManagedFarms = currentUser.managedFarms || [];
+                if (!currentManagedFarms.includes(userId)) {
+                    const updatedManagedFarms = [...currentManagedFarms, userId];
+                    await db.collection('auth').doc(currentUser.id).update({
+                        managedFarms: updatedManagedFarms
+                    });
+                    currentUser.managedFarms = updatedManagedFarms;
+                    localStorage.setItem('meugado_user', JSON.stringify(currentUser));
+                    
+                    // Atualizar o seletor de fazendas se necessário
+                    await setupRoleBasedUI();
+                }
+
+                msgEl.textContent = `Conta "${name}" criada com sucesso! Ela já está disponível nas fazendas gerenciadas.`;
+                msgEl.style.color = 'var(--success)';
+
+                // Atualizar contador na tela de configurações
+                document.getElementById('managerCreatedAccounts').textContent = updatedCreatedAccounts.length;
+
+                // Verificar se atingiu o limite
+                if (maxAccounts > 0 && updatedCreatedAccounts.length >= maxAccounts) {
+                    const btnCreate = document.getElementById('btnCreateAccount');
+                    btnCreate.disabled = true;
+                    btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                    btnCreate.style.opacity = '0.6';
+                }
+
+                // Limpar formulário após 2 segundos
+                setTimeout(() => {
+                    document.getElementById('newAccountUser').value = '';
+                    document.getElementById('newAccountName').value = '';
+                    document.getElementById('newAccountEmail').value = '';
+                    document.getElementById('newAccountPhone').value = '';
+                    document.getElementById('newAccountPass').value = '';
+                    msgEl.textContent = '';
+                    closeModal('modalCreateAccount');
+                }, 2000);
+
+            } catch (err) {
+                console.error('Erro ao criar conta:', err);
+                msgEl.textContent = 'Erro ao criar conta: ' + (err.message || 'tente novamente.');
                 msgEl.style.color = 'var(--danger)';
             }
         }
