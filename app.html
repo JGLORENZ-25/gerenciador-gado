@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+'<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -513,86 +513,6 @@
 
         .hidden {
             display: none !important;
-        }
-
-        /* Aba flutuante - Aviso na tela de verificação */
-        .floating-verification-tip {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 100%;
-            max-width: 380px;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.12);
-            z-index: 999;
-            overflow: hidden;
-            animation: slideInTip 0.4s ease-out;
-        }
-        .floating-verification-tip.collapsed {
-            max-width: 48px;
-            max-height: 48px;
-            padding: 0;
-            top: 20px;
-            right: 20px;
-        }
-        .floating-verification-tip.collapsed .tip-body,
-        .floating-verification-tip.collapsed .tip-footer { display: none; }
-        .floating-verification-tip.collapsed .tip-header { padding: 12px; justify-content: center; }
-        .floating-verification-tip.collapsed .tip-toggle-icon { transform: rotate(180deg); }
-        @keyframes slideInTip {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        .tip-header {
-            background: var(--primary);
-            color: white;
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-        }
-        .tip-header h3 { font-size: 1rem; margin: 0; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .tip-toggle-btn {
-            background: rgba(255,255,255,0.25);
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        .tip-toggle-btn:hover { background: rgba(255,255,255,0.4); }
-        .tip-body {
-            padding: 18px 16px;
-            color: var(--dark);
-            font-size: 0.95rem;
-            line-height: 1.55;
-        }
-        .tip-body p { margin: 0 0 12px 0; color: var(--gray); }
-        .tip-body p strong { color: var(--primary-dark); }
-        .tip-body ul { margin: 0; padding-left: 20px; color: var(--dark); }
-        .tip-body ul li { margin-bottom: 8px; }
-        .tip-body .passo-a-passo {
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid var(--border);
-        }
-        .tip-body .passo-a-passo strong { color: var(--primary); font-size: 0.9rem; }
-        .tip-footer {
-            padding: 12px 16px;
-            background: var(--light);
-            border-top: 1px solid var(--border);
-        }
-        .tip-footer .btn { width: 100%; margin: 0; }
-        @media (max-width: 480px) {
-            .floating-verification-tip { right: 10px; left: 10px; max-width: none; top: 16px; }
         }
 
         .text-center {
@@ -1640,11 +1560,17 @@
 
                 <div class="card" style="padding: 30px; width: 300px; max-width: 100%; border: 2px solid var(--primary); transform: scale(1.05);">
                     <div style="background: var(--primary); color: white; font-size: 0.8rem; padding: 4px 10px; border-radius: 20px; display: inline-block; margin-bottom: 10px;">RECOMENDADO</div>
-                    <h3 style="color: var(--primary);">Com Assistência</h3>
-                    <div style="font-size: 2rem; font-weight: bold; margin: 15px 0;">R$ 89,90<span style="font-size: 1rem; color: var(--gray);">/mês</span></div>
+                    <h3 style="color: var(--primary);">Plano para Gerentes</h3>
+                    <p style="margin-bottom: 1rem; font-size: 0.85rem; color: var(--gray); text-align: center;">Para gerente de uma ou mais fazendas</p>
+                    <div style="font-size: 2rem; font-weight: bold; margin: 15px 0;" id="gerentePriceApp">R$ 85,90<span style="font-size: 1rem; color: var(--gray);">/mês</span></div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark); font-size: 0.85rem;">Número de Fazendas:</label>
+                        <input type="number" id="numFazendasApp" min="1" value="1" style="width: 100%; padding: 8px; border: 2px solid var(--border); border-radius: 8px; font-size: 0.95rem; background: var(--white); color: var(--dark); transition: border-color 0.3s;" onchange="calcularPrecoGerenteApp()" oninput="calcularPrecoGerenteApp()">
+                    </div>
                     <ul style="text-align: left; color: var(--dark); list-style: none; padding: 0; margin-bottom: 25px;">
                         <li>✓ Tudo do Básico</li>
-                        <li>✓ Visita mensal</li>
+                        <li>✓ Gestão de múltiplas fazendas</li>
+                        <li>✓ Acesso centralizado</li>
                         <li>✓ Suporte VIP</li>
                     </ul>
                     <button type="button" onclick="abrirAssinaturaMercadoPago('Assistencia')" class="btn" style="width: 100%;">
@@ -1658,42 +1584,6 @@
                 <a href="#" onclick="mudarStatusParaAnalise(); return false;" style="color: var(--primary); font-weight: bold;">Clique aqui para validar</a>
             </p>
         </div>
-    </div>
-
-    <div id="verificationScreen" class="hidden" style="min-height: 100vh; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: var(--white); padding: 20px;">
-        <!-- Aba flutuante: aviso sobre liberação e passo a passo -->
-        <div id="floatingVerificationTip" class="floating-verification-tip">
-            <div class="tip-header">
-                <h3><i class="fas fa-info-circle"></i> Como liberar sua conta</h3>
-                <button type="button" class="tip-toggle-btn" onclick="toggleFloatingVerificationTip()" title="Recolher">
-                    <i class="fas fa-chevron-right tip-toggle-icon"></i>
-                </button>
-            </div>
-            <div class="tip-body">
-                <p><strong>O pagamento libera a conta que tiver o mesmo e-mail</strong> cadastrado no sistema. Se preferir agilizar, avise pelo WhatsApp enviando o comprovante.</p>
-                <ul>
-                    <li>Conta com mesmo e-mail → liberação automática.</li>
-                    <li>Ou envie comprovante pelo WhatsApp para liberarmos manualmente.</li>
-                </ul>
-                <div class="passo-a-passo">
-                    <strong>Passo a passo para verificação mais simples:</strong><br>
-                    Crie a conta no sistema com o <strong>mesmo e-mail ou nome</strong> que foi usado no PIX. Assim conseguimos conferir e liberar seu acesso rapidamente.
-                </div>
-            </div>
-            <div class="tip-footer">
-                <button type="button" class="btn" onclick="closeFloatingVerificationTip()"><i class="fas fa-check"></i> Entendi</button>
-            </div>
-        </div>
-        <i class="fas fa-clock" style="font-size: 4rem; color: var(--accent); margin-bottom: 20px;"></i>
-        <h2 style="color: var(--dark);">Pagamento em Análise</h2>
-        <p style="color: var(--gray); max-width: 500px; margin: 10px 0 30px 0;">
-            Estamos verificando seu pagamento. Isso pode levar até 12 horas.<br>
-            Assim que confirmado, esta tela atualizará automaticamente para o seu painel.
-        </p>
-        <div style="background: var(--primary-light); color: var(--primary-dark); padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            Status: <strong>Aguardando Liberação</strong>
-        </div>
-        <button type="button" onclick="fazerLogout()" class="btn btn-outline">Sair / Voltar depois</button>
     </div>
 
     <div id="appScreen" class="hidden">
@@ -3147,15 +3037,19 @@
 
         // --- AUTH & ROLES LOGIC ---
 
-        /** Esconde todas as telas e mostra apenas a indicada. Usado para fluxo login → planos → verificação → app */
+        /** Esconde todas as telas e mostra apenas a indicada. Usado para fluxo login → planos → app (verificação redireciona para verificacao.html) */
         function mostrarTela(id) {
-            const telas = ['authScreen', 'planSelectionScreen', 'verificationScreen', 'appScreen'];
+            const telas = ['authScreen', 'planSelectionScreen', 'appScreen'];
             telas.forEach(tela => {
                 const el = document.getElementById(tela);
                 if (!el) return;
                 if (tela === id) {
                     el.classList.remove('hidden');
-                    el.style.display = (tela === 'verificationScreen') ? 'flex' : 'block';
+                    el.style.display = 'block';
+                    // Se for a tela de planos, inicializar o cálculo do preço
+                    if (tela === 'planSelectionScreen') {
+                        setTimeout(() => calcularPrecoGerenteApp(), 100);
+                    }
                 } else {
                     el.classList.add('hidden');
                     el.style.display = 'none';
@@ -3168,7 +3062,6 @@
             mostrarTela('authScreen'); // esconde tudo primeiro
             document.getElementById('authScreen').classList.add('hidden');
             document.getElementById('planSelectionScreen').classList.add('hidden');
-            document.getElementById('verificationScreen').classList.add('hidden');
             document.getElementById('appScreen').classList.add('hidden');
 
             if (status === 'ativo') {
@@ -3179,19 +3072,15 @@
                 requestNotificationPermission();
                 startNotificationEngine();
             } else if (status === 'em_analise') {
-                const el = document.getElementById('verificationScreen');
-                el.classList.remove('hidden');
-                el.style.display = 'flex';
-                const tip = document.getElementById('floatingVerificationTip');
-                if (tip) {
-                    tip.style.display = '';
-                    tip.classList.remove('collapsed');
-                }
+                window.location.href = 'verificacao.html';
+                return;
             } else {
                 // pendente ou qualquer outro: tela de planos
                 const el = document.getElementById('planSelectionScreen');
                 el.classList.remove('hidden');
                 el.style.display = 'block';
+                // Inicializar o cálculo do preço do plano para gerentes
+                setTimeout(() => calcularPrecoGerenteApp(), 100);
             }
         }
 
@@ -3211,27 +3100,18 @@
             }
         }
 
-        /** Atualiza status no Firestore para em_analise e mostra tela de aguarde */
+        /** Atualiza status no Firestore para em_analise e redireciona para a página de verificação */
         function mudarStatusParaAnalise() {
             if (!currentUser || !currentUser.id) return;
             db.collection('auth').doc(currentUser.id).update({
                 status_assinatura: 'em_analise',
                 data_solicitacao: new Date()
             }).then(() => {
-                rotearUsuario('em_analise');
+                window.location.href = 'verificacao.html';
             }).catch(err => {
                 console.error('Erro ao atualizar status', err);
                 alert('Erro ao atualizar. Tente novamente.');
             });
-        }
-
-        function toggleFloatingVerificationTip() {
-            const el = document.getElementById('floatingVerificationTip');
-            if (el) el.classList.toggle('collapsed');
-        }
-        function closeFloatingVerificationTip() {
-            const el = document.getElementById('floatingVerificationTip');
-            if (el) el.style.display = 'none';
         }
 
         /** Logout a partir das telas de planos/verificação (mesmo efeito que Sair no app) */
@@ -6063,6 +5943,41 @@
     </script>
 
     <script>
+        // Função para calcular o preço do Plano para Gerentes no app.html
+        function calcularPrecoGerenteApp() {
+            const numFazendasInput = document.getElementById('numFazendasApp');
+            const priceElement = document.getElementById('gerentePriceApp');
+            
+            if (!numFazendasInput || !priceElement) return;
+            
+            const numFazendas = parseInt(numFazendasInput.value) || 1;
+            const valorBase = 85.90;
+            const valorPorFazenda = 20.90;
+            
+            // Garantir que seja pelo menos 1 fazenda
+            const fazendas = Math.max(1, numFazendas);
+            
+            // Calcular: base + (fazendas - 1) * valor por fazenda
+            const total = valorBase + (fazendas - 1) * valorPorFazenda;
+            
+            // Formatar o valor em reais
+            const valorFormatado = total.toFixed(2).replace('.', ',');
+            
+            // Atualizar o preço exibido
+            priceElement.innerHTML = `R$ ${valorFormatado}<span style="font-size: 1rem; color: var(--gray);">/mês</span>`;
+        }
+
+        // Inicializar o cálculo quando a tela de planos for exibida
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se o elemento existe e inicializar
+            const numFazendasInput = document.getElementById('numFazendasApp');
+            if (numFazendasInput) {
+                calcularPrecoGerenteApp();
+            }
+        });
+    </script>
+
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -6077,3 +5992,4 @@
     </script>
 </body>
 </html>
+'
