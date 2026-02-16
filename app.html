@@ -5377,12 +5377,53 @@
                     <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
                 </select>` : '<span class="text-xs text-gray">Você</span>';
 
+                // Informações de contas para gerentes
+                let managerAccountsInfo = '';
+                if (u.role === 'manager') {
+                    const maxAccounts = u.maxAccounts !== undefined ? u.maxAccounts : 0;
+                    const createdAccounts = u.createdAccounts || [];
+                    const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
+                    const maxDisplay = maxAccounts === 0 ? '0 (Bloqueado)' : maxAccounts;
+                    const statusColor = maxAccounts === 0 ? 'var(--danger)' : (createdCount >= maxAccounts ? 'var(--warning)' : 'var(--primary)');
+                    
+                    managerAccountsInfo = `
+                        <div style="margin-top: 10px; padding: 10px; background: var(--bg-light); border-radius: 6px; border: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <div>
+                                    <span class="text-xs text-gray"><i class="fas fa-users"></i> Contas Criadas:</span>
+                                    <strong style="color: ${statusColor}; margin-left: 5px;">${createdCount} / ${maxDisplay}</strong>
+                                    ${maxAccounts === 0 ? '<div class="text-xs" style="color: var(--danger); margin-top: 4px;"><i class="fas fa-ban"></i> Criação de contas bloqueada</div>' : ''}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label class="text-xs text-gray" style="white-space: nowrap;">Limite Máximo:</label>
+                                <input type="number" 
+                                       id="maxAccounts_${u.id}" 
+                                       value="${maxAccounts}" 
+                                       min="0" 
+                                       class="form-input text-sm" 
+                                       style="width: 100px; padding: 4px 8px;"
+                                       placeholder="0 = bloqueado">
+                                <button class="btn btn-sm btn-primary" 
+                                        onclick="updateManagerMaxAccounts('${u.id}')" 
+                                        style="padding: 4px 12px;">
+                                    <i class="fas fa-save"></i> Salvar
+                                </button>
+                            </div>
+                            <small class="text-xs text-gray" style="display: block; margin-top: 6px;">
+                                <i class="fas fa-info-circle"></i> 0 = bloqueado | Número > 0 = limite permitido
+                            </small>
+                        </div>
+                    `;
+                }
+
                 return `<div class="card" style="display:flex; flex-direction:column; gap:10px; border-left: 4px solid var(--primary);">
                     <div class="flex-between">
                         <div><strong>${u.fullName}</strong> <small class="text-gray">(${u.userName})</small><div style="margin-top:4px;">${roleBadge}</div></div>
                         <div>${roleSelector}</div>
                     </div>
                     ${manageBtn}
+                    ${managerAccountsInfo}
                 </div>`;
             }).join('');
         }
@@ -5439,6 +5480,70 @@
                 renderAdminList();
             } catch (e) {
                 alert('Erro: ' + e.message);
+            }
+        }
+
+        async function updateManagerMaxAccounts(managerId) {
+            const inputElement = document.getElementById(`maxAccounts_${managerId}`);
+            if (!inputElement) return;
+
+            const maxAccounts = parseInt(inputElement.value) || 0;
+            
+            if (maxAccounts < 0) {
+                alert('O número máximo de contas não pode ser negativo.');
+                inputElement.focus();
+                return;
+            }
+
+            try {
+                // Verificar se o gerente já criou mais contas do que o novo limite
+                const managerData = allUsersCache.find(u => u.id === managerId);
+                if (managerData) {
+                    const createdAccounts = managerData.createdAccounts || [];
+                    const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
+                    const currentMax = managerData.maxAccounts !== undefined ? managerData.maxAccounts : 0;
+                    
+                    // Aviso especial se definir como 0
+                    if (maxAccounts === 0 && currentMax !== 0) {
+                        if (!confirm(`Atenção: Ao definir o limite como 0, este gerente NÃO poderá criar novas contas. As ${createdCount} contas já criadas permanecerão, mas nenhuma nova poderá ser criada. Deseja continuar?`)) {
+                            // Restaurar valor anterior
+                            inputElement.value = currentMax;
+                            return;
+                        }
+                    }
+                    
+                    if (maxAccounts > 0 && createdCount > maxAccounts) {
+                        if (!confirm(`Atenção: Este gerente já criou ${createdCount} contas. O novo limite será ${maxAccounts}. Isso não removerá as contas existentes, mas impedirá a criação de novas até que algumas sejam removidas. Deseja continuar?`)) {
+                            // Restaurar valor anterior
+                            inputElement.value = currentMax;
+                            return;
+                        }
+                    }
+                }
+
+                await db.collection('auth').doc(managerId).update({ 
+                    maxAccounts: maxAccounts 
+                });
+
+                // Atualizar cache
+                if (managerData) {
+                    managerData.maxAccounts = maxAccounts;
+                }
+
+                // Mostrar feedback visual
+                const btn = inputElement.nextElementSibling;
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.style.background = 'var(--success)';
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.style.background = '';
+                }, 1500);
+
+            } catch (e) {
+                alert('Erro ao atualizar limite: ' + (e.message || 'tente novamente.'));
+                console.error('Erro:', e);
             }
         }
 
@@ -5979,9 +6084,14 @@
                             accountsSection.style.display = 'block';
                             
                             const btnCreate = document.getElementById('btnCreateAccount');
-                            if (createdCount >= maxAccounts && maxAccounts > 0) {
+                            // Bloquear se: maxAccounts for 0 OU se já atingiu o limite
+                            if (maxAccounts === 0 || (maxAccounts > 0 && createdCount >= maxAccounts)) {
                                 btnCreate.disabled = true;
-                                btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                                if (maxAccounts === 0) {
+                                    btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite não configurado (0)';
+                                } else {
+                                    btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                                }
                                 btnCreate.style.opacity = '0.6';
                             } else {
                                 btnCreate.disabled = false;
@@ -6022,9 +6132,35 @@
             }
         }
 
-        function openCreateAccountModal() {
+        async function openCreateAccountModal() {
             if (!currentUser || currentUser.role !== 'manager') {
                 alert('Apenas gerentes podem criar contas.');
+                return;
+            }
+            
+            // Verificar limite antes de abrir o modal
+            try {
+                const managerDoc = await db.collection('auth').doc(currentUser.id).get();
+                if (managerDoc.exists) {
+                    const managerData = managerDoc.data();
+                    const maxAccounts = managerData.maxAccounts !== undefined ? managerData.maxAccounts : 0;
+                    const createdAccounts = managerData.createdAccounts || [];
+                    const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
+                    
+                    // Bloquear se maxAccounts for 0 ou se já atingiu o limite
+                    if (maxAccounts === 0) {
+                        alert('Não é possível criar contas. O limite máximo está configurado como 0. Entre em contato com o administrador para ajustar o limite.');
+                        return;
+                    }
+                    
+                    if (maxAccounts > 0 && createdCount >= maxAccounts) {
+                        alert(`Limite de contas atingido (${createdCount}/${maxAccounts}). Não é possível criar novas contas.`);
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao verificar limite:', err);
+                alert('Erro ao verificar permissões. Tente novamente.');
                 return;
             }
             
@@ -6087,12 +6223,19 @@
                 }
 
                 const managerData = managerDoc.data();
-                const maxAccounts = managerData.maxAccounts || 0;
+                const maxAccounts = managerData.maxAccounts !== undefined ? managerData.maxAccounts : 0;
                 const createdAccounts = managerData.createdAccounts || [];
                 const createdCount = Array.isArray(createdAccounts) ? createdAccounts.length : 0;
 
+                // Bloquear se maxAccounts for 0 OU se já atingiu o limite
+                if (maxAccounts === 0) {
+                    msgEl.textContent = 'Não é possível criar contas. O limite máximo está configurado como 0. Entre em contato com o administrador.';
+                    msgEl.style.color = 'var(--danger)';
+                    return;
+                }
+
                 if (maxAccounts > 0 && createdCount >= maxAccounts) {
-                    msgEl.textContent = `Limite de contas atingido (${createdCount}/${maxAccounts}).`;
+                    msgEl.textContent = `Limite de contas atingido (${createdCount}/${maxAccounts}). Não é possível criar novas contas.`;
                     msgEl.style.color = 'var(--danger)';
                     return;
                 }
@@ -6146,11 +6289,15 @@
                 // Atualizar contador na tela de configurações
                 document.getElementById('managerCreatedAccounts').textContent = updatedCreatedAccounts.length;
 
-                // Verificar se atingiu o limite
-                if (maxAccounts > 0 && updatedCreatedAccounts.length >= maxAccounts) {
-                    const btnCreate = document.getElementById('btnCreateAccount');
+                // Verificar se atingiu o limite ou se maxAccounts é 0
+                const btnCreate = document.getElementById('btnCreateAccount');
+                if (maxAccounts === 0 || (maxAccounts > 0 && updatedCreatedAccounts.length >= maxAccounts)) {
                     btnCreate.disabled = true;
-                    btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                    if (maxAccounts === 0) {
+                        btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite não configurado (0)';
+                    } else {
+                        btnCreate.innerHTML = '<i class="fas fa-ban"></i> Limite de contas atingido';
+                    }
                     btnCreate.style.opacity = '0.6';
                 }
 
