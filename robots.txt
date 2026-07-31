@@ -1,0 +1,18 @@
+﻿# robots.txt for MeuGado.Online
+User-agent: *
+
+
+# Allow access to the landing page and public resources
+Allow: /
+
+
+# Disallow access to sensitive areas
+Disallow: /app.html
+Disallow: /admin/
+Disallow: /config/
+Disallow: /backup/
+Disallow: /api/
+
+
+# Sitemap location
+Sitemap: https://meugado.online/sitemap.xml
